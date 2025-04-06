@@ -1,0 +1,84 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Injectable } from '@nestjs/common';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UserRepository } from 'src/repositories/UserRepository';
+import { UsersExceptions } from 'src/exceptions-handling/exceptions/users.exceptions';
+import { UsersExceptionStatusType } from 'src/exceptions-handling/exceptions-status-type/user.exceptions.status.type';
+import { User } from './entities/user.entity';
+
+@Injectable()
+export class UsersService {
+  constructor(
+    private readonly userRepository: UserRepository
+  ) {}
+
+  async create(createUserDto: CreateUserDto) {
+    const checkUser = await this.userRepository.getUserByEmailOrUsername(createUserDto.email, createUserDto.username);
+    if(checkUser?.email === createUserDto.email)
+      throw new UsersExceptions("User with this email already exists. ", UsersExceptionStatusType.EmailAlreadyExists);
+
+    if(checkUser?.username === createUserDto.username)
+      throw new UsersExceptions("User with this username already exists. ", UsersExceptionStatusType.UsernameAlreadyExists);
+
+    const user = new User({});
+    Object.assign(user, createUserDto);
+    return this.userRepository.manager.save(User, user);
+  }
+
+  async findAll() {
+    return this.userRepository.getAll();
+  }
+
+  async findOne(id: string) {
+    const myUser = await this.userRepository.getUserById(id);
+    if(!myUser)
+      throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist);
+
+    return myUser; 
+  }
+
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const checkUserExistense = await this.userRepository.getUserById(id);
+    if(checkUserExistense == null)
+      throw new UsersExceptions("Item does not exist", UsersExceptionStatusType.UserDoesNotExist);
+
+    const checkUsernameExistense = await this.userRepository.getUserByUsername(updateUserDto.username);
+    if(checkUsernameExistense?.username === updateUserDto.username)
+      throw new UsersExceptions("User with this username already exists. ", UsersExceptionStatusType.UsernameAlreadyExists);
+    
+    Object.assign(checkUserExistense, updateUserDto);
+    return await this.userRepository.manager.save(User, checkUserExistense);
+  }
+
+  async hardDelete(id: string) {
+    const user = await this.userRepository.getUserById(id);
+    if(!user)
+      throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist);
+
+    return await this.userRepository.hardDeleteUser(id);
+  }
+
+  async softDelete(id: string) {
+    const user = await this.userRepository.getUserById(id);
+    if(user == null)
+      throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist);
+
+    if(user.deletedAt != null)
+      throw new UsersExceptions("User is already soft deleted.", UsersExceptionStatusType.UserAlreadySoftDeleted);
+
+    return await this.userRepository.softRemove(user);
+  }
+
+  async softUndelete(id: string) {
+    const user = await this.userRepository.getUserById(id);
+    if(user == null)
+      throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist);
+
+    if(user.deletedAt == null)
+      throw new UsersExceptions("User is not soft deleted, therefore, it can not be undeleted.", UsersExceptionStatusType.UserIsNotSoftUndeleted);
+
+    return await this.userRepository.softUndeleteUser(id);
+  }
+}
