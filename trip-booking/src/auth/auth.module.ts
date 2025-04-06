@@ -1,9 +1,23 @@
+/* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
+import jwtConfig from './config/jwt.config';
+import { UserRepository } from 'src/repositories/UserRepository';
+import { UsersService } from 'src/users/users.service';
+import { JwtStragy } from './strategies/jwt.strategy';
+import { User } from 'src/users/entities/user.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    JwtModule.registerAsync(jwtConfig.asProvider()),
+    ConfigModule.forFeature(jwtConfig),
+  ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, UserRepository, UsersService, JwtStragy],
 })
 export class AuthModule {}
