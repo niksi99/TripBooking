@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/users/entities/user.entity";
 import { Repository } from "typeorm";
@@ -29,14 +28,16 @@ export class UserRepository extends Repository<User> {
         }
 
         public async getUserByEmail(email: string): Promise<User | null> {
-            return await this.userRepository.findOneBy({
-                email: email,
+            return await this.userRepository.findOne({
+                where: {email: email},
+                withDeleted: true
             });
         }
 
         public async getUserByUsername(username: string): Promise<User | null> {
-            return await this.userRepository.findOneBy({
-                username: username
+            return await this.userRepository.findOne({
+                where: {username: username},
+                withDeleted: true
             });
         }
 
@@ -46,6 +47,7 @@ export class UserRepository extends Repository<User> {
                 { email },
                 { username },
               ],
+              withDeleted: true
             });
         }
 

@@ -19,6 +19,8 @@ export class AuthController {
         case error instanceof UsersExceptions:
           if (error.IsUserExisting())
             throw new NotFoundException(error.getMessage());
+          if (error.IsUserSoftDeleted())
+            throw new BadRequestException(error.getMessage());
           break;
         case error instanceof AuthExceptions:
           if (error.IsPasswordInvalid())

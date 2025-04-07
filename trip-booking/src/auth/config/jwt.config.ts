@@ -3,7 +3,7 @@ import { registerAs } from "@nestjs/config";
 import { JwtModuleOptions } from "@nestjs/jwt";
 import * as dotenv from 'dotenv';
 dotenv.config();
-console.log(process.env.JWT_AUTH_GUARD, "JEFNUOEQ");
+
 if (!process.env.JWT_AUTH_GUARD) {
     throw new Error("JWT_AUTH_GUARD environment variable is not set");
 }

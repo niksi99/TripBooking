@@ -6,5 +6,7 @@ export enum UsersExceptionStatusType {
     UsernameAlreadyExists,
     EmailAlreadyExists,
     UserAlreadySoftDeleted,
-    UserIsNotSoftUndeleted
+    UserIsNotSoftUndeleted,
+    UsersRoleDoesNotExist,
+    UsersRoleCanNotBeEmpty,
 }

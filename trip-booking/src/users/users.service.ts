@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -7,6 +6,9 @@ import { UserRepository } from 'src/repositories/UserRepository';
 import { UsersExceptions } from 'src/exceptions-handling/exceptions/users.exceptions';
 import { UsersExceptionStatusType } from 'src/exceptions-handling/exceptions-status-type/user.exceptions.status.type';
 import { User } from './entities/user.entity';
+import { Role } from 'src/auth/enums/role.enum';
+import { AuthExceptions } from 'src/exceptions-handling/exceptions/auth.exceptions';
+import { AuthExceptionStatusType } from 'src/exceptions-handling/exceptions-status-type/auth.exceptions.status.types';
 
 @Injectable()
 export class UsersService {
@@ -21,6 +23,9 @@ export class UsersService {
 
     if(checkUser?.username === createUserDto.username)
       throw new UsersExceptions("User with this username already exists. ", UsersExceptionStatusType.UsernameAlreadyExists);
+
+    if(createUserDto.role.toString() === "")
+      throw new UsersExceptions("Role must be assigned during creation. ", UsersExceptionStatusType.UsersRoleCanNotBeEmpty);
 
     const user = new User({});
     Object.assign(user, createUserDto);
@@ -57,6 +62,8 @@ export class UsersService {
     if(!user)
       throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist);
 
+    if(user.role.toString()  === Role.ADMINISTRATOR.toString())
+      throw new UsersExceptions("Administrator can't be deleted!", UsersExceptionStatusType.UserDoesNotExist);
     return await this.userRepository.hardDeleteUser(id);
   }
 
@@ -66,7 +73,7 @@ export class UsersService {
       throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist);
 
     if(user.deletedAt != null)
-      throw new UsersExceptions("User is already soft deleted.", UsersExceptionStatusType.UserAlreadySoftDeleted);
+      throw new AuthExceptions("User is already soft deleted.", AuthExceptionStatusType.AdministratorCanNotBeDeleted);
 
     return await this.userRepository.softRemove(user);
   }

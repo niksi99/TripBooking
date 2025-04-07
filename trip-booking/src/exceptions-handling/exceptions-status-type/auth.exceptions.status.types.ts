@@ -3,8 +3,8 @@ export enum AuthExceptionStatusType {
     UserIsAlreadyLoggedIn,
     UserIsNotLoggedIn,
     UsersRoleDoesNotLetHimUsingThisMethod,
-    UsersRoleDoesNotExist,
     TokenDoesNotExist,
     TokenExpired,
-    InvalidPassword
+    InvalidPassword,
+    AdministratorCanNotBeDeleted
 }

@@ -23,10 +23,6 @@ export class AuthExceptions extends HttpException {
         return this.statusType === AuthExceptionStatusType.UserIsAlreadyLoggedIn;
     }
 
-    public DoesRoleExist(): boolean {
-        return this.statusType === AuthExceptionStatusType.UsersRoleDoesNotExist;
-    }
-
     public CanUserUseThisMethod(): boolean {
         return this.statusType === AuthExceptionStatusType.UsersRoleDoesNotLetHimUsingThisMethod;
     }
@@ -41,5 +37,9 @@ export class AuthExceptions extends HttpException {
 
     public IsPasswordInvalid(): boolean {
         return this.statusType === AuthExceptionStatusType.InvalidPassword;
+    }
+
+    public CanAdministratorBeDeleted(): boolean {
+        return this.statusType === AuthExceptionStatusType.AdministratorCanNotBeDeleted;
     }
 }

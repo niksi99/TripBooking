@@ -1,9 +1,14 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, NotFoundException, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersExceptions } from 'src/exceptions-handling/exceptions/users.exceptions';
+import { Role } from 'src/auth/enums/role.enum';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { AuthExceptions } from 'src/exceptions-handling/exceptions/auth.exceptions';
 
 @Controller('users')
 export class UsersController {
@@ -69,6 +74,9 @@ export class UsersController {
     }
   }
 
+  @Roles(Role.ADMINISTRATOR)
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
   @Delete('/hard-delete/:id')
   async remove(@Param('id') id: string) {
     try {
@@ -79,6 +87,10 @@ export class UsersController {
         case error instanceof UsersExceptions:
           if (error.IsUserExisting())
             throw new NotFoundException(error.getMessage());
+          break;
+        case error instanceof AuthExceptions:
+          if (error.CanAdministratorBeDeleted())
+            throw new BadRequestException(error.getMessage());
           break;
         default:
           throw error;
