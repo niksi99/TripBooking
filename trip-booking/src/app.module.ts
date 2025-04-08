@@ -6,6 +6,8 @@ import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { AccommodationsModule } from './accommodations/accommodations.module';
+import { RoomsModule } from './rooms/rooms.module';
 
 @Module({
   imports: [
@@ -13,7 +15,7 @@ import { AuthModule } from './auth/auth.module';
       isGlobal: true,
       envFilePath: '.env',
     }), 
-    DatabaseModule, UsersModule, AuthModule
+    DatabaseModule, UsersModule, AuthModule, AccommodationsModule, RoomsModule
   ],
   controllers: [AppController],
   providers: [AppService],

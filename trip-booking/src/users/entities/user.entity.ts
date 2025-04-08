@@ -1,8 +1,9 @@
 /* eslint-disable prettier/prettier */
 import { Role } from "src/auth/enums/role.enum";
 import { AbstactEntity } from "src/database/AbstractEntity";
-import { BeforeInsert, Column, Entity } from "typeorm";
+import { BeforeInsert, Column, Entity, ManyToMany } from "typeorm";
 import * as bcrypt from "bcrypt";
+import { Accommodation } from "src/accommodations/entities/accommodation.entity";
 
 @Entity()
 export class User extends AbstactEntity<User>{
@@ -26,6 +27,9 @@ export class User extends AbstactEntity<User>{
         enum: Role,
     })
     role: Role
+
+    @ManyToMany(() => Accommodation, (accomm) => accomm.appliedUsers)
+    accommHistory: Accommodation[];
 
     @BeforeInsert()
     async hashPassword() {
