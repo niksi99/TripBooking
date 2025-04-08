@@ -10,7 +10,10 @@ export class Accommodation extends AbstactEntity<Accommodation> {
     @Column()
     owner: string;
 
-    @Column('json')
+    @Column()
+    name: string;
+
+    @Column(() => MyLocation)
     location: MyLocation;
 
     @OneToMany(() => Room, (room) => room.accommodation, { cascade: true })

@@ -7,7 +7,6 @@ import { Role } from 'src/auth/enums/role.enum';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-console.log("ROles guiard ", process.env.ROLES_KEY);
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
