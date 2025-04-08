@@ -14,6 +14,9 @@ export class Room extends AbstactEntity<Room> {
     @Column({ default: 0 })
     numberOfBookedBeds: number;
 
+    @Column()
+    floor: number;
+
     @ManyToOne(() => Accommodation, accommodation => accommodation.myRooms, { onDelete: 'CASCADE' })
     accommodation: Accommodation;
 }

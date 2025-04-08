@@ -7,8 +7,6 @@ import { UsersExceptions } from 'src/exceptions-handling/exceptions/users.except
 import { UsersExceptionStatusType } from 'src/exceptions-handling/exceptions-status-type/user.exceptions.status.type';
 import { User } from './entities/user.entity';
 import { Role } from 'src/auth/enums/role.enum';
-import { AuthExceptions } from 'src/exceptions-handling/exceptions/auth.exceptions';
-import { AuthExceptionStatusType } from 'src/exceptions-handling/exceptions-status-type/auth.exceptions.status.types';
 
 @Injectable()
 export class UsersService {
@@ -25,8 +23,7 @@ export class UsersService {
       throw new UsersExceptions("User with this username already exists. ", UsersExceptionStatusType.UsernameAlreadyExists);
 
     if(createUserDto.role.toString() === "")
-      throw new UsersExceptions("Role must be assigned during creation. ", UsersExceptionStatusType.UsersRoleCanNotBeEmpty);
-
+      throw new UsersExceptions("Role must be assigned during creation. ", UsersExceptionStatusType.UsernameAlreadyExists);
     const user = new User({});
     Object.assign(user, createUserDto);
     return this.userRepository.manager.save(User, user);
@@ -73,7 +70,7 @@ export class UsersService {
       throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist);
 
     if(user.deletedAt != null)
-      throw new AuthExceptions("User is already soft deleted.", AuthExceptionStatusType.AdministratorCanNotBeDeleted);
+      throw new UsersExceptions("User is already soft deleted.", UsersExceptionStatusType.UserAlreadySoftDeleted);
 
     return await this.userRepository.softRemove(user);
   }

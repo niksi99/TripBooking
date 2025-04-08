@@ -21,7 +21,7 @@ export class ElementalRepository<T extends ObjectLiteral> {
         })
     }
 
-    public async hardDeleteUser(id: string): Promise<void> {
+    public async hardDelete(id: string): Promise<void> {
         return await this.delete({id: id});
     }
     
@@ -29,7 +29,7 @@ export class ElementalRepository<T extends ObjectLiteral> {
         await this.repository.softRemove(element);
     }
     
-    public async softUndeleteUser(id: string): Promise<void>{
+    public async softUndelete(id: string): Promise<void>{
         await this.repository.restore(id);
     }
 }

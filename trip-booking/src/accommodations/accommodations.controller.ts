@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, Request, UseGuards, BadRequestException } from '@nestjs/common';
 import { AccommodationsService } from './accommodations.service';
 import { CreateAccommodationDto } from './dto/create-accommodation.dto';
 import { UpdateAccommodationDto } from './dto/update-accommodation.dto';
@@ -8,6 +8,8 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from 'src/auth/enums/role.enum';
+import { AuthExceptions } from 'src/exceptions-handling/exceptions/auth.exceptions';
+import { UsersExceptions } from 'src/exceptions-handling/exceptions/users.exceptions';
 
 @Controller('accommodations')
 export class AccommodationsController {
@@ -17,10 +19,27 @@ export class AccommodationsController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Request() request, @Body() createAccommodationDto: CreateAccommodationDto) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    console.log("userMine:", request.user);
-    return this.accommodationsService.create(request, createAccommodationDto);
+  async create(@Request() request, @Body() createAccommodationDto: CreateAccommodationDto) {
+    try {
+      return this.accommodationsService.create(request, createAccommodationDto); 
+    } catch (error) {
+      switch(true) {
+        case error instanceof AuthExceptions:
+          if (error.IsUserLoggedOut())
+            throw new NotFoundException(error.getMessage());
+          break;
+        case error instanceof UsersExceptions:
+          if (error.IsUserExisting())
+            throw new NotFoundException(error.getMessage());
+          break;
+        case error instanceof AccommodationExceptions:
+          if(error.IsLocationAlreadyBusy())
+            throw new BadRequestException(error.getMessage());
+          break;
+        default:
+          throw error;
+      }
+    }
   }
 
   @Get('/get-all')
