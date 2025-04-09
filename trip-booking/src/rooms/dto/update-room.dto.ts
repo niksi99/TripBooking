@@ -1,4 +1,7 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateRoomDto } from './create-room.dto';
+/* eslint-disable prettier/prettier */
 
-export class UpdateRoomDto extends PartialType(CreateRoomDto) {}
+export class UpdateRoomDto {
+    label: string;
+    numberOfBeds: number;
+    floor: number;
+}

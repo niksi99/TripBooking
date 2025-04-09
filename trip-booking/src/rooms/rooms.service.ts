@@ -36,8 +36,18 @@ export class RoomsService {
     return room;
   }
 
-  update(id: string, updateRoomDto: UpdateRoomDto) {
-    return `This action updates a #${id} room ${JSON.stringify(updateRoomDto)}`;
+  async update(id: string, updateRoomDto: UpdateRoomDto) {
+    const doesRoomExist = await this.roomRepository.getById(id);
+    if(doesRoomExist == null)
+      throw new RoomExceptions("Room does not exist", RoomExceptionsStatusType.RoomDoesNotExist);
+
+    const checkRoomLabelExistense = await this.roomRepository.getByLabel(updateRoomDto.label);
+    if(checkRoomLabelExistense?.label === updateRoomDto.label)
+      throw new RoomExceptions("Room with this label already exists. ", RoomExceptionsStatusType.RoomAlreadyExists);
+    
+    Object.assign(doesRoomExist, updateRoomDto);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    return await this.roomRepository.manager.save(Room, doesRoomExist);
   }
 
   async hardDelete(id: string) {
@@ -65,7 +75,7 @@ export class RoomsService {
       throw new RoomExceptions("Room does not exist.", RoomExceptionsStatusType.RoomDoesNotExist);
 
     if(room.deletedAt == null)
-          throw new RoomExceptions("User is not soft deleted, therefore, it can not be undeleted.", RoomExceptionsStatusType.RoomIsNotBlocked_SoftDeleted);
+          throw new RoomExceptions("Room is not soft deleted, therefore, it can not be undeleted.", RoomExceptionsStatusType.RoomIsNotBlocked_SoftDeleted);
         
     return this.roomRepository.hardDelete(id);
   }
