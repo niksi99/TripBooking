@@ -18,9 +18,8 @@ export class RoomsController {
   @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Body() createRoomDto: CreateRoomDto) {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      return await this.roomsService.create(createRoomDto);  
+    try { 
+      return await this.roomsService.create(createRoomDto);
     } 
     catch (error) {
       switch(true) {
@@ -28,6 +27,8 @@ export class RoomsController {
           if(error.DoesRoomAlreadyExist())
             throw new BadRequestException(error.getMessage());
           break;
+        default:
+            throw error;
       }
     }
   }
@@ -36,6 +37,15 @@ export class RoomsController {
   async findAll() {
     try {
       return await this.roomsService.findAll(); 
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+  }
+
+  @Get('/all-rooms-of-single-accommodation')
+  async findAllRoomsOfSingleAccommodation(accommodationId: string) {
+    try {
+      return await this.roomsService.findAllRoomOfSingleAccommodation(accommodationId); 
     } catch (error) {
       throw new BadRequestException(error);
     }

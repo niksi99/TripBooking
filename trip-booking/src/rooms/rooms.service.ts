@@ -6,26 +6,40 @@ import { RoomRepository } from 'src/repositories/RoomRepository';
 import { RoomExceptions } from 'src/exceptions-handling/exceptions/room.exceptions';
 import { RoomExceptionsStatusType } from 'src/exceptions-handling/exceptions-status-type/room.exceptions.status.type';
 import { Room } from './entities/room.entity';
+import { AccommodationRepository } from 'src/repositories/AccommodationRepository';
+import { AccommodationExceptions } from 'src/exceptions-handling/exceptions/accommodation.exceptions';
+import { AccommodationExceptionsStatusType } from 'src/exceptions-handling/exceptions-status-type/accommodation.exceptions';
 
 @Injectable()
 export class RoomsService {
-  constructor(private roomRepository: RoomRepository) {
-    
-  }
+  constructor(
+    private roomRepository: RoomRepository,
+    private accommodationRepository: AccommodationRepository
+  ) {}
 
   async create(createRoomDto: CreateRoomDto) {
-    const checkRoomExistence = await this.roomRepository.getByLabel(createRoomDto.label);
+    const checkAccommodationExistence = await this.accommodationRepository.GetAccommodationById(createRoomDto.accommodationId);
+    if(!checkAccommodationExistence)
+      throw new AccommodationExceptions("Accommodation does not exist.", AccommodationExceptionsStatusType.AccommodationDoesNotExist);
+
+    const checkRoomExistence = await this.roomRepository.getRoomFromAccommodationByRoomLabel(createRoomDto.accommodationId, createRoomDto.label);
     if(checkRoomExistence)
       throw new RoomExceptions("Room with this label already exists in this accommodation.", RoomExceptionsStatusType.RoomAlreadyExists);
 
     const room = new Room({});
     Object.assign(room, createRoomDto);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    return await this.roomRepository.manager.save(Room, room);
+    room.accommodation = checkAccommodationExistence
+     
+    const newRoom = await this.roomRepository.saveRoom(room);
+    return newRoom;
   }
 
   async findAll() {
     return await this.roomRepository.getAll();
+  }
+
+  async findAllRoomOfSingleAccommodation(accommodationId: string) {
+    return await this.roomRepository.getAllRoomsOfThisAccommodation(accommodationId);
   }
 
   async findOne(id: string) {

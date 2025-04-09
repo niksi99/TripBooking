@@ -3,9 +3,10 @@
 import { Room } from "src/rooms/entities/room.entity";
 import { ElementalRepository } from "./ElementalRepository";
 import { Repository } from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
 
 export class RoomRepository extends ElementalRepository<Room> {
-    constructor(private readonly roomRepository: Repository<Room>) {
+    constructor(@InjectRepository(Room) private readonly roomRepository: Repository<Room>) {
         super(roomRepository);
     }
 
@@ -15,4 +16,31 @@ export class RoomRepository extends ElementalRepository<Room> {
             withDeleted: true
         });
     } 
+
+    async getAllRoomsOfThisAccommodation(id: string): Promise<Room[]> {
+        return await this.roomRepository.find({
+            where: {
+                accommodation: {
+                    id: id
+                }
+            },
+            relations: ['accommodation']
+        })
+    }
+
+    async getRoomFromAccommodationByRoomLabel(accommId: string, roomLabel: string): Promise<Room | null> {
+        return await this.roomRepository.findOne({
+            where: {
+                accommodation: {
+                    id: accommId
+                },
+                label: roomLabel
+            },
+            relations: ['accommodation']
+        })
+    }
+
+    async saveRoom(room: Room) {
+        return await this.roomRepository.save(room);
+      }
 }

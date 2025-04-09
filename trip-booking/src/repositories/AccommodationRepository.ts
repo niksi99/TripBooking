@@ -19,14 +19,16 @@ export class AccommodationRepository extends Repository<Accommodation>{
 
     public async GetAllAccommodations() {
         return this.accommodationRepository.find({
-            withDeleted: true
+            withDeleted: true,
+            relations: ['myRooms']
         })
     }
 
     public async GetAccommodationById(id: string) {
         return this.accommodationRepository.findOne({
             where: {id: id},
-            withDeleted: true
+            withDeleted: true,
+            relations: ['myRooms']
         })
     }
 
