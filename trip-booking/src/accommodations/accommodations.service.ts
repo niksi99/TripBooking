@@ -38,7 +38,7 @@ export class AccommodationsService {
     accomm.owner = request.user.username;
     Object.assign(accomm, createAccommodationDto);
 
-    return await this.accommodationRepository.manager.save(accomm);
+    return await this.accommodationRepository.saveEntity(accomm);
   }
 
   async findAll() {

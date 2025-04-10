@@ -3,19 +3,14 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Accommodation } from "src/accommodations/entities/accommodation.entity";
 import { Repository } from "typeorm";
+import { ElementalRepository } from "./ElementalRepository";
 
 
 @Injectable()
-export class AccommodationRepository extends Repository<Accommodation>{
-    constructor(
-            @InjectRepository(Accommodation) 
-            private accommodationRepository: Repository<Accommodation>) {
-                super(
-                    accommodationRepository.target,
-                    accommodationRepository.manager,
-                    accommodationRepository.queryRunner
-                );
-            }
+export class AccommodationRepository extends ElementalRepository<Accommodation> {
+   constructor(@InjectRepository(Accommodation) private readonly accommodationRepository: Repository<Accommodation>) {
+           super(accommodationRepository);
+       }
 
     public async GetAllAccommodations() {
         return this.accommodationRepository.find({

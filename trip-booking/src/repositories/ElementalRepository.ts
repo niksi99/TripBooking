@@ -32,4 +32,8 @@ export class ElementalRepository<T extends ObjectLiteral> {
     public async softUndelete(id: string): Promise<void>{
         await this.repository.restore(id);
     }
+
+    async saveEntity(entity: T) {
+        return await this.repository.save(entity);
+    }
 }

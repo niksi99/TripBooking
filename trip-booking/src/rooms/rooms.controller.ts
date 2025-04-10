@@ -26,6 +26,8 @@ export class RoomsController {
         case error instanceof RoomExceptions:
           if(error.DoesRoomAlreadyExist())
             throw new BadRequestException(error.getMessage());
+          if(error.IsRoomBlocked_SoftDeleted())
+            throw new BadRequestException(error.getMessage());
           break;
         default:
             throw error;

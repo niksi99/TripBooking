@@ -30,4 +30,8 @@ export class RoomExceptions extends HttpException {
     public CanRoomBeBlocked_SoftDeleted(): boolean {
         return this.statusType === RoomExceptionsStatusType.RoomCanNotBeBlocked_SoftDeleted
     }
+
+    public IsRoomBlocked_SoftDeleted() : boolean {
+        return this.statusType === RoomExceptionsStatusType.RoomIsBlocked_SoftDeleted
+    }
 }

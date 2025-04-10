@@ -55,6 +55,9 @@ export class RoomsService {
     if(doesRoomExist == null)
       throw new RoomExceptions("Room does not exist", RoomExceptionsStatusType.RoomDoesNotExist);
 
+    if(doesRoomExist.deletedAt != null)
+      throw new RoomExceptions("Room is already block/soft-deleted.", RoomExceptionsStatusType.RoomIsBlocked_SoftDeleted);
+
     const checkRoomLabelExistense = await this.roomRepository.getByLabel(updateRoomDto.label);
     if(checkRoomLabelExistense?.label === updateRoomDto.label)
       throw new RoomExceptions("Room with this label already exists. ", RoomExceptionsStatusType.RoomAlreadyExists);
