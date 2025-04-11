@@ -26,4 +26,12 @@ export class AccommodationExceptions extends HttpException {
     public HasAccommodationBeedlreadyBooked(): boolean {
         return this.statusType === AccommodationExceptionsStatusType.UserHasAlreadyBookedAccommodation
     }
+
+    public HasNotAccommodationBeedBooked(): boolean {
+        return this.statusType === AccommodationExceptionsStatusType.UserHasNotBookedAccommodation
+    }
+
+    public IsAccommodationBlocked_SoftDeleted(): boolean {
+        return this.statusType === AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted
+    }
 }

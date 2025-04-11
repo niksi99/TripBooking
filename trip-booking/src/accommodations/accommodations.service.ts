@@ -78,6 +78,9 @@ export class AccommodationsService {
     if(!accom)
       throw new AccommodationExceptions("Accommodation does not exist.", AccommodationExceptionsStatusType.AccommodationDoesNotExist);
 
+    if(accom.deletedAt !== null)
+      throw new AccommodationExceptions("Accommodation is blocked_SoftDeleted", AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted);
+
     accom.appliedUsers.forEach(element => {
       if(element === user)
         throw new AccommodationExceptions("Users has already booked this accommodation.", AccommodationExceptionsStatusType.UserHasAlreadyBookedAccommodation);
@@ -87,5 +90,34 @@ export class AccommodationsService {
     accom.appliedUsers.push(user);
 
     return accom;
+  }
+
+  async unBookAccommodation(@Request() request, accommId: string) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+    const user = await this.userRepository.getUserByUsername(request.user.username);
+    if(!user)
+      throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist)
+
+    if(user.role.toString() !== Role.PASSENGER.toString())
+      throw new UsersExceptions("User is not passenger", UsersExceptionStatusType.UserIsNotPassenger);
+
+    const accom = await this.accommodationRepository.GetAccommodationById(accommId);
+    if(!accom)
+      throw new AccommodationExceptions("Accommodation does not exist.", AccommodationExceptionsStatusType.AccommodationDoesNotExist);
+
+    if(accom.deletedAt !== null)
+      throw new AccommodationExceptions("Accommodation is blocked_SoftDeleted", AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted);
+
+    accom.appliedUsers.forEach(element => {
+      if(element !== user)
+        throw new AccommodationExceptions("Users has not booked this accommodation at all. Invalid method.", AccommodationExceptionsStatusType.UserHasNotBookedAccommodation);
+      else
+      accom.appliedUsers = accom.appliedUsers.filter(u => u.id !== user.id);
+    });
+
+    user.accommHistory = user.accommHistory.filter(a => a.id !== accom.id);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    await this.accommodationRepository.save(accom);
+    await this.userRepository.save(user);
   }
 }

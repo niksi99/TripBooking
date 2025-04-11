@@ -65,10 +65,42 @@ export class AccommodationsController {
         case error instanceof AccommodationExceptions:
           if(error.DoesAccommodationExist())
             throw new NotFoundException(error.getMessage());
+          if(error.IsAccommodationBlocked_SoftDeleted())
+            throw new NotFoundException(error.getMessage());
           if(error.HasAccommodationBeedlreadyBooked())
             throw new BadRequestException(error.getMessage());
           break;
         default:
+          throw error;
+      }
+    }
+  }
+
+  @Roles(Role.ACCOMMODATION_OWNER)
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
+  @Patch('/unbook-accommodation')
+  async unbookAccommodation(@Request() request, accomId: string) {
+    try {
+      return await this.accommodationsService.unBookAccommodation(request, accomId);  
+    } 
+    catch (error) {
+      switch(true) {
+        case error instanceof UsersExceptions:
+          if(error.IsUserExisting())
+            throw new NotFoundException(error.getMessage());
+          if(error.IsUserPassenger())
+            throw new UnauthorizedException(error.getMessage());
+          break;
+        case error instanceof AccommodationExceptions:
+          if(error.DoesAccommodationExist())
+            throw new NotFoundException(error.getMessage());
+          if(error.IsAccommodationBlocked_SoftDeleted())
+            throw new BadRequestException(error.getMessage());
+          if(error.HasNotAccommodationBeedBooked())
+            throw new BadRequestException(error.getMessage());
+          break;
+        default: 
           throw error;
       }
     }
