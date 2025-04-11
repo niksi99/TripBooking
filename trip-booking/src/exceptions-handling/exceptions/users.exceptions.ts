@@ -42,4 +42,12 @@ export class UsersExceptions extends HttpException {
     public IsNotUserSoftDeleted(): boolean {
         return this.statusType === UsersExceptionStatusType.UserIsNotSoftUndeleted;
     }
+
+    public IsUserAccommodationOwner(): boolean {
+        return this.statusType === UsersExceptionStatusType.UserIsNotAccommodationOwner;
+    }
+
+    public IsUserPassenger(): boolean {
+        return this.statusType === UsersExceptionStatusType.UserIsNotPassenger;
+    }
 }

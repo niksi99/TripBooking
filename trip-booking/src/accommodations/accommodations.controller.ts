@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, Request, UseGuards, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, Request, UseGuards, BadRequestException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { AccommodationsService } from './accommodations.service';
 import { CreateAccommodationDto } from './dto/create-accommodation.dto';
 import { UpdateAccommodationDto } from './dto/update-accommodation.dto';
@@ -34,6 +34,38 @@ export class AccommodationsController {
           break;
         case error instanceof AccommodationExceptions:
           if(error.IsLocationAlreadyBusy())
+            throw new BadRequestException(error.getMessage());
+          break;
+        default:
+          throw error;
+      }
+    }
+  }
+
+  @Roles(Role.ACCOMMODATION_OWNER)
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
+  @Patch('/book-accommodation')
+  async bookAccommodation(@Request() request, accomId: string) {
+    try {
+      return await this.accommodationsService.bookAccommodation(request, accomId);  
+    } 
+    catch (error) {
+      switch(true) {
+        case error instanceof AuthExceptions:
+          if(error.IsUserLoggedIn())
+            throw new ForbiddenException(error.getMessage());
+          break;
+        case error instanceof UsersExceptions:
+          if(error.IsUserExisting())
+            throw new NotFoundException(error.getMessage());
+          if(error.IsUserPassenger())
+            throw new UnauthorizedException(error.getMessage());
+          break;
+        case error instanceof AccommodationExceptions:
+          if(error.DoesAccommodationExist())
+            throw new NotFoundException(error.getMessage());
+          if(error.HasAccommodationBeedlreadyBooked())
             throw new BadRequestException(error.getMessage());
           break;
         default:

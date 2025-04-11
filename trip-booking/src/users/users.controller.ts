@@ -98,6 +98,32 @@ export class UsersController {
     }
   }
 
+  @Roles(Role.ADMINISTRATOR)
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
+  @Delete('/hard-delete-with-accommodation/:id')
+  async hardDeleteUserWithAccommodation(@Param('id') id: string) {
+    try {
+      return this.usersService.hardDeleteUserAndAllHisAccommodation(id);
+    } 
+    catch (error) {
+      switch(true) {
+        case error instanceof UsersExceptions:
+          if (error.IsUserExisting())
+            throw new NotFoundException(error.getMessage());
+          if (error.IsUserAccommodationOwner())
+            throw new BadRequestException(error.getMessage());
+          break;
+        case error instanceof AuthExceptions:
+          if (error.CanAdministratorBeDeleted())
+            throw new BadRequestException(error.getMessage());
+          break;
+        default:
+          throw error;
+      }
+    }
+  }
+
   @Patch('/soft-delete/:id')
   async softDelete(@Param('id') id: string) {
     try {

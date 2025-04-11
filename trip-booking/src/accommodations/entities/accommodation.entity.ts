@@ -3,7 +3,7 @@ import { AbstactEntity } from "src/database/AbstractEntity"
 import { MyLocation } from "src/locations/location";
 import { Room } from "src/rooms/entities/room.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany } from "typeorm"
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from "typeorm"
 
 @Entity()
 export class Accommodation extends AbstactEntity<Accommodation> {
@@ -23,9 +23,9 @@ export class Accommodation extends AbstactEntity<Accommodation> {
     @JoinTable()
     appliedUsers: User[];
 
-    @CreateDateColumn()
+    @Column({default: null})
     arivalDate: Date;
 
-    @CreateDateColumn()
+    @Column({default: null})
     departureDate: Date;
 }

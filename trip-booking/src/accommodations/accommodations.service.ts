@@ -11,6 +11,7 @@ import { UsersExceptionStatusType } from 'src/exceptions-handling/exceptions-sta
 import { AuthExceptions } from 'src/exceptions-handling/exceptions/auth.exceptions';
 import { AuthExceptionStatusType } from 'src/exceptions-handling/exceptions-status-type/auth.exceptions.status.types';
 import { Accommodation } from './entities/accommodation.entity';
+import { Role } from 'src/auth/enums/role.enum';
 
 @Injectable()
 export class AccommodationsService {
@@ -59,5 +60,32 @@ export class AccommodationsService {
 
   remove(id: number) {
     return `This action removes a #${id} accommodation`;
+  }
+
+  async bookAccommodation(@Request() request, accommId: string) {
+    if(!request)
+      throw new AuthExceptions("User is not logged in", AuthExceptionStatusType.UserIsNotLoggedIn);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+    const user = await this.userRepository.getUserByUsername(request.user.username);
+    if(!user)
+      throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist)
+
+    if(user.role.toString() !== Role.PASSENGER.toString())
+      throw new UsersExceptions("User is not passenger", UsersExceptionStatusType.UserIsNotPassenger);
+
+    const accom = await this.accommodationRepository.GetAccommodationById(accommId);
+    if(!accom)
+      throw new AccommodationExceptions("Accommodation does not exist.", AccommodationExceptionsStatusType.AccommodationDoesNotExist);
+
+    accom.appliedUsers.forEach(element => {
+      if(element === user)
+        throw new AccommodationExceptions("Users has already booked this accommodation.", AccommodationExceptionsStatusType.UserHasAlreadyBookedAccommodation);
+    });
+
+    user.accommHistory.push(accom);
+    accom.appliedUsers.push(user);
+
+    return accom;
   }
 }

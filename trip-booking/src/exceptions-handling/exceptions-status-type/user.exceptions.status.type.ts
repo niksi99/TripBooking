@@ -9,4 +9,6 @@ export enum UsersExceptionStatusType {
     UserIsNotSoftUndeleted,
     UsersRoleDoesNotExist,
     UsersRoleCanNotBeEmpty,
+    UserIsNotAccommodationOwner,
+    UserIsNotPassenger
 }

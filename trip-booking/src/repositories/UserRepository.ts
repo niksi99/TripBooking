@@ -1,12 +1,15 @@
 /* eslint-disable prettier/prettier */
 import { InjectRepository } from "@nestjs/typeorm";
+import { Accommodation } from "src/accommodations/entities/accommodation.entity";
 import { User } from "src/users/entities/user.entity";
-import { Repository } from "typeorm";
+import { DataSource, Repository } from "typeorm";
 
 export class UserRepository extends Repository<User> {
     constructor(
+        private readonly dataSource: DataSource,
         @InjectRepository(User) 
-        private userRepository: Repository<User>) {
+        private userRepository: Repository<User>,
+    ) {
             super(
                 userRepository.target,
                 userRepository.manager,
@@ -62,4 +65,28 @@ export class UserRepository extends Repository<User> {
         public async softUndeleteUser(id: string){
             return await this.userRepository.restore(id);
         }
+
+        async hardDeleteUserAndOwnedAccommodations(user: User): Promise<void> {
+
+            await this.dataSource.transaction(async (manager) => {
+            const deleteAccommodationsResult = await manager
+                .createQueryBuilder()
+                .delete()
+                .from(Accommodation)
+                .where('owner = :username', { username: user.username })
+                .execute();
+        
+            if (deleteAccommodationsResult.affected === 0) {
+                throw new Error(`No accommodations found for user: ${user.username}`);
+            }
+
+            const userId = user.id;
+              await manager
+                .createQueryBuilder()
+                .delete()
+                .from(User)
+                .where('id = :userId', { userId })
+                .execute();
+            });
+          }
 }

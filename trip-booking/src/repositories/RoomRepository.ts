@@ -42,5 +42,5 @@ export class RoomRepository extends ElementalRepository<Room> {
 
     async saveRoom(room: Room) {
         return await this.roomRepository.save(room);
-      }
+    }
 }

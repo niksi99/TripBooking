@@ -22,4 +22,8 @@ export class AccommodationExceptions extends HttpException {
     public IsLocationAlreadyBusy(): boolean {
         return this.statusType === AccommodationExceptionsStatusType.AccommodationOnThisLocationAlreadyExists;
     }
+
+    public HasAccommodationBeedlreadyBooked(): boolean {
+        return this.statusType === AccommodationExceptionsStatusType.UserHasAlreadyBookedAccommodation
+    }
 }
