@@ -34,7 +34,7 @@ export class RegisterComponent {
     }).then(res => {
       console.log(this.createUserData);
       console.log(res);
-      this.router.navigate(['users']);
-    })
+      this.router.navigate(['login']);
+    }).catch(error => console.log(error))
   }
 }

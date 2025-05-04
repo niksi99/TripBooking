@@ -2,12 +2,14 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  app.use(cookieParser());
   app.enableCors({
-    origin: '*', // or '*' for development only
+    origin: 'http://localhost:4200', 
     methods: 'GET,POST,PUT,DELETE',
     credentials: true,
   });

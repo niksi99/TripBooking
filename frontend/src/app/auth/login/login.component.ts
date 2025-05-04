@@ -25,11 +25,13 @@ export class LoginComponent {
     fetch("http://localhost:8989/auth/login", {
       method: "POST",
       body: JSON.stringify(this.loginForm.value),
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include'
     }).then(res => {
       console.log(this.loginForm);
       console.log(res);
-      this.router.navigate(['users']);
-    })
+      res.json().then(x => console.log(x))      //.setItem("loggedInUser", res.dat)
+      //this.router.navigate(['users']);
+    }).catch(error => console.log(error))
   }
 }

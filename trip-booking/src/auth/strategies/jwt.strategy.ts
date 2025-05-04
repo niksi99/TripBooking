@@ -6,6 +6,7 @@ import { ExtractJwt, Strategy } from "passport-jwt";
 import jwtConfig from "../config/jwt.config";
 import { AuthJwtPayload } from "../types/auth-jwtPayload";
 import { AuthService } from "../auth.service";
+import { Request } from 'express';
 
 export class JwtStragy extends PassportStrategy(Strategy) {
 
@@ -19,7 +20,13 @@ export class JwtStragy extends PassportStrategy(Strategy) {
         }
         
         super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            jwtFromRequest: ExtractJwt.fromExtractors([
+                (request: Request) => {
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
+                  return request?.cookies?.['access_token'];
+                }
+              ]),
+            //: ExtractJwt.fromAuthHeaderAsBearerToken(),
             secretOrKey: jwtConfiguration.secret,
             ignoreExpiration: false,
         });
