@@ -22,16 +22,40 @@ export class LoginComponent {
   }
 
   onSubmit(): void {
+    const alertDiv = document.getElementById('alert-div');
+
     fetch("http://localhost:8989/auth/login", {
       method: "POST",
       body: JSON.stringify(this.loginForm.value),
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include'
     }).then(res => {
-      console.log(this.loginForm);
-      console.log(res);
-      res.json().then(x => console.log(x))      //.setItem("loggedInUser", res.dat)
-      //this.router.navigate(['users']);
-    }).catch(error => console.log(error))
+      if (!res.ok) {
+        return res.json().then(errorBody => {
+          throw new Error(errorBody.message || 'Login failed');
+        });
+      }
+      return res.json(); // Parse response if successful
+    })
+    .then(data => {
+      // Successful login logic
+      console.log('Logged in:', data);
+      // this.router.navigate(['users']);
+    })
+    .catch(error => {
+      console.log(alertDiv);
+      console.error('Login error:', error.message);
+
+      if (alertDiv) {
+        alertDiv.innerHTML = error.message;
+        alertDiv.style.color = 'black';
+        alertDiv.style.backgroundColor = 'yellow'
+        alertDiv.style.display = 'block';
+
+        setTimeout(() => {
+          alertDiv.style.display = 'none'
+        }, 4000)
+      }
+    });
   }
 }
