@@ -1,0 +1,23 @@
+<table style="border: 1px solid black;">
+  <thead>
+    <tr style="text-align: center;">
+      <td>Име</td>
+      <td>Презиме</td>
+      <td>Имејл</td>
+      <td>Корисничко име</td>
+      <td>Улога</td>
+    </tr>
+  </thead>
+  <tbody tr style="text-align: center;">
+    <tr *ngFor="let user of allUsers">
+      <td>{{user.firstName}}</td>
+      <td>{{user.lastName}}</td>
+      <td>{{user.email}}</td>
+      <td>{{user.username}}</td>
+      <td>{{user.role}}</td>
+      <td>Измени</td>
+      <td><button (click)="hardDelete(user.id)">Обриши</button></td>
+      <td>Блокирај</td>
+    </tr>
+  </tbody>
+</table>

@@ -1,0 +1,33 @@
+<p>register works!</p>
+<form [formGroup]="createUserData" (ngSubmit)="onSubmit()">
+  <div>
+    <label for="first-name">First name</label>
+    <input id="first-name" formControlName="firstName" type="text" placeholder="First name"/>
+  </div>
+  <div>
+    <label for="last-name">Last name</label>
+    <input id="last-name" formControlName="lastName" type="text" placeholder="Last name"/>
+  </div>
+  <div>
+    <label for="username">Username</label>
+    <input id="username"formControlName="username" type="text" placeholder="Username"/>
+  </div>
+  <div>
+    <label for="email">Email</label>
+    <input id="email" formControlName="email" type="email" placeholder="Email"/>
+  </div>
+  <div>
+    <label for="password">Password</label>
+    <input id="password" formControlName="password" type="password" placeholder="Password"/>
+  </div>
+  <div>
+    <label for="role">Role</label>
+    <select formControlName="role">
+      <option value="ADMINISTRATOR">ADMINISTRATOR</option>
+      <option value="PASSENGER">PASSENGER</option>
+      <option value="ACCOMMODATION_OWNER">ACCOMMODATION_OWNER</option>
+      <option value="GUIDE">GUIDE</option>
+    </select>
+  </div>
+  <button>Submit</button>
+</form>

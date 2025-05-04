@@ -15,12 +15,15 @@ import { UsersExceptions } from 'src/exceptions-handling/exceptions/users.except
 export class AccommodationsController {
   constructor(private readonly accommodationsService: AccommodationsService) {}
 
-  @Roles(Role.ACCOMMODATION_OWNER)
-  @UseGuards(RolesGuard)
-  @UseGuards(JwtAuthGuard)
-  @Post()
+  //@Roles(Role.ACCOMMODATION_OWNER)
+  //@UseGuards(RolesGuard)
+  // @UseGuards(JwtAuthGuard)
+  @Post('/create-acc')
   async create(@Request() request, @Body() createAccommodationDto: CreateAccommodationDto) {
     try {
+      console.log('[AccommodationsController] POST /accommodations hit');
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      console.log(request.user);
       return this.accommodationsService.create(request, createAccommodationDto); 
     } catch (error) {
       switch(true) {
@@ -30,6 +33,8 @@ export class AccommodationsController {
           break;
         case error instanceof UsersExceptions:
           if (error.IsUserExisting())
+            throw new NotFoundException(error.getMessage());
+          if (error.IsUserAccommodationOwner())
             throw new NotFoundException(error.getMessage());
           break;
         case error instanceof AccommodationExceptions:

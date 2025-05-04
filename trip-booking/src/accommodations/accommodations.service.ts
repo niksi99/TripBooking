@@ -26,8 +26,12 @@ export class AccommodationsService {
     
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     const user = await this.userRepository.getUserByUsername(request.user.username);
+    console.log("USER FROM ACC SERVICE", user);
     if(!user)
       throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist)
+
+    if(user.role !== Role.ACCOMMODATION_OWNER)
+      throw new UsersExceptions("User is not accommodaiton owner", UsersExceptionStatusType.UserIsNotAccommodationOwner);
 
     const checkAccommExistence = await this.accommodationRepository.GetAccommByItsLocation(createAccommodationDto.location.lat, createAccommodationDto.location.lng);
     if(checkAccommExistence)
@@ -38,7 +42,8 @@ export class AccommodationsService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     accomm.owner = request.user.username;
     Object.assign(accomm, createAccommodationDto);
-
+    console.log("\nUSER FROM ACC SERVICE", user);
+    console.log("ACCOMM FROM ACC SERVICE", accomm);
     return await this.accommodationRepository.saveEntity(accomm);
   }
 
