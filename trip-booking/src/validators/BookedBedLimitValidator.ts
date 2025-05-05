@@ -19,7 +19,7 @@ export class BookedBedLimitValidator implements ValidatorConstraintInterface {
 export function BookedBedLimit(validationOptions: ValidationOptions) {
     return (object: any, propertyName: string) => {
         registerDecorator({
-            name: 'BookedBedLimitValidator',
+            name: 'BookedBedLimit',
             target: object.constructor,
             propertyName: propertyName,
             constraints: [],
