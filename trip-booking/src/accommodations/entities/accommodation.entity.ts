@@ -1,4 +1,6 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+import { IsNotEmpty, IsNotEmptyObject } from "class-validator";
 import { AbstactEntity } from "src/database/AbstractEntity"
 import { MyLocation } from "src/locations/location";
 import { Room } from "src/rooms/entities/room.entity";
@@ -7,12 +9,15 @@ import { Column, Entity, JoinTable, ManyToMany, OneToMany } from "typeorm"
 
 @Entity()
 export class Accommodation extends AbstactEntity<Accommodation> {
+    @IsNotEmpty()
     @Column()
     owner: string;
 
+    @IsNotEmpty()
     @Column()
     name: string;
 
+    @IsNotEmptyObject()
     @Column(() => MyLocation)
     location: MyLocation;
 
