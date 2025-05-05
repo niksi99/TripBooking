@@ -9,6 +9,7 @@ import { BeforeInsert, Column, Entity, ManyToMany } from "typeorm";
 import * as bcrypt from "bcrypt";
 import { Accommodation } from "src/accommodations/entities/accommodation.entity";
 import { IsEmail, IsNotEmpty, Length, MinLength } from "class-validator";
+import { IsAllowedRole } from "src/validators/IsRoleAllowrdValidator";
 
 @Entity()
 export class User extends AbstactEntity<User>{
@@ -42,6 +43,15 @@ export class User extends AbstactEntity<User>{
     password: string;
 
     @IsNotEmpty({ message: 'Role is required.' })
+    @IsAllowedRole({
+        groups: [
+            Role.ACCOMMODATION_OWNER,
+            Role.ADMINISTRATOR, 
+            Role.GUIDE, 
+            Role.PASSENGER
+        ] as string[], 
+        message: `Unidentified Role. Please try again.`, 
+    })
     @Column({
         type: 'enum',
         enum: Role,
