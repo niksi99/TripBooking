@@ -45,10 +45,6 @@ export class UsersService {
     const checkUserExistense = await this.userRepository.getUserById(id);
     if(checkUserExistense == null)
       throw new UsersExceptions("Item does not exist", UsersExceptionStatusType.UserDoesNotExist);
-
-    const checkUsernameExistense = await this.userRepository.getUserByUsername(updateUserDto.username);
-    if(checkUsernameExistense?.username === updateUserDto.username)
-      throw new UsersExceptions("User with this username already exists. ", UsersExceptionStatusType.UsernameAlreadyExists);
     
     Object.assign(checkUserExistense, updateUserDto);
     return await this.userRepository.manager.save(User, checkUserExistense);

@@ -6,24 +6,24 @@ import { IsAllowedRole } from "src/validators/IsRoleAllowrdValidator";
 
 /* eslint-disable prettier/prettier */
 export class CreateUserDto {
-    @Length(2, 30, { message: 'First name must be between 2 and 30 characters.' })
-    @IsNotEmpty({ message: 'First name is required.' })
+    @Length(2, 30, { message: 'firstName.length' })
+    @IsNotEmpty({ message: 'firstName.required' })
     firstName: string;
 
-    @Length(2, 40, { message: 'Last must be between 2 and 40 characters.' })
-    @IsNotEmpty({ message: 'Last name is required.' })
+    @Length(2, 40, { message: 'lastName.length' })
+    @IsNotEmpty({ message: 'lastName.required' })
     lastName: string;
 
-    @Length(5, 40, { message: 'Username must be between 5 and 40 characters.' })
-    @IsNotEmpty({ message: 'Username is required.' })
+    @Length(5, 40, { message: 'username.length' })
+    @IsNotEmpty({ message: 'username.required' })
     username: string;
 
-    @IsEmail({}, { message: 'Email must be a valid email address.' })
-    @IsNotEmpty({ message: 'Email is required.' })
+    @IsEmail({}, { message: 'email.length' })
+    @IsNotEmpty({ message: 'email.required.' })
     email: string;
 
-    @IsNotEmpty({ message: 'Password is required.' })
-    @MinLength(8, { message: 'Password must be at least 8 characters long.' })
+    @IsNotEmpty({ message: 'password.required.' })
+    @MinLength(8, { message: 'password.minLen' })
     // @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/, {
     //     message: 'Password must include uppercase, lowercase, number, and special character.',
     // })

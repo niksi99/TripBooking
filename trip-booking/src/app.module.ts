@@ -9,6 +9,8 @@ import { AuthModule } from './auth/auth.module';
 import { AccommodationsModule } from './accommodations/accommodations.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { AuthMiddleware } from './middlewares/auth.middleware';
+import { HeaderResolver, I18nModule } from 'nestjs-i18n';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -16,7 +18,18 @@ import { AuthMiddleware } from './middlewares/auth.middleware';
       isGlobal: true,
       envFilePath: '.env',
     }), 
-    DatabaseModule, UsersModule, AuthModule, AccommodationsModule, RoomsModule
+    DatabaseModule, UsersModule, AuthModule, AccommodationsModule, RoomsModule,
+    I18nModule.forRootAsync({
+      useFactory: () => ({
+        fallbackLanguage: 'en',
+        loaderOptions: {
+          path: join(__dirname, '/i18n/'),
+          watch: true
+        },
+        typesOutputPath: join(__dirname, '../src/generated/i18n.generated.ts')
+      }),
+      resolvers: [new HeaderResolver(['x-custom-lang'])]
+    })
   ],
   controllers: [AppController],
   providers: [AppService],

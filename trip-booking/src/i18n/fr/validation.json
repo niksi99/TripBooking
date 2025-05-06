@@ -1,0 +1,8 @@
+{
+    "firstName.required": "First name is required.",
+    "firstName.length": "First name must be between 2 and 30 characters.",
+    "email.required": "Email is required.",
+    "email.invalid": "Email must be a valid email address.",
+    "password.required": "Password is required.",
+    "password.weak": "Password must include uppercase, lowercase, number, and special character."
+  }

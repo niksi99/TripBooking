@@ -65,8 +65,6 @@ export class UsersController {
         case error instanceof UsersExceptions:
           if (error.IsUserExisting())
             throw new NotFoundException(error.getMessage());
-          if (error.DoesUsernameAlreadyExist())
-            throw new BadRequestException(error.getMessage());
           break;
         default:
           throw error;
