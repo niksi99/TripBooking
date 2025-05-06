@@ -9,13 +9,12 @@ import { Column, Entity, ManyToOne } from "typeorm";
 @Entity()
 export class Room extends AbstactEntity<Room> {
     @Length(2, 25, { message: 'Last must be between 2 and 25 characters.' })
-    @IsNotEmpty()
+    @IsNotEmpty({ message: 'Label is required.' })
     @Column()
     label: string;
 
     @IsPositive({ message: 'Number of beds can\'t be negative or zero.' })
     @IsNotEmpty({ message: 'Number of beds is required.' })
-    @IsNotEmpty()
     @Column()
     numberOfBeds: number;
 
@@ -24,8 +23,8 @@ export class Room extends AbstactEntity<Room> {
     @Column({ default: 0 })
     numberOfBookedBeds: number;
 
-    @IsPositive()
-    @IsNotEmpty()
+    @IsPositive({ message: 'Floor can\'t be negative or zero.' })
+    @IsNotEmpty({ message: 'Floor is required.' })
     @Column()
     floor: number;
 
