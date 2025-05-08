@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { InjectRepository } from "@nestjs/typeorm";
-import { Accommodation } from "src/accommodations/entities/accommodation.entity";
-import { User } from "src/users/entities/user.entity";
+import { Accommodation } from "../accommodations/entities/accommodation.entity";
+import { User } from "../users/entities/user.entity";
 import { DataSource, Repository } from "typeorm";
 
 export class UserRepository extends Repository<User> {

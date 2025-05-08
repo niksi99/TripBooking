@@ -1,10 +1,10 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { IsNotEmpty, IsNotEmptyObject, Length } from "class-validator";
-import { AbstactEntity } from "src/database/AbstractEntity"
-import { MyLocation } from "src/locations/location";
-import { Room } from "src/rooms/entities/room.entity";
-import { User } from "src/users/entities/user.entity";
+import { AbstactEntity } from "../../database/AbstractEntity";
+import { MyLocation } from "../../locations/location";
+import { Room } from "../../rooms/entities/room.entity";
+import { User } from "../../users/entities/user.entity";
 import { Column, Entity, JoinTable, ManyToMany, OneToMany } from "typeorm"
 
 @Entity()

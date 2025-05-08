@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { IsNotEmpty, IsPositive, Length, Min } from "class-validator";
-import { Accommodation } from "src/accommodations/entities/accommodation.entity";
-import { AbstactEntity } from "src/database/AbstractEntity";
-import { BookedBedLimit } from "src/validators/BookedBedLimitValidator";
+import { Accommodation } from "../../accommodations/entities/accommodation.entity";
+import { AbstactEntity } from "../../database/AbstractEntity";
+import { BookedBedLimit } from "../../validators/BookedBedLimitValidator";
 import { Column, Entity, ManyToOne } from "typeorm";
 
 @Entity()

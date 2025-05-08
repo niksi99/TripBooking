@@ -3,13 +3,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
-import { Role } from "src/auth/enums/role.enum";
-import { AbstactEntity } from "src/database/AbstractEntity";
+import { Role } from "../../auth/enums/role.enum";
+import { AbstactEntity } from "../../database/AbstractEntity";
 import { BeforeInsert, Column, Entity, ManyToMany } from "typeorm";
 import * as bcrypt from "bcrypt";
-import { Accommodation } from "src/accommodations/entities/accommodation.entity";
+import { Accommodation } from "../../accommodations/entities/accommodation.entity";
 import { IsEmail, IsNotEmpty, Length, MinLength } from "class-validator";
-import { IsAllowedRole } from "src/validators/IsRoleAllowrdValidator";
+import { IsAllowedRole } from "../../validators/IsRoleAllowrdValidator";
 
 @Entity()
 export class User extends AbstactEntity<User>{

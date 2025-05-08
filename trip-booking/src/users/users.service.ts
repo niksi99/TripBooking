@@ -2,11 +2,11 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserRepository } from 'src/repositories/UserRepository';
-import { UsersExceptions } from 'src/exceptions-handling/exceptions/users.exceptions';
-import { UsersExceptionStatusType } from 'src/exceptions-handling/exceptions-status-type/user.exceptions.status.type';
+import { UserRepository } from '../repositories/UserRepository';
+import { UsersExceptions } from '../exceptions-handling/exceptions/users.exceptions';
+import { UsersExceptionStatusType } from '../exceptions-handling/exceptions-status-type/user.exceptions.status.type';
 import { User } from './entities/user.entity';
-import { Role } from 'src/auth/enums/role.enum';
+import { Role } from '../auth/enums/role.enum';
 
 @Injectable()
 export class UsersService {
