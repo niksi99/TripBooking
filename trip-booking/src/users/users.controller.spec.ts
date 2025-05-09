@@ -6,6 +6,8 @@ import { UsersService } from "./users.service";
 import { UsersExceptions } from "../exceptions-handling/exceptions/users.exceptions";
 import { UsersExceptionStatusType } from "../exceptions-handling/exceptions-status-type/user.exceptions.status.type";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
+import { AuthExceptions } from "../exceptions-handling/exceptions/auth.exceptions";
+import { AuthExceptionStatusType } from "../exceptions-handling/exceptions-status-type/auth.exceptions.status.types";
 
 describe('UsersController', () => {
     let usersController: UsersController;
@@ -206,5 +208,33 @@ describe('UsersController', () => {
             await expect(usersController.hardDeleteUserWithAccommodation('2')).rejects.toThrow(NotFoundException);
             await expect(usersController.hardDeleteUserWithAccommodation('2')).rejects.toThrow('User not found');
         })
+
+        it('should throw BadRequestException if IsUserAccommodationOwner from UsersExceptions is FALSE', async () => {
+            const errorMock = new UsersExceptions('User is not accommodation owner', UsersExceptionStatusType.UserIsNotAccommodationOwner);
+            jest.spyOn(errorMock, 'IsUserAccommodationOwner').mockReturnValue(true);
+            jest.spyOn(errorMock, 'getMessage').mockReturnValue('User is not accommodation owner');
+            (usersService.hardDeleteUserAndAllHisAccommodation as jest.Mock).mockRejectedValue(errorMock);
+
+            await expect(usersController.hardDeleteUserWithAccommodation('2')).rejects.toThrow(BadRequestException);
+            await expect(usersController.hardDeleteUserWithAccommodation('2')).rejects.toThrow('User is not accommodation owner');
+        })
+
+        it('should throw BadRequestException if CanAdministratorBeDeleted from AuthExceptions is FALSE', async () => {
+            const errorMock = new AuthExceptions('Administrator can not be deleted.', AuthExceptionStatusType.AdministratorCanNotBeDeleted);
+            jest.spyOn(errorMock, 'CanAdministratorBeDeleted').mockReturnValue(true);
+            jest.spyOn(errorMock, 'getMessage').mockReturnValue('Administrator can not be deleted.');
+            (usersService.hardDeleteUserAndAllHisAccommodation as jest.Mock).mockRejectedValue(errorMock);
+
+            await expect(usersController.hardDeleteUserWithAccommodation('2')).rejects.toThrow(BadRequestException);
+            await expect(usersController.hardDeleteUserWithAccommodation('2')).rejects.toThrow('Administrator can not be deleted.');
+        })
+
+
+        it('should throw other errors', async () => {
+            const errorMock = new Error('Other error');
+            (usersService.hardDeleteUserAndAllHisAccommodation as jest.Mock).mockRejectedValue(errorMock);
+      
+            await expect(usersController.hardDeleteUserWithAccommodation('1')).rejects.toBe(errorMock);
+        });
     })
 });
