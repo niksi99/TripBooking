@@ -78,7 +78,7 @@ export class UsersController {
   @Delete('/hard-delete/:id')
   async remove(@Param('id') id: string) {
     try {
-      return this.usersService.hardDelete(id);
+      return await this.usersService.hardDelete(id);
     } 
     catch (error) {
       switch(true) {
@@ -102,7 +102,7 @@ export class UsersController {
   @Delete('/hard-delete-with-accommodation/:id')
   async hardDeleteUserWithAccommodation(@Param('id') id: string) {
     try {
-      return this.usersService.hardDeleteUserAndAllHisAccommodation(id);
+      return await this.usersService.hardDeleteUserAndAllHisAccommodation(id);
     } 
     catch (error) {
       switch(true) {
@@ -125,7 +125,7 @@ export class UsersController {
   @Patch('/soft-delete/:id')
   async softDelete(@Param('id') id: string) {
     try {
-      return this.usersService.softDelete(id);
+      return await this.usersService.softDelete(id);
     } 
     catch (error) {
       switch(true) {
@@ -144,7 +144,7 @@ export class UsersController {
   @Patch('/soft-undelete/:id')
   async softUndelete(@Param('id') id: string) {
     try {
-      return this.usersService.softUndelete(id);
+      return await this.usersService.softUndelete(id);
     } 
     catch (error) {
       switch(true) {

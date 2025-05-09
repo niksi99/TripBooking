@@ -52,6 +52,7 @@ describe('UsersController', () => {
             findAll: jest.fn(),
             findOne: jest.fn(),
             softDelete: jest.fn(),
+            softUndelete: jest.fn(),
             hardDeleteUserAndAllHisAccommodation: jest.fn()
         };
 
@@ -141,6 +142,47 @@ describe('UsersController', () => {
             await expect(usersController.softDelete('99a85f64-5717-4562-b3fc-2c963f66afa6')).rejects.toThrow(BadRequestException);
             await expect(usersController.softDelete('99a85f64-5717-4562-b3fc-2c963f66afa6')).rejects.toThrow('User is already soft-deleted / blocked');
         })
+
+        it('should throw other errors', async () => {
+            const errorMock = new Error('Other error');
+            (usersService.softDelete as jest.Mock).mockRejectedValue(errorMock);
+      
+            await expect(usersController.softDelete('1')).rejects.toBe(errorMock);
+        });
+    })
+
+    describe('softUndelete', () => {
+        it('should return soft-undeteled user.', async () => {
+            (usersService.softUndelete as jest.Mock).mockImplementation((id: string) => {
+                const user = mockUsers.find(user => user.id === id && user.softDeleted === true);
+                if(user)
+                    user.softDeleted = false;
+                return user;
+            })
+
+            const result = await usersController.softUndelete('99a85f64-5717-4562-b3fc-2c963f66afa6');
+
+            expect(result).toEqual(mockUsers[2]);
+            expect(usersService.softUndelete).toHaveBeenCalledWith('99a85f64-5717-4562-b3fc-2c963f66afa6');
+        })
+
+        it('should throw NotFoundException is IsUserExisting === TRUE', async () => {
+            const errorMock = new UsersExceptions("User not found", UsersExceptionStatusType.UserDoesNotExist);
+            jest.spyOn(errorMock, 'IsUserExisting').mockReturnValue(true);
+            jest.spyOn(errorMock, 'getMessage').mockReturnValue('User not found');
+            
+            (usersService.softUndelete as jest.Mock).mockRejectedValue(errorMock);
+
+            await expect(usersController.softUndelete("23")).rejects.toThrow(NotFoundException);
+            await expect(usersController.softUndelete("23")).rejects.toThrow("User not found");
+        })
+
+        it('should throw other errors', async () => {
+            const errorMock = new Error('Other error');
+            (usersService.softUndelete as jest.Mock).mockRejectedValue(errorMock);
+      
+            await expect(usersController.softUndelete('1')).rejects.toBe(errorMock);
+        });
     })
 
     describe('hardDeleteUserWithAccommodation', () => {
