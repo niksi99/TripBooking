@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/unbound-method */
 
 import { Test, TestingModule } from "@nestjs/testing";
 import { UsersController } from "./users.controller";
@@ -249,18 +250,49 @@ describe('UsersController', () => {
     })
 
     describe('create', () => {
+        const newUser: CreateUserDto = {
+            firstName: 'Лана',
+            lastName: 'Миланковић',
+            username: 'LanaNa',
+            password: 'LanaNa',
+            email: 'lana.milankovic@gmail.com',
+            role: Role.ADMINISTRATOR
+        };
+        
+        it('should return created user with no errors.', async () => {
+            const expectedResult = { id: '1', ...newUser };
+            (usersService.create as jest.Mock).mockResolvedValue(expectedResult);
+            const result = await usersController.create(newUser);
+
+            expect(result).toEqual(expectedResult);
+            expect(usersService.create).toHaveBeenCalledWith(newUser);
+        })
+
+        it('should throw BadRequestException if DoesEmailAlreadyExist from UserExpections is TRUE', async () => {
+            const errorMock = new UsersExceptions("Email already exists", UsersExceptionStatusType.EmailAlreadyExists);
+            jest.spyOn(errorMock, 'DoesEmailAlreadyExist').mockReturnValue(true);
+            jest.spyOn(errorMock, 'getMessage').mockReturnValue("Email already exists");
+
+            (usersService.create as jest.Mock).mockRejectedValue(errorMock);
+
+            await expect(usersController.create(newUser)).rejects.toThrow(BadRequestException);
+            await expect(usersController.create(newUser)).rejects.toThrow("Email already exists");
+        });
+
+        it('should throw BadRequestException if DoesUsernameAlreadyExist from UserExceptions is TRUE', async () => {
+            const errorMock = new UsersExceptions("Username already exists", UsersExceptionStatusType.EmailAlreadyExists);
+            jest.spyOn(errorMock, 'DoesUserAlreadyExist').mockReturnValue(true);
+            jest.spyOn(errorMock, 'getMessage').mockReturnValue("Username already exists");
+
+            (usersService.create as jest.Mock).mockRejectedValue(errorMock);
+
+            await expect(usersController.create(newUser)).rejects.toThrow(BadRequestException);
+            await expect(usersController.create(newUser)).rejects.toThrow("Username already exists");
+        })
+
         it('should throw other errors', async () => {
             const errorMock = new Error('Other error');
             (usersService.create as jest.Mock).mockRejectedValue(errorMock);
-      
-            const newUser: CreateUserDto = {
-                firstName: 'Лана',
-                lastName: 'Миланковић',
-                username: 'LanaNa',
-                password: 'LanaNa',
-                email: 'lana.milankovic@gmail.com',
-                role: Role.ADMINISTRATOR
-            };
 
             await expect(usersController.create(newUser)).rejects.toBe(errorMock);
         });
