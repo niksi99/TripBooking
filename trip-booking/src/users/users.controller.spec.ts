@@ -8,6 +8,8 @@ import { UsersExceptionStatusType } from "../exceptions-handling/exceptions-stat
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { AuthExceptions } from "../exceptions-handling/exceptions/auth.exceptions";
 import { AuthExceptionStatusType } from "../exceptions-handling/exceptions-status-type/auth.exceptions.status.types";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { Role } from "../auth/enums/role.enum";
 
 describe('UsersController', () => {
     let usersController: UsersController;
@@ -55,7 +57,8 @@ describe('UsersController', () => {
             findOne: jest.fn(),
             softDelete: jest.fn(),
             softUndelete: jest.fn(),
-            hardDeleteUserAndAllHisAccommodation: jest.fn()
+            hardDeleteUserAndAllHisAccommodation: jest.fn(),
+            create: jest.fn()
         };
 
         const module: TestingModule = await Test.createTestingModule({
@@ -77,6 +80,13 @@ describe('UsersController', () => {
             expect(results).toEqual(mockUsers);
             expect(usersService.findAll).toHaveBeenCalled();            
         })
+
+        it('should throw other errors', async () => {
+            const errorMock = new Error('Other error');
+            (usersService.findAll as jest.Mock).mockRejectedValue(errorMock);
+      
+            await expect(usersController.findAll()).rejects.toBe(errorMock);
+        });
     });
 
     describe('findOne', () => {
@@ -235,6 +245,24 @@ describe('UsersController', () => {
             (usersService.hardDeleteUserAndAllHisAccommodation as jest.Mock).mockRejectedValue(errorMock);
       
             await expect(usersController.hardDeleteUserWithAccommodation('1')).rejects.toBe(errorMock);
+        });
+    })
+
+    describe('create', () => {
+        it('should throw other errors', async () => {
+            const errorMock = new Error('Other error');
+            (usersService.create as jest.Mock).mockRejectedValue(errorMock);
+      
+            const newUser: CreateUserDto = {
+                firstName: 'Лана',
+                lastName: 'Миланковић',
+                username: 'LanaNa',
+                password: 'LanaNa',
+                email: 'lana.milankovic@gmail.com',
+                role: Role.ADMINISTRATOR
+            };
+
+            await expect(usersController.create(newUser)).rejects.toBe(errorMock);
         });
     })
 });

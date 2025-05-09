@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable no-useless-catch */
 import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, NotFoundException, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -17,7 +18,7 @@ export class UsersController {
   @Post('/create')
   async create(@Body() createUserDto: CreateUserDto) {
     try {
-      return this.usersService.create(createUserDto);
+      return await this.usersService.create(createUserDto);
     } 
     catch (error) {
       switch(true) {
@@ -35,7 +36,12 @@ export class UsersController {
 
   @Get('get-all')
   async findAll() {
-    return await this.usersService.findAll();
+    try {
+      return await this.usersService.findAll(); 
+    } 
+    catch (error) {
+      throw error;
+    }
   }
 
   @Get(':id')
