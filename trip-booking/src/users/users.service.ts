@@ -56,7 +56,7 @@ export class UsersService {
       throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist);
 
     if(user.role.toString()  === Role.ADMINISTRATOR.toString())
-      throw new UsersExceptions("Administrator can't be deleted!", UsersExceptionStatusType.UserDoesNotExist);
+      throw new UsersExceptions("Administrator can't be deleted!", UsersExceptionStatusType.UserIsAdministrator);
     return await this.userRepository.hardDeleteUser(id);
   }
 

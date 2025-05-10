@@ -50,4 +50,8 @@ export class UsersExceptions extends HttpException {
     public IsUserPassenger(): boolean {
         return this.statusType === UsersExceptionStatusType.UserIsNotPassenger;
     }
+
+    public IsUserAdministrator(): boolean {
+        return this.statusType === UsersExceptionStatusType.UserIsAdministrator
+    }
 }

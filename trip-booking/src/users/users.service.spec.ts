@@ -47,6 +47,7 @@ describe('UsersService', () => {
 
     beforeEach(() => {
         usersRepository = {
+            softRemove: jest.fn(),
             getAll: jest.fn(),
             getUserById: jest.fn(),
             getUserByEmail: jest.fn(),
@@ -89,6 +90,102 @@ describe('UsersService', () => {
 
             await expect(usersService.findOne('non-existing-id')).rejects.toThrow(UsersExceptions);
             await expect(usersService.findOne('non-existing-id')).rejects.toThrow("User does not exist.");
+        })
+    })
+
+    describe('hardDelete', () => {
+        it('should return deleted user if user exists and is not admin', async () => {
+            (usersRepository.getUserById as jest.Mock).mockResolvedValue(mockedUsers[0]);
+            (usersRepository.hardDeleteUser as jest.Mock).mockResolvedValue(mockedUsers[0]);
+        
+            const result = await usersService.hardDelete(mockedUsers[0].id);
+        
+            expect(usersRepository.getUserById).toHaveBeenCalledWith(mockedUsers[0].id);
+            expect(usersRepository.hardDeleteUser).toHaveBeenCalledWith(mockedUsers[0].id);
+            expect(result).toEqual(mockedUsers[0]);
+          });
+
+        it('should throw UserExceptions if user does not exist.', async () => {
+            (usersRepository.hardDeleteUser as jest.Mock).mockResolvedValue(null);
+
+            await expect(usersService.hardDelete('non-existing-id')).rejects.toThrow(UsersExceptions);
+            await expect(usersService.hardDelete('non-existing-id')).rejects.toThrow("User does not exist.");
+
+            expect(usersRepository.getUserById).toHaveBeenCalledWith('non-existing-id');
+        })
+
+        it('should throw UserExceptions if UserIsAdministrator.is TRUE', async () => {
+            const adminUser = { ...mockedUsers[1], role: "ADMINISTRATOR" };
+            (usersRepository.getUserById as jest.Mock).mockResolvedValue(adminUser);
+
+            await expect(usersService.hardDelete(adminUser.id)).rejects.toThrow(UsersExceptions);
+            await expect(usersService.hardDelete(adminUser.id)).rejects.toThrow("Administrator can't be deleted!");
+
+            expect(usersRepository.getUserById).toHaveBeenCalledWith(adminUser.id);
+        })
+    })
+
+    describe('softDelete', () => {
+        it('should return deleted user if user exists and is not admin', async () => {
+            (usersRepository.getUserById as jest.Mock).mockResolvedValue(mockedUsers[0]);
+            (usersRepository.softRemove  as jest.Mock).mockResolvedValue(mockedUsers[0]);
+        
+            const result = await usersService.softDelete(mockedUsers[0].id);
+        
+            expect(usersRepository.getUserById).toHaveBeenCalledWith(mockedUsers[0].id);
+            expect(usersRepository.softRemove).toHaveBeenCalledWith(mockedUsers[0]);
+            expect(result).toEqual(mockedUsers[0]);
+          });
+
+        it('should throw UserExceptions if user does not exist.', async () => {
+            (usersRepository.softDeleteUser as jest.Mock).mockResolvedValue(null);
+
+            await expect(usersService.softDelete('non-existing-id')).rejects.toThrow(UsersExceptions);
+            await expect(usersService.softDelete('non-existing-id')).rejects.toThrow("User does not exist.");
+
+            expect(usersRepository.getUserById).toHaveBeenCalledWith('non-existing-id');
+        })
+
+        it('should throw UserExceptions if UserAlreadySoftDeleted is TRUE', async () => {
+            const toSoftDelete = { ...mockedUsers[2] };
+            (usersRepository.getUserById as jest.Mock).mockResolvedValue(toSoftDelete);
+
+            await expect(usersService.softDelete(toSoftDelete.id)).rejects.toThrow(UsersExceptions);
+            await expect(usersService.softDelete(toSoftDelete.id)).rejects.toThrow("User is already soft deleted.");
+
+            expect(usersRepository.getUserById).toHaveBeenCalledWith(toSoftDelete.id);
+        })
+    })
+
+    describe('softUndelete', () => {
+        it('should return deleted user if user exists and is not admin', async () => {
+            (usersRepository.getUserById as jest.Mock).mockResolvedValue(mockedUsers[2]);
+            (usersRepository.softUndeleteUser  as jest.Mock).mockResolvedValue(mockedUsers[2]);
+        
+            const result = await usersService.softDelete(mockedUsers[2].id);
+        
+            expect(usersRepository.getUserById).toHaveBeenCalledWith(mockedUsers[2].id);
+            expect(usersRepository.softUndeleteUser).toHaveBeenCalledWith(mockedUsers[2].id);
+            expect(result).toEqual(mockedUsers[2]);
+          });
+
+        it('should throw UserExceptions if user does not exist.', async () => {
+            (usersRepository.softUndeleteUser as jest.Mock).mockResolvedValue(null);
+
+            await expect(usersService.softUndelete('non-existing-id')).rejects.toThrow(UsersExceptions);
+            await expect(usersService.softUndelete('non-existing-id')).rejects.toThrow("User does not exist.");
+
+            expect(usersRepository.getUserById).toHaveBeenCalledWith('non-existing-id');
+        })
+
+        it('should throw UserExceptions if UserIsNotSoftUndeleted is TRUE', async () => {
+            const toSoftUndelete = { ...mockedUsers[2] };
+            (usersRepository.getUserById as jest.Mock).mockResolvedValue(toSoftUndelete);
+
+            await expect(usersService.softDelete(toSoftUndelete.id)).rejects.toThrow(UsersExceptions);
+            await expect(usersService.softDelete(toSoftUndelete.id)).rejects.toThrow("User is not soft deleted, therefore, it can not be undeleted.");
+
+            expect(usersRepository.getUserById).toHaveBeenCalledWith(toSoftUndelete.id);
         })
     })
 })

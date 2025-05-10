@@ -10,5 +10,6 @@ export enum UsersExceptionStatusType {
     UsersRoleDoesNotExist,
     UsersRoleCanNotBeEmpty,
     UserIsNotAccommodationOwner,
-    UserIsNotPassenger
+    UserIsNotPassenger,
+    UserIsAdministrator
 }
