@@ -19,7 +19,8 @@ describe('UsersService', () => {
             role: 'USER',
             password: 'hashedpass',
             accommHistory: [],
-            softDeleted: false
+            //softDeleted: false,
+            deletedAt: null
         },
         {
             id: '4ya85f64-5717-4562-b3fc-2c963f66afa6',
@@ -30,7 +31,8 @@ describe('UsersService', () => {
             role: 'USER',
             password: 'МиркоМирко',
             accommHistory: [],
-            softDeleted: false
+            //softDeleted: false,
+            deletedAt: null
         },
         {
             id: '99a85f64-5717-4562-b3fc-2c963f66afa6',
@@ -41,9 +43,11 @@ describe('UsersService', () => {
             role: 'USER',
             password: 'АњаАњаАња',
             accommHistory: [],
-            softDeleted: true
+            //softDeleted: true,
+            deletedAt: new Date('2024-01-01T00:00:00Z') 
         }
     ];
+    
 
     beforeEach(() => {
         usersRepository = {
@@ -158,11 +162,11 @@ describe('UsersService', () => {
     })
 
     describe('softUndelete', () => {
-        it('should return deleted user if user exists and is not admin', async () => {
+        it('should return deleted user if user exists and is not soft-deleted', async () => {
             (usersRepository.getUserById as jest.Mock).mockResolvedValue(mockedUsers[2]);
             (usersRepository.softUndeleteUser  as jest.Mock).mockResolvedValue(mockedUsers[2]);
         
-            const result = await usersService.softDelete(mockedUsers[2].id);
+            const result = await usersService.softUndelete(mockedUsers[2].id);
         
             expect(usersRepository.getUserById).toHaveBeenCalledWith(mockedUsers[2].id);
             expect(usersRepository.softUndeleteUser).toHaveBeenCalledWith(mockedUsers[2].id);
@@ -179,11 +183,11 @@ describe('UsersService', () => {
         })
 
         it('should throw UserExceptions if UserIsNotSoftUndeleted is TRUE', async () => {
-            const toSoftUndelete = { ...mockedUsers[2] };
+            const toSoftUndelete = { ...mockedUsers[0] };
             (usersRepository.getUserById as jest.Mock).mockResolvedValue(toSoftUndelete);
 
-            await expect(usersService.softDelete(toSoftUndelete.id)).rejects.toThrow(UsersExceptions);
-            await expect(usersService.softDelete(toSoftUndelete.id)).rejects.toThrow("User is not soft deleted, therefore, it can not be undeleted.");
+            await expect(usersService.softUndelete(toSoftUndelete.id)).rejects.toThrow(UsersExceptions);
+            await expect(usersService.softUndelete(toSoftUndelete.id)).rejects.toThrow("User is not soft deleted, therefore, it can not be undeleted.");
 
             expect(usersRepository.getUserById).toHaveBeenCalledWith(toSoftUndelete.id);
         })
