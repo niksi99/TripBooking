@@ -2,6 +2,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 @Module({
     imports: [
@@ -18,6 +19,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
             }),
             inject: [ConfigService]
         })
-    ]
+    ],
+    exports: [DataSource],
 })
 export class DatabaseModule {}
