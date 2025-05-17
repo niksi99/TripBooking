@@ -1,6 +1,5 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 
 import { INestApplication } from "@nestjs/common"
 import { Test, TestingModule } from "@nestjs/testing";

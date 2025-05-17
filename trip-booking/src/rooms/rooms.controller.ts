@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable no-useless-catch */
 import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, BadRequestException, UseGuards } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
@@ -30,7 +31,7 @@ export class RoomsController {
             throw new BadRequestException(error.getMessage());
           break;
         default:
-            throw error;
+          throw error;
       }
     }
   }
@@ -40,7 +41,7 @@ export class RoomsController {
     try {
       return await this.roomsService.findAll(); 
     } catch (error) {
-      throw new BadRequestException(error);
+      throw error;
     }
   }
 
@@ -64,6 +65,8 @@ export class RoomsController {
           if(error.DoesRoomExist())
             throw new NotFoundException(error.getMessage());
           break;
+        default:
+          throw error;
       }
     }
   }
@@ -90,6 +93,8 @@ export class RoomsController {
           if(error.DoesRoomExist())
             throw new NotFoundException(error.getMessage());
           break;
+        default:
+          throw error;
       }
     }
   }
@@ -110,6 +115,8 @@ export class RoomsController {
           if(error.CanRoomBeBlocked_SoftDeleted())
             throw new BadRequestException(error.getMessage());
           break;
+        default:
+          throw error;
       }
     }
   }
@@ -130,6 +137,8 @@ export class RoomsController {
           if(error.IsRoomBlocked())
             throw new BadRequestException(error.getMessage());
           break;
+        default:
+          throw error;
       }
     }
   }
