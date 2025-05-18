@@ -22,6 +22,9 @@ export class RoomsService {
     if(!checkAccommodationExistence)
       throw new AccommodationExceptions("Accommodation does not exist.", AccommodationExceptionsStatusType.AccommodationDoesNotExist);
 
+    if(checkAccommodationExistence.deletedAt !== null)
+      throw new AccommodationExceptions("Accommodation is blocked/soft-deleted.", AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted);
+
     const checkRoomExistence = await this.roomRepository.getRoomFromAccommodationByRoomLabel(createRoomDto.accommodationId, createRoomDto.label);
     if(checkRoomExistence)
       throw new RoomExceptions("Room with this label already exists in this accommodation.", RoomExceptionsStatusType.RoomAlreadyExists);

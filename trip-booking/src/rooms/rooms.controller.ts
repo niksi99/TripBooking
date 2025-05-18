@@ -9,6 +9,7 @@ import { RolesGuard } from 'src/auth/guards/roles/roles.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
 import { Role } from 'src/auth/enums/role.enum';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { AccommodationExceptions } from 'src/exceptions-handling/exceptions/accommodation.exceptions';
 
 @Controller('rooms')
 export class RoomsController {
@@ -24,10 +25,14 @@ export class RoomsController {
     } 
     catch (error) {
       switch(true) {
+        case error instanceof AccommodationExceptions:
+          if(error.DoesAccommodationExist())
+            throw new BadRequestException(error.getMessage());
+          if(error.IsAccommodationBlocked_SoftDeleted())
+            throw new BadRequestException(error.getMessage());
+          break;
         case error instanceof RoomExceptions:
           if(error.DoesRoomAlreadyExist())
-            throw new BadRequestException(error.getMessage());
-          if(error.IsRoomBlocked_SoftDeleted())
             throw new BadRequestException(error.getMessage());
           break;
         default:
