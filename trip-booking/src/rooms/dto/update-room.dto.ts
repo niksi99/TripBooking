@@ -4,6 +4,9 @@
 import { IsNotEmpty, IsPositive, Length } from "class-validator";
 
 export class UpdateRoomDto {
+    @IsNotEmpty({ message: 'RoomId is required.' })
+    roomId: string;
+
     @IsNotEmpty({ message: 'AccommodationId is required.' })
     accommodationId: string;
 

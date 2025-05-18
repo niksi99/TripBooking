@@ -80,8 +80,24 @@ export class RoomsController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRoomDto: UpdateRoomDto) {
-    return this.roomsService.update(id, updateRoomDto);
+  async update(@Param('id') id: string, @Body() updateRoomDto: UpdateRoomDto) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return await this.roomsService.update(id, updateRoomDto); 
+    } catch (error) {
+      switch(true) {
+        case error instanceof RoomExceptions:
+          if(error.DoesRoomExist())
+            throw new NotFoundException(error.getMessage());
+          if(error.IsRoomBlocked_SoftDeleted())
+            throw new BadRequestException(error.getMessage());
+          if(error.DoesRoomAlreadyExist())
+            throw new BadRequestException(error.getMessage());
+          break;
+        default:
+          throw error;
+      }
+    }
   }
 
   @Roles(Role.ACCOMMODATION_OWNER, Role.ADMINISTRATOR)
