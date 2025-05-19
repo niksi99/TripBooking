@@ -62,15 +62,17 @@ export class UsersController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     try {
-      return this.usersService.update(id, updateUserDto);
+      return await this.usersService.update(id, updateUserDto);
     } 
     catch (error) {
       switch(true) {
         case error instanceof UsersExceptions:
           if (error.IsUserExisting())
             throw new NotFoundException(error.getMessage());
+          if (error.IsUserSoftDeleted())
+            throw new BadRequestException(error.getMessage());
           break;
         default:
           throw error;

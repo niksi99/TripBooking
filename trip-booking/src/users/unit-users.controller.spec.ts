@@ -10,6 +10,7 @@ import { AuthExceptions } from "../exceptions-handling/exceptions/auth.exception
 import { AuthExceptionStatusType } from "../exceptions-handling/exceptions-status-type/auth.exceptions.status.types";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { Role } from "../auth/enums/role.enum";
+import { UpdateUserDto } from "./dto/update-user.dto";
 
 describe('UsersController', () => {
     let usersController: UsersController;
@@ -58,7 +59,8 @@ describe('UsersController', () => {
             softDelete: jest.fn(),
             softUndelete: jest.fn(),
             hardDeleteUserAndAllHisAccommodation: jest.fn(),
-            create: jest.fn()
+            create: jest.fn(),
+            update: jest.fn()
         };
 
         const module: TestingModule = await Test.createTestingModule({
@@ -296,4 +298,51 @@ describe('UsersController', () => {
             await expect(usersController.create(newUser)).rejects.toBe(errorMock);
         });
     })
+
+     describe('update', () => {
+            const updateExistingUser: UpdateUserDto = {
+                firstName: "Џон",
+                lastName: "До"
+            };
+            const userId = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+    
+            it('should return created room with no errors.', async () => {
+                const expectedResult = { id: '3fa85f64-5717-4562-b3fc-67y63f66afa6', ...updateExistingUser };
+                (usersService.update as jest.Mock).mockResolvedValue(expectedResult);
+
+                const result = await usersController.update(userId, updateExistingUser);
+    
+                expect(result).toEqual(expectedResult);
+                expect(usersService.update).toHaveBeenCalledWith(userId, updateExistingUser);
+            })
+    
+            it('should throw BadRequestException: User does not exist.', async () => {
+                const errorMock = new UsersExceptions("User does not exist", UsersExceptionStatusType.UserDoesNotExist);
+                jest.spyOn(errorMock, 'IsUserExisting').mockReturnValue(true);
+                jest.spyOn(errorMock, 'getMessage').mockReturnValue("User does not exist");
+    
+                (usersService.update as jest.Mock).mockRejectedValue(errorMock);
+    
+                await expect(usersController.update(userId, updateExistingUser)).rejects.toThrow(NotFoundException);
+                await expect(usersController.update(userId, updateExistingUser)).rejects.toThrow("User does not exist");
+            });
+    
+            it('should throw BadRequestException: User is soft deleted, can not be updated.', async () => {
+                const errorMock = new UsersExceptions("User is soft deleted, can not be updated.", UsersExceptionStatusType.UserAlreadySoftDeleted);
+                jest.spyOn(errorMock, 'IsUserSoftDeleted').mockReturnValue(true);
+                jest.spyOn(errorMock, 'getMessage').mockReturnValue("User is soft deleted, can not be updated.");
+    
+                (usersService.update as jest.Mock).mockRejectedValue(errorMock);
+    
+                await expect(usersController.update(userId, updateExistingUser)).rejects.toThrow(BadRequestException);
+                await expect(usersController.update(userId, updateExistingUser)).rejects.toThrow("User is soft deleted, can not be updated.");
+            });
+    
+            it('should throw other errors', async () => {
+                const errorMock = new Error('Other error');
+                (usersService.update as jest.Mock).mockRejectedValue(errorMock);
+    
+                await expect(usersController.update(userId, updateExistingUser)).rejects.toBe(errorMock);
+            });
+        })
 });

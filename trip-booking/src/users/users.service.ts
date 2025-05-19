@@ -46,6 +46,9 @@ export class UsersService {
     if(checkUserExistense == null)
       throw new UsersExceptions("Item does not exist", UsersExceptionStatusType.UserDoesNotExist);
     
+    if(checkUserExistense.deletedAt !== null)
+      throw new UsersExceptions("User is soft deleted, can not be updated.", UsersExceptionStatusType.UserAlreadySoftDeleted);
+    
     Object.assign(checkUserExistense, updateUserDto);
     return await this.userRepository.manager.save(User, checkUserExistense);
   }
