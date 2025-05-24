@@ -123,7 +123,7 @@ export class RoomsController {
   @Roles(Role.ACCOMMODATION_OWNER, Role.ADMINISTRATOR)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Delete('/soft-delete/:id')
+  @Patch('/soft-delete/:id')
   async softDelete(@Param('id') id: string) {
     try {
       return await this.roomsService.softDelete(id);
@@ -145,7 +145,7 @@ export class RoomsController {
   @Roles(Role.ACCOMMODATION_OWNER, Role.ADMINISTRATOR)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Delete('/soft-undelete/:id')
+  @Patch('/soft-undelete/:id')
   async softUndelete(@Param('id') id: string) {
     try {
       return await this.roomsService.softUndelete(id);
