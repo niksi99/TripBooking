@@ -244,7 +244,7 @@ describe('Rooms Controller e2e', () => {
             expect(response.body.message).toBe('Room not found');
         })
 
-        it('PATCH /rooms/soft-delete/:id - thorw RoomDoeNotExist', async () => {
+        it('PATCH /rooms/soft-delete/:id - thorw RoomCanNotBeBlocked_SoftDeleted', async () => {
             const room = {
                 id: "3fa85f64-5717-4562-b3fc-67y63f66afa6",
                 label: "Моја соба.",
@@ -279,6 +279,87 @@ describe('Rooms Controller e2e', () => {
           
             const response = await request(app.getHttpServer())
               .patch('/rooms/soft-delete/some-invalid-id');
+          
+            expect(response.status).toBe(500);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            expect(response.body.message).toBe('Internal server error'); // or your global exception message
+          });
+    })
+
+    describe("Soft undelete a room", () => {
+        it('soft-undelede a room - should soft delte it', async () => {
+        const room = {
+            id: "3fa85f64-5717-4562-b3fc-67y63f66afa6",
+            label: "Моја соба.",
+            numberOfBeds: 4,
+            numberOfBookedBeds: 2,
+            floor: 1,
+            accommodation: null,
+            deletedAt: Date.now(),
+            accommodationId: "7a495f64-5717-4562-b3fc-67y63f66afa8"
+            };
+
+        jest.spyOn(mockedRoomSelvice, 'softUndelete').mockResolvedValue(room);
+
+        const response = await request(app.getHttpServer())
+            .patch(`/rooms/soft-undelete/${room.id}`);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual(room);
+        }, 10000);
+
+        it('PATCH /rooms/soft-undelete/:id - thorw RoomDoeNotExist', async () => {
+            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomDoesNotExist);
+            jest.spyOn(error, 'DoesRoomExist').mockReturnValue(true);
+            jest.spyOn(error, 'getMessage').mockReturnValue('Room not found');
+
+            jest.spyOn(mockedRoomSelvice, 'softUndelete').mockImplementation(() => {
+                throw error;
+            });
+
+            const response = await request(app.getHttpServer())
+                .patch('/rooms/soft-undelete/some-invalid-id');
+
+            expect(response.status).toBe(404);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            expect(response.body.message).toBe('Room not found');
+        })
+
+        it('PATCH /rooms/soft-undelete/:id - thorw RoomIsNotBlocked_SoftDeleted', async () => {
+            const room = {
+                id: "3fa85f64-5717-4562-b3fc-67y63f66afa6",
+                label: "Моја соба.",
+                numberOfBeds: 4,
+                numberOfBookedBeds: 2,
+                floor: 1,
+                accommodation: null,
+                deletedAt: null,
+                accommodationId: "7a495f64-5717-4562-b3fc-67y63f66afa8"
+            };
+
+            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomIsNotBlocked_SoftDeleted);
+            jest.spyOn(error, 'IsRoomBlocked').mockReturnValue(true);
+            jest.spyOn(error, 'getMessage').mockReturnValue('Room is not soft deleted, therefore, it can not be undeleted.');
+
+            jest.spyOn(mockedRoomSelvice, 'softUndelete').mockImplementation(() => {
+                throw error;
+            });
+
+            const response = await request(app.getHttpServer())
+                .patch(`/rooms/soft-undelete/${room.id}`);
+
+            expect(response.status).toBe(400);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            expect(response.body.message).toBe('Room is not soft deleted, therefore, it can not be undeleted.');
+        })
+
+        it('PATCH /rooms/soft-undelete/:id - should return 500 on unexpected error', async () => {
+            jest.spyOn(mockedRoomSelvice, 'softUndelete').mockImplementation(() => {
+              throw new Error('Unexpected error');
+            });
+          
+            const response = await request(app.getHttpServer())
+              .patch('/rooms/soft-undelete/some-invalid-id');
           
             expect(response.status).toBe(500);
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
