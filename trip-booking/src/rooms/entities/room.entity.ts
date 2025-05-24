@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { IsNotEmpty, IsPositive, Length, Min } from "class-validator";
 import { Accommodation } from "../../accommodations/entities/accommodation.entity";
 import { AbstactEntity } from "../../database/AbstractEntity";
