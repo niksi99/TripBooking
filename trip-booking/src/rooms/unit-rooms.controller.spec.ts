@@ -242,7 +242,7 @@ describe('RoomsController UnitTest', () => {
 
             (roomsService.create as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(roomsController.create(newRoom)).rejects.toThrow(BadRequestException);
+            await expect(roomsController.create(newRoom)).rejects.toThrow(NotFoundException);
             await expect(roomsController.create(newRoom)).rejects.toThrow("Accommodation does not exist.");
         });
 

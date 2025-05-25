@@ -11,6 +11,8 @@ import { RoomExceptionsStatusType } from "src/exceptions-handling/exceptions-sta
 import { JwtAuthGuard } from "../auth/guards/jwt-auth/jwt-auth.guard";
 import { MockJwtAuthGuard, MockRolesGuard } from "../auth/guards/mocked/mocked-auth.guards";
 import { RolesGuard } from "../auth/guards/roles/roles.guard";
+import { AccommodationExceptions } from "../exceptions-handling/exceptions/accommodation.exceptions";
+import { AccommodationExceptionsStatusType } from "../exceptions-handling/exceptions-status-type/accommodation.exceptions";
 
 jest.setTimeout(15000);
 describe('Rooms Controller e2e', () => {
@@ -52,7 +54,12 @@ describe('Rooms Controller e2e', () => {
         }),
         softUndelete: jest.fn().mockImplementation((id: string) => {
             return mockRooms.find(room => room.id ===id && room.deletedAt !== null);
-        })
+        }),
+        create: jest.fn().mockImplementation((newRoom: any) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            return mockRooms.push(newRoom);
+        }),
+        update: jest.fn(),
     };
 
     beforeEach(async () => {
@@ -365,6 +372,93 @@ describe('Rooms Controller e2e', () => {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             expect(response.body.message).toBe('Internal server error'); // or your global exception message
           });
+    })
+
+    describe("Create a room", () => {
+        it("Should return created room", async () => {
+            const newRoom = {
+                id: "3fa85f64-5717-4562-b3fc-67y63f66afa6",
+                label: "Нова соба.",
+                numberOfBeds: 5,
+                numberOfBookedBeds: 0,
+                floor: 4,
+                accommodation: null,
+                deletedAt: null,
+                accommodationId: "1a495f64-5717-4562-b3fc-67y63f66afa8"
+            }
+
+            jest.spyOn(mockedRoomSelvice, 'create').mockResolvedValue(newRoom);
+
+            const response = await request(app.getHttpServer())
+                .post(`/rooms`);
+
+            expect(response.status).toBe(201);
+            expect(response.body).toEqual(newRoom);
+        })
+
+        it('POST /rooms - throw Accomodation does not exist', async () => {
+            const error = new AccommodationExceptions("", AccommodationExceptionsStatusType.AccommodationDoesNotExist);
+            jest.spyOn(error, 'DoesAccommodationExist').mockReturnValue(true);
+            jest.spyOn(error, 'getMessage').mockReturnValue('Accommodation does not exist.');
+
+            jest.spyOn(mockedRoomSelvice, 'create').mockImplementation(() => {
+                throw error;
+            });
+
+            const response = await request(app.getHttpServer())
+                .post('/rooms');
+
+            expect(response.status).toBe(404);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            expect(response.body.message).toBe('Accommodation does not exist.');
+        })
+
+            it('POST /rooms - throw Accommodation is blocked/soft-deleted.', async () => {
+            const error = new AccommodationExceptions("", AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted);
+            jest.spyOn(error, 'IsAccommodationBlocked_SoftDeleted').mockReturnValue(true);
+            jest.spyOn(error, 'getMessage').mockReturnValue('Accommodation is blocked/soft-deleted.');
+
+            jest.spyOn(mockedRoomSelvice, 'create').mockImplementation(() => {
+                throw error;
+            });
+
+            const response = await request(app.getHttpServer())
+                .post('/rooms');
+
+            expect(response.status).toBe(400);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            expect(response.body.message).toBe('Accommodation is blocked/soft-deleted.');
+        })
+
+        it('POST /rooms - throw Room already exists', async () => {
+            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomAlreadyExists);
+            jest.spyOn(error, 'DoesRoomAlreadyExist').mockReturnValue(true);
+            jest.spyOn(error, 'getMessage').mockReturnValue('Room with this label already exists in this accommodation.');
+
+            jest.spyOn(mockedRoomSelvice, 'create').mockImplementation(() => {
+                throw error;
+            });
+
+            const response = await request(app.getHttpServer())
+                .post('/rooms');
+
+            expect(response.status).toBe(400);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            expect(response.body.message).toBe('Room with this label already exists in this accommodation.');
+        })
+
+        it("POST /rooms should return 500 or unexpected error", async () => {
+            jest.spyOn(mockedRoomSelvice, "create").mockImplementation(() => {
+                throw new Error('Unexpected error');
+            })
+
+            const response = await request(app.getHttpServer())
+                .post(`/rooms`);
+            
+            expect(response.status).toBe(500);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            expect(response.body.message).toBe('Internal server error'); // or your global exception message
+        })
     })
 
     afterEach(async () => {

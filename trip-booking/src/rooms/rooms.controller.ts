@@ -27,7 +27,7 @@ export class RoomsController {
       switch(true) {
         case error instanceof AccommodationExceptions:
           if(error.DoesAccommodationExist())
-            throw new BadRequestException(error.getMessage());
+            throw new NotFoundException(error.getMessage());
           if(error.IsAccommodationBlocked_SoftDeleted())
             throw new BadRequestException(error.getMessage());
           break;
