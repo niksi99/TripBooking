@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/unbound-method */
 
+import { AuthExceptions } from "../exceptions-handling/exceptions/auth.exceptions";
 import { UsersExceptions } from "../exceptions-handling/exceptions/users.exceptions";
 import { UserRepository } from "../repositories/UserRepository"
 import { UsersService } from "./users.service";
@@ -122,7 +123,7 @@ describe('UsersService', () => {
             const adminUser = { ...mockedUsers[1], role: "ADMINISTRATOR" };
             (usersRepository.getUserById as jest.Mock).mockResolvedValue(adminUser);
 
-            await expect(usersService.hardDelete(adminUser.id)).rejects.toThrow(UsersExceptions);
+            await expect(usersService.hardDelete(adminUser.id)).rejects.toThrow(AuthExceptions);
             await expect(usersService.hardDelete(adminUser.id)).rejects.toThrow("Administrator can't be deleted!");
 
             expect(usersRepository.getUserById).toHaveBeenCalledWith(adminUser.id);

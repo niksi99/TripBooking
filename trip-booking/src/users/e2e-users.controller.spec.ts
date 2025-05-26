@@ -231,14 +231,14 @@ describe('UsersController (e2e)', () => {
         jest.spyOn(error, 'getMessage').mockReturnValue('Administrator can\'t be deleted!');
 
         jest.spyOn(mockedUsersService, 'hardDelete').mockImplementation(() => {
-          throw new AuthExceptions("", AuthExceptionStatusType.AdministratorCanNotBeDeleted);
+          throw new AuthExceptions("Administrator can't be deleted!", AuthExceptionStatusType.AdministratorCanNotBeDeleted);
         });
 
         const response = await request(app.getHttpServer())
           .delete(`/users/hard-delete/${user.id}`);
 
 
-        expect(response.status).toBe(404);
+        expect(response.status).toBe(400);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         expect(response.body.message).toBe('Administrator can\'t be deleted!')
       })
