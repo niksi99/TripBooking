@@ -28,7 +28,7 @@ describe('UsersController (e2e)', () => {
             role: Role.GUIDE,
             password: 'hashedpass',
             accommHistory: [],
-            softDeleted: false
+            deletedAt: true,
         },
         {
             id: '4ya85f64-5717-4562-b3fc-2c963f66afa6',
@@ -39,7 +39,7 @@ describe('UsersController (e2e)', () => {
             role: Role.PASSENGER,
             password: 'МиркоМирко',
             accommHistory: [],
-            softDeleted: false
+            deletedAt: false
         },
         {
             id: '99a85f64-5717-4562-b3fc-2c963f66afa6',
@@ -50,7 +50,7 @@ describe('UsersController (e2e)', () => {
             role: Role.ADMINISTRATOR,
             password: 'АњаАњаАња',
             accommHistory: [],
-            softDeleted: true
+            deletedAt: false,
         }
     ];
 
@@ -68,6 +68,28 @@ describe('UsersController (e2e)', () => {
             throw new Error('Administrator can\'t be deleted!');
           }
           return mockedUsers.filter(user => user.id !== id);
+        }),
+        softDelete: jest.fn().mockImplementation((id: string) => {
+          const userToDelete = mockedUsers.find(user => user.id === id);
+          if (!userToDelete) {
+            throw new Error('User does not exist.');
+          }
+          if (userToDelete.deletedAt === true) {
+            throw new Error('User is already soft deleted.');
+          }
+          userToDelete.deletedAt = true
+          return userToDelete;
+        }),
+        softUndelete: jest.fn().mockImplementation((id: string) => {
+          const userToDelete = mockedUsers.find(user => user.id === id);
+          if (!userToDelete) {
+            throw new Error('User does not exist.');
+          }
+          if (userToDelete.deletedAt === false) {
+            throw new Error('User is not soft deleted, therefore, it can not be undeleted.');
+          }
+          userToDelete.deletedAt = true
+          return userToDelete;
         })
     };
 
@@ -130,7 +152,7 @@ describe('UsersController (e2e)', () => {
           role: 'USER',
           password: 'МиркоМирко',
           accommHistory: [],
-          softDeleted: false
+          deletedAt: false
         };
 
         jest.spyOn(mockedUsersService, 'findOne').mockResolvedValue(user);
@@ -184,7 +206,7 @@ describe('UsersController (e2e)', () => {
           role: 'USER',
           password: 'МиркоМирко',
           accommHistory: [],
-          softDeleted: false
+          deletedAt: null,
         };
 
         jest.spyOn(mockedUsersService, 'hardDelete').mockResolvedValue(user);
@@ -250,6 +272,174 @@ describe('UsersController (e2e)', () => {
       
         const response = await request(app.getHttpServer())
           .delete('/users/hard-delete/some-invalid-id');
+      
+        expect(response.status).toBe(500);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect(response.body.message).toBe('Internal server error');
+      });
+    })
+
+    describe("Soft delete a user", () => {
+      it('soft-delede a user - should soft delte it', async () => {
+        const user = {
+          id: '4ya85f64-5717-4562-b3fc-2c963f66afa6',
+          firstName: 'Мирко',
+          lastName: 'Јанић',
+          username: 'МиркоМирко',
+          email: 'mirko.mirko@gmail.com',
+          role: 'USER',
+          password: 'МиркоМирко',
+          accommHistory: [],
+          deletedAt: false
+        };
+
+        jest.spyOn(mockedUsersService, 'softDelete').mockResolvedValue(user);
+
+        const response = await request(app.getHttpServer())
+          .patch(`/users/soft-delete/${user.id}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(user);
+      }, 10000);
+
+      it('DELETE /users/soft-delete/:id - throw UserDoesNotExist', async () => {
+        const error = new UsersExceptions("", UsersExceptionStatusType.UserDoesNotExist);
+        jest.spyOn(error, 'IsUserExisting').mockReturnValue(true);
+        jest.spyOn(error, 'getMessage').mockReturnValue('User does not exist.');
+
+        jest.spyOn(mockedUsersService, 'softDelete').mockImplementation(() => {
+            throw error;
+        });
+
+        const response = await request(app.getHttpServer())
+          .patch('/users/soft-delete/some-invalid-id');
+
+        expect(response.status).toBe(404);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect(response.body.message).toBe('User does not exist.');
+      })
+
+      it('DELETE /users/soft-delete/:id - throw User is already soft deleted.', async () => {
+        const user = {
+          id: '99a85f64-5717-4562-b3fc-2c963f66afa6',
+            firstName: 'Ања',
+            lastName: 'Милинковић',
+            username: 'АњаАњаАња',
+            email: 'anjanjaanja@gmail.com',
+            role: Role.ADMINISTRATOR,
+            password: 'АњаАњаАња',
+            accommHistory: [],
+            deletedAt: true
+        }
+
+        const error = new UsersExceptions("", UsersExceptionStatusType.UserAlreadySoftDeleted);
+        jest.spyOn(error, 'IsUserSoftDeleted').mockReturnValue(true);
+        jest.spyOn(error, 'getMessage').mockReturnValue('User is already soft deleted.');
+
+        jest.spyOn(mockedUsersService, 'softDelete').mockImplementation(() => {
+          throw new AuthExceptions("User is already soft deleted.", AuthExceptionStatusType.AdministratorCanNotBeDeleted);
+        });
+
+        const response = await request(app.getHttpServer())
+          .patch(`/users/soft-delete/${user.id}`);
+
+
+        expect(response.status).toBe(400);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect(response.body.message).toBe('User is already soft deleted.')
+      })
+
+      it('DELETE /users/soft-delete/:id - should return 500 on unexpected error', async () => {
+        jest.spyOn(mockedUsersService, 'softDelete').mockImplementation(() => {
+          throw new Error('Unexpected error');
+        });
+      
+        const response = await request(app.getHttpServer())
+          .patch('/users/soft-delete/some-invalid-id');
+      
+        expect(response.status).toBe(500);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect(response.body.message).toBe('Internal server error');
+      });
+    })
+
+     describe("Soft undelete a user", () => {
+      it('soft-undelede a user - should soft undelte it', async () => {
+        const user = {
+          id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          firstName: 'John',
+          lastName: 'Doe',
+          username: 'johndoe',
+          email: 'john@example.com',
+          role: Role.GUIDE,
+          password: 'hashedpass',
+          accommHistory: [],
+          deletedAt: true,
+        };
+
+        jest.spyOn(mockedUsersService, 'softUndelete').mockResolvedValue(user);
+
+        const response = await request(app.getHttpServer())
+          .patch(`/users/soft-undelete/${user.id}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(user);
+      }, 10000);
+
+      it('DELETE /users/soft-undelete/:id - throw UserDoesNotExist', async () => {
+        const error = new UsersExceptions("", UsersExceptionStatusType.UserDoesNotExist);
+        jest.spyOn(error, 'IsUserExisting').mockReturnValue(true);
+        jest.spyOn(error, 'getMessage').mockReturnValue('User does not exist.');
+
+        jest.spyOn(mockedUsersService, 'softUndelete').mockImplementation(() => {
+            throw error;
+        });
+
+        const response = await request(app.getHttpServer())
+          .patch('/users/soft-undelete/some-invalid-id');
+
+        expect(response.status).toBe(404);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect(response.body.message).toBe('User does not exist.');
+      })
+
+      it('DELETE /users/soft-undelete/:id - throw User is already soft deleted.', async () => {
+        const user = {
+          id: '4ya85f64-5717-4562-b3fc-2c963f66afa6',
+          firstName: 'Мирко',
+          lastName: 'Јанић',
+          username: 'МиркоМирко',
+          email: 'mirko.mirko@gmail.com',
+          role: 'USER',
+          password: 'МиркоМирко',
+          accommHistory: [],
+          deletedAt: false
+        };
+
+        const error = new UsersExceptions("", UsersExceptionStatusType.UserIsNotSoftUndeleted);
+        jest.spyOn(error, 'IsNotUserSoftDeleted').mockReturnValue(true);
+        jest.spyOn(error, 'getMessage').mockReturnValue('User is not soft deleted, therefore, it can not be undeleted.');
+
+        jest.spyOn(mockedUsersService, 'softUndelete').mockImplementation(() => {
+          throw new AuthExceptions("User is not soft deleted, therefore, it can not be undeleted.", AuthExceptionStatusType.AdministratorCanNotBeDeleted);
+        });
+
+        const response = await request(app.getHttpServer())
+          .patch(`/users/soft-undelete/${user.id}`);
+
+
+        expect(response.status).toBe(400);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect(response.body.message).toBe('User is not soft deleted, therefore, it can not be undeleted.')
+      })
+
+      it('DELETE /users/soft-undelete/:id - should return 500 on unexpected error', async () => {
+        jest.spyOn(mockedUsersService, 'softUndelete').mockImplementation(() => {
+          throw new Error('Unexpected error');
+        });
+      
+        const response = await request(app.getHttpServer())
+          .patch('/users/soft-undelete/some-invalid-id')
       
         expect(response.status).toBe(500);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

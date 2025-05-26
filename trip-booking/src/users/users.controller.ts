@@ -160,7 +160,7 @@ export class UsersController {
           if (error.IsUserExisting())
             throw new NotFoundException(error.getMessage());
           if (error.IsNotUserSoftDeleted())
-            throw new NotFoundException(error.getMessage());
+            throw new BadRequestException(error.getMessage());
           break;
         default:
           throw error;
