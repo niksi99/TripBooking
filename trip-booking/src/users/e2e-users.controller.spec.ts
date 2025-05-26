@@ -9,6 +9,8 @@ import { UsersService } from "./users.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth/jwt-auth.guard";
 import { MockJwtAuthGuard, MockRolesGuard } from "../auth/guards/mocked/mocked-auth.guards";
 import { RolesGuard } from "src/auth/guards/roles/roles.guard";
+import { UsersExceptions } from "src/exceptions-handling/exceptions/users.exceptions";
+import { UsersExceptionStatusType } from "src/exceptions-handling/exceptions-status-type/user.exceptions.status.type";
 
 jest.setTimeout(15000);
 describe('UsersController (e2e)', () => {
@@ -90,7 +92,7 @@ describe('UsersController (e2e)', () => {
         expect(res.body).toEqual(mockedUsers);
       }, 10000)
 
-      it('GET /rooms - should return error', async () => {
+      it('GET /users - should return error', async () => {
         jest.spyOn(mockedUsersService, 'findAll').mockImplementation(() => {
           throw new Error('Unexpected error');
         });
@@ -103,4 +105,58 @@ describe('UsersController (e2e)', () => {
         expect(response.body.message).toBe('Internal server error');
       }, 10000);
     })
+
+    describe("GET a user by id", () => {
+      it('GET /users - should return a user', async () => {
+      const user = {
+          id: '4ya85f64-5717-4562-b3fc-2c963f66afa6',
+          firstName: 'Мирко',
+          lastName: 'Јанић',
+          username: 'МиркоМирко',
+          email: 'mirko.mirko@gmail.com',
+          role: 'USER',
+          password: 'МиркоМирко',
+          accommHistory: [],
+          softDeleted: false
+      };
+
+      jest.spyOn(mockedUsersService, 'findOne').mockResolvedValue(user);
+
+      const response = await request(app.getHttpServer())
+          .get(`/users/${user.id}`);
+  
+          expect(response.status).toBe(200);
+          expect(response.body).toEqual(user);
+      }, 10000);
+
+      it('GET /users/:id - throw UserDoedNotExist', async () => {
+          const error = new UsersExceptions("", UsersExceptionStatusType.UserDoesNotExist);
+          jest.spyOn(error, 'IsUserExisting').mockReturnValue(true);
+          jest.spyOn(error, 'getMessage').mockReturnValue('User does not exist.');
+
+          jest.spyOn(mockedUsersService, 'findOne').mockImplementation(() => {
+              throw error;
+          });
+
+          const response = await request(app.getHttpServer())
+              .get('/users/some-invalid-id');
+
+          expect(response.status).toBe(404);
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          expect(response.body.message).toBe('User does not exist.');
+      })
+
+      it('GET /rooms/:id - should return 500 on unexpected error', async () => {
+          jest.spyOn(mockedUsersService, 'findOne').mockImplementation(() => {
+            throw new Error('Unexpected error');
+          });
+        
+          const response = await request(app.getHttpServer())
+            .get('/users/some-invalid-id');
+        
+          expect(response.status).toBe(500);
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          expect(response.body.message).toBe('Internal server error');
+        });
+      })
 })
