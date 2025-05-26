@@ -7,6 +7,8 @@ import { UsersExceptions } from '../exceptions-handling/exceptions/users.excepti
 import { UsersExceptionStatusType } from '../exceptions-handling/exceptions-status-type/user.exceptions.status.type';
 import { User } from './entities/user.entity';
 import { Role } from '../auth/enums/role.enum';
+import { AuthExceptionStatusType } from 'src/exceptions-handling/exceptions-status-type/auth.exceptions.status.types';
+import { AuthExceptions } from 'src/exceptions-handling/exceptions/auth.exceptions';
 
 @Injectable()
 export class UsersService {
@@ -59,7 +61,7 @@ export class UsersService {
       throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist);
 
     if(user.role.toString()  === Role.ADMINISTRATOR.toString())
-      throw new UsersExceptions("Administrator can't be deleted!", UsersExceptionStatusType.UserIsAdministrator);
+      throw new AuthExceptions("Administrator can't be deleted!", AuthExceptionStatusType.AdministratorCanNotBeDeleted);
     return await this.userRepository.hardDeleteUser(id);
   }
 

@@ -11,6 +11,9 @@ import { MockJwtAuthGuard, MockRolesGuard } from "../auth/guards/mocked/mocked-a
 import { RolesGuard } from "src/auth/guards/roles/roles.guard";
 import { UsersExceptions } from "src/exceptions-handling/exceptions/users.exceptions";
 import { UsersExceptionStatusType } from "src/exceptions-handling/exceptions-status-type/user.exceptions.status.type";
+import { AuthExceptions } from "src/exceptions-handling/exceptions/auth.exceptions";
+import { AuthExceptionStatusType } from "src/exceptions-handling/exceptions-status-type/auth.exceptions.status.types";
+import { Role } from "src/auth/enums/role.enum";
 
 jest.setTimeout(15000);
 describe('UsersController (e2e)', () => {
@@ -22,7 +25,7 @@ describe('UsersController (e2e)', () => {
             lastName: 'Doe',
             username: 'johndoe',
             email: 'john@example.com',
-            role: 'USER',
+            role: Role.GUIDE,
             password: 'hashedpass',
             accommHistory: [],
             softDeleted: false
@@ -33,7 +36,7 @@ describe('UsersController (e2e)', () => {
             lastName: 'Јанић',
             username: 'МиркоМирко',
             email: 'mirko.mirko@gmail.com',
-            role: 'USER',
+            role: Role.PASSENGER,
             password: 'МиркоМирко',
             accommHistory: [],
             softDeleted: false
@@ -44,7 +47,7 @@ describe('UsersController (e2e)', () => {
             lastName: 'Милинковић',
             username: 'АњаАњаАња',
             email: 'anjanjaanja@gmail.com',
-            role: 'USER',
+            role: Role.ADMINISTRATOR,
             password: 'АњаАњаАња',
             accommHistory: [],
             softDeleted: true
@@ -54,7 +57,17 @@ describe('UsersController (e2e)', () => {
     const mockedUsersService= {
         findAll: jest.fn().mockReturnValue(mockedUsers),
         findOne: jest.fn().mockImplementation((id: string) => {
-          return mockedUsers.find(x => x.id === id);
+          return mockedUsers.find(user => user.id === id);
+        }),
+        hardDelete: jest.fn().mockImplementation((id: string) => {
+          const userToDelete = mockedUsers.find(user => user.id === id);
+          if (!userToDelete) {
+            throw new Error('User does not exist.');
+          }
+          if (userToDelete.role === Role.ADMINISTRATOR) {
+            throw new Error('Administrator can\'t be deleted!');
+          }
+          return mockedUsers.filter(user => user.id !== id);
         })
     };
 
@@ -108,7 +121,7 @@ describe('UsersController (e2e)', () => {
 
     describe("GET a user by id", () => {
       it('GET /users - should return a user', async () => {
-      const user = {
+        const user = {
           id: '4ya85f64-5717-4562-b3fc-2c963f66afa6',
           firstName: 'Мирко',
           lastName: 'Јанић',
@@ -118,11 +131,11 @@ describe('UsersController (e2e)', () => {
           password: 'МиркоМирко',
           accommHistory: [],
           softDeleted: false
-      };
+        };
 
-      jest.spyOn(mockedUsersService, 'findOne').mockResolvedValue(user);
+        jest.spyOn(mockedUsersService, 'findOne').mockResolvedValue(user);
 
-      const response = await request(app.getHttpServer())
+        const response = await request(app.getHttpServer())
           .get(`/users/${user.id}`);
   
           expect(response.status).toBe(200);
@@ -157,6 +170,90 @@ describe('UsersController (e2e)', () => {
           expect(response.status).toBe(500);
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           expect(response.body.message).toBe('Internal server error');
+      });
+    })
+
+    describe("Hard delete a user", () => {
+      it('hard-delede a user - should hard delte it', async () => {
+        const user = {
+          id: '4ya85f64-5717-4562-b3fc-2c963f66afa6',
+          firstName: 'Мирко',
+          lastName: 'Јанић',
+          username: 'МиркоМирко',
+          email: 'mirko.mirko@gmail.com',
+          role: 'USER',
+          password: 'МиркоМирко',
+          accommHistory: [],
+          softDeleted: false
+        };
+
+        jest.spyOn(mockedUsersService, 'hardDelete').mockResolvedValue(user);
+
+        const response = await request(app.getHttpServer())
+          .delete(`/users/hard-delete/${user.id}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(user);
+      }, 10000);
+
+      it('DELETE /users/hard-delete/:id - throw UserDoesNotExist', async () => {
+        const error = new UsersExceptions("", UsersExceptionStatusType.UserDoesNotExist);
+        jest.spyOn(error, 'IsUserExisting').mockReturnValue(true);
+        jest.spyOn(error, 'getMessage').mockReturnValue('User does not exist.');
+
+        jest.spyOn(mockedUsersService, 'hardDelete').mockImplementation(() => {
+            throw error;
         });
+
+        const response = await request(app.getHttpServer())
+          .delete('/users/hard-delete/some-invalid-id');
+
+        expect(response.status).toBe(404);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect(response.body.message).toBe('User does not exist.');
       })
+
+      it('DELETE /users/hard-delete/:id - throw AdminCanNotBeDeleted', async () => {
+        const user = {
+          id: '99a85f64-5717-4562-b3fc-2c963f66afa6',
+            firstName: 'Ања',
+            lastName: 'Милинковић',
+            username: 'АњаАњаАња',
+            email: 'anjanjaanja@gmail.com',
+            role: Role.ADMINISTRATOR,
+            password: 'АњаАњаАња',
+            accommHistory: [],
+            softDeleted: true
+        }
+
+        const error = new AuthExceptions("", AuthExceptionStatusType.AdministratorCanNotBeDeleted);
+        jest.spyOn(error, 'CanAdministratorBeDeleted').mockReturnValue(true);
+        jest.spyOn(error, 'getMessage').mockReturnValue('Administrator can\'t be deleted!');
+
+        jest.spyOn(mockedUsersService, 'hardDelete').mockImplementation(() => {
+          throw new AuthExceptions("", AuthExceptionStatusType.AdministratorCanNotBeDeleted);
+        });
+
+        const response = await request(app.getHttpServer())
+          .delete(`/users/hard-delete/${user.id}`);
+
+
+        expect(response.status).toBe(404);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect(response.body.message).toBe('Administrator can\'t be deleted!')
+      })
+
+      it('DELETE /users/hard-delete/:id - should return 500 on unexpected error', async () => {
+        jest.spyOn(mockedUsersService, 'hardDelete').mockImplementation(() => {
+          throw new Error('Unexpected error');
+        });
+      
+        const response = await request(app.getHttpServer())
+          .delete('/users/hard-delete/some-invalid-id');
+      
+        expect(response.status).toBe(500);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect(response.body.message).toBe('Internal server error');
+      });
+    })
 })
