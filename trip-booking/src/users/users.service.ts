@@ -23,9 +23,7 @@ export class UsersService {
 
     if(checkUser?.username === createUserDto.username)
       throw new UsersExceptions("User with this username already exists. ", UsersExceptionStatusType.UsernameAlreadyExists);
-
-    if(createUserDto.role.toString() === "")
-      throw new UsersExceptions("Role must be assigned during creation. ", UsersExceptionStatusType.UsernameAlreadyExists);
+    
     const user = new User({});
     Object.assign(user, createUserDto);
     return this.userRepository.manager.save(User, user);

@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 
 import { INestApplication } from "@nestjs/common"
@@ -90,7 +91,9 @@ describe('UsersController (e2e)', () => {
           }
           userToDelete.deletedAt = true
           return userToDelete;
-        })
+        }),
+        create: jest.fn(),
+        update: jest.fn(),
     };
 
 
@@ -136,7 +139,6 @@ describe('UsersController (e2e)', () => {
           .get('/users/get-all ');
       
         expect(response.status).toBe(500);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         expect(response.body.message).toBe('Internal server error');
       }, 10000);
     })
@@ -177,7 +179,6 @@ describe('UsersController (e2e)', () => {
               .get('/users/some-invalid-id');
 
           expect(response.status).toBe(404);
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           expect(response.body.message).toBe('User does not exist.');
       })
 
@@ -190,7 +191,6 @@ describe('UsersController (e2e)', () => {
             .get('/users/some-invalid-id');
         
           expect(response.status).toBe(500);
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           expect(response.body.message).toBe('Internal server error');
       });
     })
@@ -231,7 +231,6 @@ describe('UsersController (e2e)', () => {
           .delete('/users/hard-delete/some-invalid-id');
 
         expect(response.status).toBe(404);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         expect(response.body.message).toBe('User does not exist.');
       })
 
@@ -261,7 +260,6 @@ describe('UsersController (e2e)', () => {
 
 
         expect(response.status).toBe(400);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         expect(response.body.message).toBe('Administrator can\'t be deleted!')
       })
 
@@ -274,7 +272,6 @@ describe('UsersController (e2e)', () => {
           .delete('/users/hard-delete/some-invalid-id');
       
         expect(response.status).toBe(500);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         expect(response.body.message).toBe('Internal server error');
       });
     })
@@ -315,7 +312,6 @@ describe('UsersController (e2e)', () => {
           .patch('/users/soft-delete/some-invalid-id');
 
         expect(response.status).toBe(404);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         expect(response.body.message).toBe('User does not exist.');
       })
 
@@ -345,7 +341,6 @@ describe('UsersController (e2e)', () => {
 
 
         expect(response.status).toBe(400);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         expect(response.body.message).toBe('User is already soft deleted.')
       })
 
@@ -358,12 +353,11 @@ describe('UsersController (e2e)', () => {
           .patch('/users/soft-delete/some-invalid-id');
       
         expect(response.status).toBe(500);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         expect(response.body.message).toBe('Internal server error');
       });
     })
 
-     describe("Soft undelete a user", () => {
+    describe("Soft undelete a user", () => {
       it('soft-undelede a user - should soft undelte it', async () => {
         const user = {
           id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
@@ -399,7 +393,6 @@ describe('UsersController (e2e)', () => {
           .patch('/users/soft-undelete/some-invalid-id');
 
         expect(response.status).toBe(404);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         expect(response.body.message).toBe('User does not exist.');
       })
 
@@ -429,7 +422,6 @@ describe('UsersController (e2e)', () => {
 
 
         expect(response.status).toBe(400);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         expect(response.body.message).toBe('User is not soft deleted, therefore, it can not be undeleted.')
       })
 
@@ -442,8 +434,92 @@ describe('UsersController (e2e)', () => {
           .patch('/users/soft-undelete/some-invalid-id')
       
         expect(response.status).toBe(500);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         expect(response.body.message).toBe('Internal server error');
       });
+    })
+
+    describe("Create an user", () => {
+      const newUser = {
+        id: '22a85f64-5717-4562-b3fc-2c963f66afa6',
+        firstName: 'Јовица',
+        lastName: 'Милинковић',
+        username: 'Јојо222222',
+        email: 'jojojojo@gmail.com',
+        role: Role.ADMINISTRATOR,
+        password: 'Јојо222222',
+        accommHistory: [],
+        deletedAt: false,
+      }
+
+      it("Should return created user", async () => {
+        jest.spyOn(mockedUsersService, 'create').mockImplementation((user: any) => {
+          const emailExists = mockedUsers.some(u => u.email === user.email);
+          if (emailExists) {
+            throw new UsersExceptions("Email already exists", UsersExceptionStatusType.EmailAlreadyExists);
+          }
+          
+          const usernameExists = mockedUsers.some(u => u.email === user.username);
+          if (usernameExists) {
+            throw new UsersExceptions("Username already exists", UsersExceptionStatusType.UserAlreadyExists);
+          }
+
+          mockedUsers.push(user);
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+          return user;
+        });
+        
+        const response = await request(app.getHttpServer())
+          .post(`/users/create`)
+          .send(newUser);
+
+        expect(response.status).toBe(201);
+        expect(response.body).toEqual(newUser);
+      })
+
+      it('POST /users - throw EmailAlreadyExists.', async () => {
+        jest.spyOn(mockedUsersService, 'create').mockImplementation(() => {
+          const emailExists = mockedUsers.some(u => u.email === newUser.email);
+          if (emailExists) {
+            throw new UsersExceptions("Email already exists", UsersExceptionStatusType.EmailAlreadyExists);
+        }
+          return newUser;
+        });
+
+        const response = await request(app.getHttpServer())
+          .post('/users/create')
+          .send(newUser);
+
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe("Email already exists");
+      })
+
+      it('POST /users - throw UsernameAlreadyExists', async () => {
+        jest.spyOn(mockedUsersService, 'create').mockImplementation(() => {
+          const usernameExists = mockedUsers.some(u => u.username === newUser.username);
+          if (usernameExists) {
+            throw new UsersExceptions("Username already exists", UsersExceptionStatusType.UsernameAlreadyExists);
+          }
+          return newUser;
+        });
+
+        const response = await request(app.getHttpServer())
+          .post('/users/create')
+          .send(newUser);
+
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe("Username already exists");
+      })
+
+      it("POST /uers  should return 500 or unexpected error", async () => {
+          jest.spyOn(mockedUsersService, "create").mockImplementation(() => {
+              throw new Error('Unexpected error');
+          })
+
+          const response = await request(app.getHttpServer())
+              .post(`/users/create`);
+          
+          expect(response.status).toBe(500);
+          expect(response.body.message).toBe('Internal server error'); // or your global exception message
+      })
     })
 })
