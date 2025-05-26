@@ -83,11 +83,11 @@ describe('UsersController (e2e)', () => {
     
     describe("GET /users", () => {
       it('/users/get-all (GET)', async () => {
-          const res = await request(app.getHttpServer())
-            .get('/users/get-all');
+        const res = await request(app.getHttpServer())
+          .get('/users/get-all');
 
-          expect(res.status).toBe(200);
-          expect(res.body).toEqual(mockedUsers);
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual(mockedUsers);
       }, 10000)
 
       it('GET /rooms - should return error', async () => {
@@ -96,7 +96,7 @@ describe('UsersController (e2e)', () => {
         });
       
         const response = await request(app.getHttpServer())
-          .get('/users/get-all');
+          .get('/users/get-all ');
       
         expect(response.status).toBe(500);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
