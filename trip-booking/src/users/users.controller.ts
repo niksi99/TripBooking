@@ -10,9 +10,9 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AuthExceptions } from '../exceptions-handling/exceptions/auth.exceptions';
-import { UsersRoutes } from 'src/routes/users.routes';
+import { AppRoutes } from 'src/routes/users.routes';
 
-@Controller('users')
+@Controller(AppRoutes.BasicUsersRoute)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -35,7 +35,7 @@ export class UsersController {
     }
   }
 
-  @Get(UsersRoutes.GetAllRoute)
+  @Get(AppRoutes.GetAllRoute)
   async findAll() {
     try {
       return await this.usersService.findAll(); 

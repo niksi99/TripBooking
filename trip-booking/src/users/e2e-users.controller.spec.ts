@@ -16,7 +16,7 @@ import { AuthExceptions } from "src/exceptions-handling/exceptions/auth.exceptio
 import { AuthExceptionStatusType } from "src/exceptions-handling/exceptions-status-type/auth.exceptions.status.types";
 import { Role } from "src/auth/enums/role.enum";
 import { GetAll_ReturnTRUE, GetAll_ThrowError500 } from "../../test/get-all-instances";
-import { UsersRoutes } from "../routes/users.routes";
+import { AppRoutes } from "../routes/users.routes";
 
 jest.setTimeout(15000);
 describe('UsersController (e2e)', () => {
@@ -69,48 +69,48 @@ describe('UsersController (e2e)', () => {
     ];
 
     const mockedUsersService= {
-        findAll: jest.fn().mockReturnValue(mockedUsers),
-        findOne: jest.fn().mockImplementation((id: string) => {
-          return mockedUsers.find(user => user.id === id);
-        }),
-        hardDelete: jest.fn().mockImplementation((id: string) => {
-          const userToDelete = mockedUsers.find(user => user.id === id);
-          if (!userToDelete) {
-            throw new Error('User does not exist.');
-          }
-          if (userToDelete.role === Role.ADMINISTRATOR) {
-            throw new Error('Administrator can\'t be deleted!');
-          }
-          return mockedUsers.filter(user => user.id !== id);
-        }),
-        softDelete: jest.fn().mockImplementation((id: string) => {
-          const userToDelete = mockedUsers.find(user => user.id === id);
-          if (!userToDelete) {
-            throw new Error('User does not exist.');
-          }
-          if (userToDelete.deletedAt === true) {
-            throw new Error('User is already soft deleted.');
-          }
-          userToDelete.deletedAt = true
-          return userToDelete;
-        }),
-        softUndelete: jest.fn().mockImplementation((id: string) => {
-          const userToDelete = mockedUsers.find(user => user.id === id);
-          if (!userToDelete) {
-            throw new Error('User does not exist.');
-          }
-          if (userToDelete.deletedAt === false) {
-            throw new Error('User is not soft deleted, therefore, it can not be undeleted.');
-          }
-          userToDelete.deletedAt = true
-          return userToDelete;
-        }),
-        create: jest.fn(),
-        update: jest.fn(),
+      findAll: jest.fn().mockReturnValue(mockedUsers),
+      findOne: jest.fn().mockImplementation((id: string) => {
+        return mockedUsers.find(user => user.id === id);
+      }),
+      hardDelete: jest.fn().mockImplementation((id: string) => {
+        const userToDelete = mockedUsers.find(user => user.id === id);
+        if (!userToDelete) {
+          throw new Error('User does not exist.');
+        }
+        if (userToDelete.role === Role.ADMINISTRATOR) {
+          throw new Error('Administrator can\'t be deleted!');
+        }
+        return mockedUsers.filter(user => user.id !== id);
+      }),
+      softDelete: jest.fn().mockImplementation((id: string) => {
+        const userToDelete = mockedUsers.find(user => user.id === id);
+        if (!userToDelete) {
+          throw new Error('User does not exist.');
+        }
+        if (userToDelete.deletedAt === true) {
+          throw new Error('User is already soft deleted.');
+        }
+        userToDelete.deletedAt = true
+        return userToDelete;
+      }),
+      softUndelete: jest.fn().mockImplementation((id: string) => {
+        const userToDelete = mockedUsers.find(user => user.id === id);
+        if (!userToDelete) {
+          throw new Error('User does not exist.');
+        }
+        if (userToDelete.deletedAt === false) {
+          throw new Error('User is not soft deleted, therefore, it can not be undeleted.');
+        }
+        userToDelete.deletedAt = true
+        return userToDelete;
+      }),
+      create: jest.fn(),
+      update: jest.fn(),
     };
 
 
-    beforeAll(async () => {
+    beforeEach(async () => {
       const moduleFixture: TestingModule = await Test.createTestingModule({
           controllers: [UsersController],
           providers: [
@@ -130,25 +130,22 @@ describe('UsersController (e2e)', () => {
       await app.init();
     })
     
-    afterAll(async () => {
+    afterEach(async () => {
       await app.close();
     });
     
     describe("GET /users", () => {
       it('/users/get-all (GET)', async () => {
-        await GetAll_ReturnTRUE(app, UsersRoutes.GetAllRoute.trim(), mockedUsers);
+        await GetAll_ReturnTRUE(app, AppRoutes.BasicUsersRoute + AppRoutes.GetAllRoute, mockedUsersService, 'findAll', mockedUsers);
+        // const response = await request(app.getHttpServer())
+        //   .get(AppRoutes.BasicUsersRoute + AppRoutes.GetAllRoute);
+
+        // expect(response.status).toBe(200);
+        // expect(response.body).toEqual(mockedUsers)
       }, 10000)
 
       it('GET /users - should return error', async () => {
-        await GetAll_ThrowError500(app, UsersRoutes.GetAllRoute, mockedUsersService, 'findAll')
-        //   throw new Error('Unexpected error');
-        // });
-      
-        // const response = await request(app.getHttpServer())
-        //   .get('/users/get-all ');
-      
-        // expect(response.status).toBe(500);
-        // expect(response.body.message).toBe('Internal server error');
+        await GetAll_ThrowError500(app, AppRoutes.BasicUsersRoute + AppRoutes.GetAllRoute, mockedUsersService, 'findAll')
       }, 10000);
     })
 

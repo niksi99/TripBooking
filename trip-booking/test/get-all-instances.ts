@@ -7,9 +7,14 @@ import { App } from 'supertest/types';
 export async function GetAll_ReturnTRUE(
     app: INestApplication<App>,
     route: string,
+    mockedService: any,
+    methodName: string,
     mockedEntities: any,
 ) {
-    jest.fn().mockReturnValue(mockedEntities);
+    jest.spyOn(mockedService, `${methodName}`).mockImplementation(() => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return mockedEntities;
+    });
 
     const res = await request(app.getHttpServer())
         .get(route);
