@@ -16,7 +16,7 @@ import { AppRoutes } from 'src/routes/app.routes';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post('/create')
+  @Post(AppRoutes.CreateRoute)
   async create(@Body() createUserDto: CreateUserDto) {
     try {
       return await this.usersService.create(createUserDto);
@@ -108,7 +108,7 @@ export class UsersController {
   @Roles(Role.ADMINISTRATOR)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Delete('/hard-delete-with-accommodation/:id')
+  @Delete(AppRoutes.HardDeleteWithAccommodationRoute)
   async hardDeleteUserWithAccommodation(@Param('id') id: string) {
     try {
       return await this.usersService.hardDeleteUserAndAllHisAccommodation(id);
@@ -131,7 +131,7 @@ export class UsersController {
     }
   }
 
-  @Patch('/soft-delete/:id')
+  @Patch(AppRoutes.SoftDeleteRoute)
   async softDelete(@Param('id') id: string) {
     try {
       return await this.usersService.softDelete(id);
@@ -150,7 +150,7 @@ export class UsersController {
     }
   }
 
-  @Patch('/soft-undelete/:id')
+  @Patch(AppRoutes.SoftUndeleteRoute)
   async softUndelete(@Param('id') id: string) {
     try {
       return await this.usersService.softUndelete(id);
