@@ -15,6 +15,7 @@ import { UsersExceptionStatusType } from "src/exceptions-handling/exceptions-sta
 import { AuthExceptions } from "src/exceptions-handling/exceptions/auth.exceptions";
 import { AuthExceptionStatusType } from "src/exceptions-handling/exceptions-status-type/auth.exceptions.status.types";
 import { Role } from "src/auth/enums/role.enum";
+import { GetAll_ReturnTRUE } from "../../test/get-all-instances";
 
 jest.setTimeout(15000);
 describe('UsersController (e2e)', () => {
@@ -108,7 +109,7 @@ describe('UsersController (e2e)', () => {
     };
 
 
-    beforeEach(async () => {
+    beforeAll(async () => {
       const moduleFixture: TestingModule = await Test.createTestingModule({
           controllers: [UsersController],
           providers: [
@@ -133,12 +134,9 @@ describe('UsersController (e2e)', () => {
     });
     
     describe("GET /users", () => {
+      //GetAll_ReturnTRUE('/users/get-all (GET)', app, '/users/get-all', mockedUsers);
       it('/users/get-all (GET)', async () => {
-        const res = await request(app.getHttpServer())
-          .get('/users/get-all');
-
-        expect(res.status).toBe(200);
-        expect(res.body).toEqual(mockedUsers);
+        await GetAll_ReturnTRUE(app, '/users/get-all', mockedUsers);
       }, 10000)
 
       it('GET /users - should return error', async () => {
