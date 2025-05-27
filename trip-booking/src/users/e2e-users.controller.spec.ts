@@ -52,6 +52,17 @@ describe('UsersController (e2e)', () => {
             password: 'АњаАњаАња',
             accommHistory: [],
             deletedAt: false,
+        },
+        {
+            id: '99a85f64-3536-4562-b3fc-2c963f66afa6',
+            firstName: 'ZZZZa',
+            lastName: 'ZZZМ',
+            username: 'ZZZZZ',
+            email: 'zzzzz@gmail.com',
+            role: Role.ADMINISTRATOR,
+            password: 'ZZZZZZZ',
+            accommHistory: [],
+            deletedAt: true,
         }
     ];
 
@@ -517,6 +528,100 @@ describe('UsersController (e2e)', () => {
 
           const response = await request(app.getHttpServer())
               .post(`/users/create`);
+          
+          expect(response.status).toBe(500);
+          expect(response.body.message).toBe('Internal server error'); // or your global exception message
+      })
+    })
+
+    describe("Update an user", () => {
+      const updatedUser = {
+        id: '4ya85f64-5717-4562-b3fc-2c963f66afa6',
+        firstName: 'Мирко',
+        lastName: 'Јанић',
+        username: 'МиркоМирко',
+        email: 'mirko.mirko@gmail.com',
+        role: Role.PASSENGER,
+        password: 'МиркоМирко',
+        accommHistory: [],
+        deletedAt: false
+      }
+
+      const updatedUserWrongId = {
+        id: '411ya85f64-5717-4562-b3fc-2c963f66afa6',
+        firstName: 'Мирко',
+        lastName: 'Јанић',
+      }
+
+      const updatedUserSoftDeleted = {
+        id: '99a85f64-3536-4562-b3fc-2c963f66afa6',
+        deletedAt: true
+      }
+
+      it("PATCH Should return updated user", async () => {
+        jest.spyOn(mockedUsersService, 'update').mockImplementation(() => {
+          const index = mockedUsers.findIndex(u => u.id === updatedUser.id);
+          if (index === -1) {
+            throw new UsersExceptions("User does not exist", UsersExceptionStatusType.UserDoesNotExist);
+          }
+
+          if (mockedUsers[index].deletedAt === true) {
+            throw new UsersExceptions("User is soft deleted, can not be updated.", UsersExceptionStatusType.UserAlreadySoftDeleted);
+          }
+          
+          mockedUsers[index] = updatedUser;
+          return updatedUser;
+        });
+        
+        const response = await request(app.getHttpServer())
+          .patch(`/users/${updatedUser.id}`)
+          .send(updatedUser);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(updatedUser);
+      })
+
+      it('PATCH /users - throw User does not exist', async () => {
+        jest.spyOn(mockedUsersService, 'update').mockImplementation(() => {
+          const index = mockedUsers.findIndex(u => u.id === updatedUserWrongId.id);
+          if (index === -1) {
+            throw new UsersExceptions("User does not exist", UsersExceptionStatusType.UserDoesNotExist);
+          }
+          return index;
+        });
+
+        const response = await request(app.getHttpServer())
+          .patch(`/users/-1`)
+          .send(updatedUserWrongId);
+
+        expect(response.status).toBe(404);
+        expect(response.body.message).toBe("User does not exist");
+      })
+
+      it('PATCH /users - throw User is soft-deleted.', async () => {
+        jest.spyOn(mockedUsersService, 'update').mockImplementation(() => {
+          const userExists = mockedUsers.find(u => u.id === updatedUserSoftDeleted.id);
+          if (userExists?.deletedAt === true) {
+            throw new UsersExceptions("User is soft deleted, can not be updated.", UsersExceptionStatusType.UserAlreadySoftDeleted);
+        }
+          return userExists;
+        });
+
+        const response = await request(app.getHttpServer())
+          .patch(`/users/${updatedUserSoftDeleted.id}`)
+          .send(updatedUserSoftDeleted);
+
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe("User is soft deleted, can not be updated.");
+      })
+
+      it("POST /uers  should return 500 or unexpected error", async () => {
+          jest.spyOn(mockedUsersService, "update").mockImplementation(() => {
+              throw new Error('Unexpected error');
+          })
+
+          const response = await request(app.getHttpServer())
+              .patch(`/users/some-invlaid-id`);
           
           expect(response.status).toBe(500);
           expect(response.body.message).toBe('Internal server error'); // or your global exception message

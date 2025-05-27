@@ -23,7 +23,7 @@ export class UsersService {
 
     if(checkUser?.username === createUserDto.username)
       throw new UsersExceptions("User with this username already exists. ", UsersExceptionStatusType.UsernameAlreadyExists);
-    
+
     const user = new User({});
     Object.assign(user, createUserDto);
     return this.userRepository.manager.save(User, user);
@@ -44,7 +44,7 @@ export class UsersService {
   async update(id: string, updateUserDto: UpdateUserDto) {
     const checkUserExistense = await this.userRepository.getUserById(id);
     if(checkUserExistense == null)
-      throw new UsersExceptions("Item does not exist", UsersExceptionStatusType.UserDoesNotExist);
+      throw new UsersExceptions("User does not exist", UsersExceptionStatusType.UserDoesNotExist);
     
     if(checkUserExistense.deletedAt !== null)
       throw new UsersExceptions("User is soft deleted, can not be updated.", UsersExceptionStatusType.UserAlreadySoftDeleted);
