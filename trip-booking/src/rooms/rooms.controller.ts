@@ -10,8 +10,9 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
 import { Role } from 'src/auth/enums/role.enum';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AccommodationExceptions } from 'src/exceptions-handling/exceptions/accommodation.exceptions';
+import { AppRoutes } from 'src/routes/app.routes';
 
-@Controller('rooms')
+@Controller(AppRoutes.BasicRoomsRoute)
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
 
@@ -41,7 +42,7 @@ export class RoomsController {
     }
   }
 
-  @Get()
+  @Get(AppRoutes.GetAllRoute)
   async findAll() {
     try {
       return await this.roomsService.findAll(); 

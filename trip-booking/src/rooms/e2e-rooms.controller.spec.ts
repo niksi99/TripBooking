@@ -13,6 +13,8 @@ import { MockJwtAuthGuard, MockRolesGuard } from "../auth/guards/mocked/mocked-a
 import { RolesGuard } from "../auth/guards/roles/roles.guard";
 import { AccommodationExceptions } from "../exceptions-handling/exceptions/accommodation.exceptions";
 import { AccommodationExceptionsStatusType } from "../exceptions-handling/exceptions-status-type/accommodation.exceptions";
+import { AppRoutes } from "src/routes/app.routes";
+import { GetAll_ReturnTRUE, GetAll_ThrowError500 } from "../../test/e2e.get-all-instances";
 
 jest.setTimeout(15000);
 describe('Rooms Controller e2e', () => {
@@ -84,24 +86,11 @@ describe('Rooms Controller e2e', () => {
 
     describe("GET /rooms", () => {
         it('GET /rooms - should return all rooms', async () => {
-            const response = await request(app.getHttpServer())
-             .get('/rooms');
-    
-            expect(response.status).toBe(200);
-            expect(response.body).toEqual(mockRooms);
+            await GetAll_ReturnTRUE(app, AppRoutes.BasicRoomsRoute + AppRoutes.GetAllRoute, mockedRoomSelvice, 'findAll', mockRooms);
         }, 10000);
 
         it('GET /rooms - should return error', async () => {
-            jest.spyOn(mockedRoomSelvice, 'findAll').mockImplementation(() => {
-                throw new Error('Unexpected error');
-              });
-            
-              const response = await request(app.getHttpServer())
-                .get('/rooms');
-            
-              expect(response.status).toBe(500);
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-              expect(response.body.message).toBe('Internal server error');
+            await GetAll_ThrowError500(app, AppRoutes.BasicRoomsRoute + AppRoutes.GetAllRoute, mockedRoomSelvice, 'findAll');
         }, 10000);
     })
 

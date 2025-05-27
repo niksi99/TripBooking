@@ -15,8 +15,9 @@ import { UsersExceptionStatusType } from "src/exceptions-handling/exceptions-sta
 import { AuthExceptions } from "src/exceptions-handling/exceptions/auth.exceptions";
 import { AuthExceptionStatusType } from "src/exceptions-handling/exceptions-status-type/auth.exceptions.status.types";
 import { Role } from "src/auth/enums/role.enum";
-import { GetAll_ReturnTRUE, GetAll_ThrowError500 } from "../../test/get-all-instances";
-import { AppRoutes } from "../routes/users.routes";
+import { GetAll_ReturnTRUE, GetAll_ThrowError500 } from "../../test/e2e.get-all-instances";
+import { AppRoutes } from "../routes/app.routes";
+import { GetById_ReturnTRUE, GetById_ThrowError500 } from "../../test/e2e/get-by-id";
 
 jest.setTimeout(15000);
 describe('UsersController (e2e)', () => {
@@ -137,11 +138,6 @@ describe('UsersController (e2e)', () => {
     describe("GET /users", () => {
       it('/users/get-all (GET)', async () => {
         await GetAll_ReturnTRUE(app, AppRoutes.BasicUsersRoute + AppRoutes.GetAllRoute, mockedUsersService, 'findAll', mockedUsers);
-        // const response = await request(app.getHttpServer())
-        //   .get(AppRoutes.BasicUsersRoute + AppRoutes.GetAllRoute);
-
-        // expect(response.status).toBe(200);
-        // expect(response.body).toEqual(mockedUsers)
       }, 10000)
 
       it('GET /users - should return error', async () => {
@@ -162,14 +158,7 @@ describe('UsersController (e2e)', () => {
           accommHistory: [],
           deletedAt: false
         };
-
-        jest.spyOn(mockedUsersService, 'findOne').mockResolvedValue(user);
-
-        const response = await request(app.getHttpServer())
-          .get(`/users/${user.id}`);
-  
-          expect(response.status).toBe(200);
-          expect(response.body).toEqual(user);
+        await GetById_ReturnTRUE(app, AppRoutes.BasicUsersRoute, mockedUsersService, 'findOne', user);
       }, 10000);
 
       it('GET /users/:id - throw UserDoedNotExist', async () => {
@@ -189,15 +178,7 @@ describe('UsersController (e2e)', () => {
       })
 
       it('GET /rooms/:id - should return 500 on unexpected error', async () => {
-          jest.spyOn(mockedUsersService, 'findOne').mockImplementation(() => {
-            throw new Error('Unexpected error');
-          });
-        
-          const response = await request(app.getHttpServer())
-            .get('/users/some-invalid-id');
-        
-          expect(response.status).toBe(500);
-          expect(response.body.message).toBe('Internal server error');
+        await GetById_ThrowError500(app, AppRoutes.BasicUsersRoute, mockedUsersService, 'findOne');
       });
     })
 

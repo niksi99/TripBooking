@@ -1,30 +1,29 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { App } from 'supertest/types';
 
-
-export async function GetAll_ReturnTRUE(
+export async function GetById_ReturnTRUE(
     app: INestApplication<App>,
     route: string,
     mockedService: any,
     methodName: string,
-    mockedEntities: any,
+    mockedEntity: any,
 ) {
-    jest.spyOn(mockedService, `${methodName}`).mockImplementation(() => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return mockedEntities;
-    });
+    jest.spyOn(mockedService, `${methodName}`).mockResolvedValue(mockedEntity);
 
+    console.log("MOCKEDENTITY: ", mockedEntity);
+    console.log("ROUTE: ", route);
     const res = await request(app.getHttpServer())
-        .get(route);
-
-    console.log("RES ", res.body);
+    .get(`${route}${mockedEntity.id}`);
+    
+    console.log("RES: ", res.body);
     expect(res.status).toBe(200);
-    expect(res.body).toEqual(mockedEntities);
+    expect(res.body).toEqual(mockedEntity);
 }
 
-export async function GetAll_ThrowError500(
+export async function GetById_ThrowError500(
     app: INestApplication<App>,
     route: string,
     mockedService: any,
@@ -35,9 +34,8 @@ export async function GetAll_ThrowError500(
     });
     
     const response = await request(app.getHttpServer())
-        .get(`${route}`);
+        .get(`${route}some-invalid-id`);
     
     expect(response.status).toBe(500);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     expect(response.body.message).toBe('Internal server error');
 }

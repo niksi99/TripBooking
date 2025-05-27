@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 export class AppRoutes {
     static readonly BasicUsersRoute = `/users/`
+    static readonly BasicRoomsRoute = `/rooms/`
 
     static readonly CreateRoute = `create`;
     static readonly GetAllRoute = `get-all`;
