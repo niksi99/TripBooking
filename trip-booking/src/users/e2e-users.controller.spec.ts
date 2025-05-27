@@ -15,7 +15,8 @@ import { UsersExceptionStatusType } from "src/exceptions-handling/exceptions-sta
 import { AuthExceptions } from "src/exceptions-handling/exceptions/auth.exceptions";
 import { AuthExceptionStatusType } from "src/exceptions-handling/exceptions-status-type/auth.exceptions.status.types";
 import { Role } from "src/auth/enums/role.enum";
-import { GetAll_ReturnTRUE } from "../../test/get-all-instances";
+import { GetAll_ReturnTRUE, GetAll_ThrowError500 } from "../../test/get-all-instances";
+import { UsersRoutes } from "../routes/users.routes";
 
 jest.setTimeout(15000);
 describe('UsersController (e2e)', () => {
@@ -129,26 +130,25 @@ describe('UsersController (e2e)', () => {
       await app.init();
     })
     
-    afterEach(async () => {
+    afterAll(async () => {
       await app.close();
     });
     
     describe("GET /users", () => {
-      //GetAll_ReturnTRUE('/users/get-all (GET)', app, '/users/get-all', mockedUsers);
       it('/users/get-all (GET)', async () => {
-        await GetAll_ReturnTRUE(app, '/users/get-all', mockedUsers);
+        await GetAll_ReturnTRUE(app, UsersRoutes.GetAllRoute.trim(), mockedUsers);
       }, 10000)
 
       it('GET /users - should return error', async () => {
-        jest.spyOn(mockedUsersService, 'findAll').mockImplementation(() => {
-          throw new Error('Unexpected error');
-        });
+        await GetAll_ThrowError500(app, UsersRoutes.GetAllRoute, mockedUsersService, 'findAll')
+        //   throw new Error('Unexpected error');
+        // });
       
-        const response = await request(app.getHttpServer())
-          .get('/users/get-all ');
+        // const response = await request(app.getHttpServer())
+        //   .get('/users/get-all ');
       
-        expect(response.status).toBe(500);
-        expect(response.body.message).toBe('Internal server error');
+        // expect(response.status).toBe(500);
+        // expect(response.body.message).toBe('Internal server error');
       }, 10000);
     })
 

@@ -176,7 +176,6 @@ describe('Rooms Controller e2e', () => {
         const response = await request(app.getHttpServer())
             .delete(`/rooms/hard-delete/${room.id}`);
     
-        console.log("RESPONSE HARDDELETE", response);
             expect(response.status).toBe(200);
             expect(response.body).toEqual(room);
         }, 10000);
