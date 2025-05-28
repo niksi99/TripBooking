@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { RoomRepository } from 'src/repositories/RoomRepository';
@@ -20,10 +20,10 @@ export class RoomsService {
   async create(createRoomDto: CreateRoomDto) {
     const checkAccommodationExistence = await this.accommodationRepository.GetAccommodationById(createRoomDto.accommodationId);
     if(!checkAccommodationExistence)
-      throw new AccommodationExceptions("Accommodation does not exist.", AccommodationExceptionsStatusType.AccommodationDoesNotExist);
+      throw new AccommodationExceptions("Accommodation does not exist.", AccommodationExceptionsStatusType.AccommodationDoesNotExist, HttpStatus.NOT_FOUND);
 
     if(checkAccommodationExistence.deletedAt !== null)
-      throw new AccommodationExceptions("Accommodation is blocked/soft-deleted.", AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted);
+      throw new AccommodationExceptions("Accommodation is blocked/soft-deleted.", AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted, HttpStatus.FORBIDDEN);
 
     const checkRoomExistence = await this.roomRepository.getRoomFromAccommodationByRoomLabel(createRoomDto.accommodationId, createRoomDto.label);
     if(checkRoomExistence)

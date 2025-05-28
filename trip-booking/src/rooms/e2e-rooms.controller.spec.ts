@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 
-import { INestApplication } from "@nestjs/common";
+import { HttpStatus, INestApplication } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import * as request from 'supertest';
 import { RoomsService } from "./rooms.service";
@@ -385,7 +385,7 @@ describe('Rooms Controller e2e', () => {
         })
 
         it('POST /rooms - throw Accomodation does not exist', async () => {
-            const error = new AccommodationExceptions("", AccommodationExceptionsStatusType.AccommodationDoesNotExist);
+            const error = new AccommodationExceptions("", AccommodationExceptionsStatusType.AccommodationDoesNotExist, HttpStatus.NOT_FOUND);
             jest.spyOn(error, 'DoesAccommodationExist').mockReturnValue(true);
             jest.spyOn(error, 'getMessage').mockReturnValue('Accommodation does not exist.');
 
@@ -402,7 +402,7 @@ describe('Rooms Controller e2e', () => {
         })
 
             it('POST /rooms - throw Accommodation is blocked/soft-deleted.', async () => {
-            const error = new AccommodationExceptions("", AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted);
+            const error = new AccommodationExceptions("", AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted, HttpStatus.FORBIDDEN);
             jest.spyOn(error, 'IsAccommodationBlocked_SoftDeleted').mockReturnValue(true);
             jest.spyOn(error, 'getMessage').mockReturnValue('Accommodation is blocked/soft-deleted.');
 

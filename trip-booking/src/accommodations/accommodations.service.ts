@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Injectable, Request } from '@nestjs/common';
+import { HttpStatus, Injectable, Request } from '@nestjs/common';
 import { CreateAccommodationDto } from './dto/create-accommodation.dto';
 import { UpdateAccommodationDto } from './dto/update-accommodation.dto';
 import { AccommodationRepository } from 'src/repositories/AccommodationRepository';
@@ -35,7 +35,7 @@ export class AccommodationsService {
 
     const checkAccommExistence = await this.accommodationRepository.GetAccommByItsLocation(createAccommodationDto.location.lat, createAccommodationDto.location.lng);
     if(checkAccommExistence)
-      throw new AccommodationExceptions("Accommodation already exist on this location", AccommodationExceptionsStatusType.AccommodationOnThisLocationAlreadyExists);
+      throw new AccommodationExceptions("Accommodation already exist on this location", AccommodationExceptionsStatusType.AccommodationOnThisLocationAlreadyExists, HttpStatus.CONFLICT);
     
     const accomm = new Accommodation({});
 
@@ -54,7 +54,7 @@ export class AccommodationsService {
   async findOne(id: string) {
     const accomm = await this.accommodationRepository.GetAccommodationById(id);
     if(!accomm) 
-      throw new AccommodationExceptions("Accommodation does no exist.", AccommodationExceptionsStatusType.AccommodationDoesNotExist);
+      throw new AccommodationExceptions("Accommodation does no exist.", AccommodationExceptionsStatusType.AccommodationDoesNotExist, HttpStatus.NOT_FOUND);
 
     return accomm;
   }
@@ -81,14 +81,14 @@ export class AccommodationsService {
 
     const accom = await this.accommodationRepository.GetAccommodationById(accommId);
     if(!accom)
-      throw new AccommodationExceptions("Accommodation does not exist.", AccommodationExceptionsStatusType.AccommodationDoesNotExist);
+      throw new AccommodationExceptions("Accommodation does not exist.", AccommodationExceptionsStatusType.AccommodationDoesNotExist, HttpStatus.NOT_FOUND);
 
     if(accom.deletedAt !== null)
-      throw new AccommodationExceptions("Accommodation is blocked_SoftDeleted", AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted);
+      throw new AccommodationExceptions("Accommodation is blocked_SoftDeleted", AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted, HttpStatus.NOT_FOUND);
 
     accom.appliedUsers.forEach(element => {
       if(element === user)
-        throw new AccommodationExceptions("Users has already booked this accommodation.", AccommodationExceptionsStatusType.UserHasAlreadyBookedAccommodation);
+        throw new AccommodationExceptions("Users has already booked this accommodation.", AccommodationExceptionsStatusType.UserHasAlreadyBookedAccommodation, HttpStatus.CONFLICT);
     });
 
     user.accommHistory.push(accom);
@@ -108,14 +108,14 @@ export class AccommodationsService {
 
     const accom = await this.accommodationRepository.GetAccommodationById(accommId);
     if(!accom)
-      throw new AccommodationExceptions("Accommodation does not exist.", AccommodationExceptionsStatusType.AccommodationDoesNotExist);
+      throw new AccommodationExceptions("Accommodation does not exist.", AccommodationExceptionsStatusType.AccommodationDoesNotExist, HttpStatus.NOT_FOUND);
 
     if(accom.deletedAt !== null)
-      throw new AccommodationExceptions("Accommodation is blocked_SoftDeleted", AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted);
+      throw new AccommodationExceptions("Accommodation is blocked_SoftDeleted", AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted, HttpStatus.FORBIDDEN);
 
     accom.appliedUsers.forEach(element => {
       if(element !== user)
-        throw new AccommodationExceptions("Users has not booked this accommodation at all. Invalid method.", AccommodationExceptionsStatusType.UserHasNotBookedAccommodation);
+        throw new AccommodationExceptions("Users has not booked this accommodation at all. Invalid method.", AccommodationExceptionsStatusType.UserHasNotBookedAccommodation, HttpStatus.BAD_REQUEST);
       else
       accom.appliedUsers = accom.appliedUsers.filter(u => u.id !== user.id);
     });

@@ -7,9 +7,10 @@ export class AccommodationExceptions extends HttpException {
     
     constructor(
         message: string,
-        status: AccommodationExceptionsStatusType
+        status: AccommodationExceptionsStatusType,
+        httpStatus: HttpStatus
     ) {
-        super({message: message}, HttpStatus.BAD_REQUEST);
+        super({message: message}, httpStatus);
         this.statusType = status;
     }
 

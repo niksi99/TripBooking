@@ -5,7 +5,7 @@ import { RoomsController } from "./rooms.controller"
 import { RoomsService } from "./rooms.service";
 import { RoomExceptions } from "../exceptions-handling/exceptions/room.exceptions";
 import { RoomExceptionsStatusType } from "../exceptions-handling/exceptions-status-type/room.exceptions.status.type";
-import { BadRequestException, NotFoundException } from "@nestjs/common";
+import { BadRequestException, HttpStatus, NotFoundException } from "@nestjs/common";
 import { CreateRoomDto } from "./dto/create-room.dto";
 import { AccommodationExceptions } from "../exceptions-handling/exceptions/accommodation.exceptions";
 import { AccommodationExceptionsStatusType } from "../exceptions-handling/exceptions-status-type/accommodation.exceptions";
@@ -236,7 +236,7 @@ describe('RoomsController UnitTest', () => {
         })
 
         it('should throw BadRequestException: Accommodation does not exist.', async () => {
-            const errorMock = new AccommodationExceptions("Accommodation does not exist.", AccommodationExceptionsStatusType.AccommodationDoesNotExist);
+            const errorMock = new AccommodationExceptions("Accommodation does not exist.", AccommodationExceptionsStatusType.AccommodationDoesNotExist, HttpStatus.NOT_FOUND);
             jest.spyOn(errorMock, 'DoesAccommodationExist').mockReturnValue(true);
             jest.spyOn(errorMock, 'getMessage').mockReturnValue("Accommodation does not exist.");
 
@@ -247,7 +247,7 @@ describe('RoomsController UnitTest', () => {
         });
 
         it('should throw BadRequestException: Accommodation is blocked / soft deleted.', async () => {
-            const errorMock = new AccommodationExceptions("Accommodation is blocked/soft-deleted.", AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted);
+            const errorMock = new AccommodationExceptions("Accommodation is blocked/soft-deleted.", AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted, HttpStatus.FORBIDDEN);
             jest.spyOn(errorMock, 'IsAccommodationBlocked_SoftDeleted').mockReturnValue(true);
             jest.spyOn(errorMock, 'getMessage').mockReturnValue("Accommodation is blocked/soft-deleted.");
 
