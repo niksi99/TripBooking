@@ -84,7 +84,7 @@ export class UsersController {
   @Roles(Role.ADMINISTRATOR)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Delete('/hard-delete/:id')
+  @Delete(AppRoutes.HardDeleteRoute)
   async remove(@Param('id') id: string) {
     try {
       return await this.usersService.hardDelete(id);
