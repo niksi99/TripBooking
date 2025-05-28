@@ -7,9 +7,10 @@ export class AuthExceptions extends HttpException {
 
     constructor(
         message: string,
-        status: AuthExceptionStatusType
+        status: AuthExceptionStatusType,
+        httpStatus: HttpStatus
     ) {
-        super({message: message}, HttpStatus.BAD_REQUEST);
+        super({message: message}, httpStatus);
         this.statusType = status;
     }
 

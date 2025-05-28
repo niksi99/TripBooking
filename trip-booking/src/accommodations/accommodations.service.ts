@@ -22,7 +22,7 @@ export class AccommodationsService {
 
   async create(@Request() request, createAccommodationDto: CreateAccommodationDto) {
     if(!request)
-      throw new AuthExceptions("User is not logged in", AuthExceptionStatusType.UserIsNotLoggedIn);
+      throw new AuthExceptions("User is not logged in", AuthExceptionStatusType.UserIsNotLoggedIn, HttpStatus.UNAUTHORIZED);
     
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     const user = await this.userRepository.getUserByUsername(request.user.username);
@@ -69,7 +69,7 @@ export class AccommodationsService {
 
   async bookAccommodation(@Request() request, accommId: string) {
     if(!request)
-      throw new AuthExceptions("User is not logged in", AuthExceptionStatusType.UserIsNotLoggedIn);
+      throw new AuthExceptions("User is not logged in", AuthExceptionStatusType.UserIsNotLoggedIn, HttpStatus.UNAUTHORIZED);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     const user = await this.userRepository.getUserByUsername(request.user.username);

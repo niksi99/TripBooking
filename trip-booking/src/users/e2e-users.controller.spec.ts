@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 
-import { INestApplication } from "@nestjs/common"
+import { HttpStatus, INestApplication } from "@nestjs/common"
 import { Test, TestingModule } from "@nestjs/testing";
 import * as request from 'supertest';
 import { UsersController } from "./users.controller";
@@ -246,12 +246,12 @@ describe('UsersController (e2e)', () => {
             softDeleted: true
         }
 
-        const error = new AuthExceptions("", AuthExceptionStatusType.AdministratorCanNotBeDeleted);
+        const error = new AuthExceptions("", AuthExceptionStatusType.AdministratorCanNotBeDeleted, HttpStatus.FORBIDDEN);
         jest.spyOn(error, 'CanAdministratorBeDeleted').mockReturnValue(true);
         jest.spyOn(error, 'getMessage').mockReturnValue('Administrator can\'t be deleted!');
 
         jest.spyOn(mockedUsersService, 'hardDelete').mockImplementation(() => {
-          throw new AuthExceptions("Administrator can't be deleted!", AuthExceptionStatusType.AdministratorCanNotBeDeleted);
+          throw new AuthExceptions("Administrator can't be deleted!", AuthExceptionStatusType.AdministratorCanNotBeDeleted, HttpStatus.FORBIDDEN);
         });
 
         const response = await request(app.getHttpServer())
@@ -332,14 +332,14 @@ describe('UsersController (e2e)', () => {
         jest.spyOn(error, 'getMessage').mockReturnValue('User is already soft deleted.');
 
         jest.spyOn(mockedUsersService, 'softDelete').mockImplementation(() => {
-          throw new AuthExceptions("User is already soft deleted.", AuthExceptionStatusType.AdministratorCanNotBeDeleted);
+          throw new AuthExceptions("User is already soft deleted.", AuthExceptionStatusType.AdministratorCanNotBeDeleted, HttpStatus.FORBIDDEN);
         });
 
         const response = await request(app.getHttpServer())
           .patch(`/users/soft-delete/${user.id}`);
 
 
-        expect(response.status).toBe(400);
+        expect(response.status).toBe(403);
         expect(response.body.message).toBe('User is already soft deleted.')
       })
 
@@ -413,14 +413,14 @@ describe('UsersController (e2e)', () => {
         jest.spyOn(error, 'getMessage').mockReturnValue('User is not soft deleted, therefore, it can not be undeleted.');
 
         jest.spyOn(mockedUsersService, 'softUndelete').mockImplementation(() => {
-          throw new AuthExceptions("User is not soft deleted, therefore, it can not be undeleted.", AuthExceptionStatusType.AdministratorCanNotBeDeleted);
+          throw new AuthExceptions("User is not soft deleted, therefore, it can not be undeleted.", AuthExceptionStatusType.AdministratorCanNotBeDeleted, HttpStatus.FORBIDDEN);
         });
 
         const response = await request(app.getHttpServer())
           .patch(`/users/soft-undelete/${user.id}`);
 
 
-        expect(response.status).toBe(400);
+        expect(response.status).toBe(403);
         expect(response.body.message).toBe('User is not soft deleted, therefore, it can not be undeleted.')
       })
 

@@ -5,7 +5,7 @@ import { UsersController } from "./users.controller";
 import { UsersService } from "./users.service";
 import { UsersExceptions } from "../exceptions-handling/exceptions/users.exceptions";
 import { UsersExceptionStatusType } from "../exceptions-handling/exceptions-status-type/user.exceptions.status.type";
-import { BadRequestException, NotFoundException } from "@nestjs/common";
+import { BadRequestException, HttpStatus, NotFoundException } from "@nestjs/common";
 import { AuthExceptions } from "../exceptions-handling/exceptions/auth.exceptions";
 import { AuthExceptionStatusType } from "../exceptions-handling/exceptions-status-type/auth.exceptions.status.types";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -232,7 +232,7 @@ describe('UsersController', () => {
         })
 
         it('should throw BadRequestException if CanAdministratorBeDeleted from AuthExceptions is FALSE', async () => {
-            const errorMock = new AuthExceptions('Administrator can not be deleted.', AuthExceptionStatusType.AdministratorCanNotBeDeleted);
+            const errorMock = new AuthExceptions('Administrator can not be deleted.', AuthExceptionStatusType.AdministratorCanNotBeDeleted, HttpStatus.FORBIDDEN);
             jest.spyOn(errorMock, 'CanAdministratorBeDeleted').mockReturnValue(true);
             jest.spyOn(errorMock, 'getMessage').mockReturnValue('Administrator can not be deleted.');
             (usersService.hardDeleteUserAndAllHisAccommodation as jest.Mock).mockRejectedValue(errorMock);

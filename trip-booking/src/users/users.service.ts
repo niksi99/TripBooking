@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepository } from '../repositories/UserRepository';
@@ -59,7 +59,7 @@ export class UsersService {
       throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist);
 
     if(user.role.toString()  === Role.ADMINISTRATOR.toString())
-      throw new AuthExceptions("Administrator can't be deleted!", AuthExceptionStatusType.AdministratorCanNotBeDeleted);
+      throw new AuthExceptions("Administrator can't be deleted!", AuthExceptionStatusType.AdministratorCanNotBeDeleted, HttpStatus.FORBIDDEN);
     return await this.userRepository.hardDeleteUser(id);
   }
 
