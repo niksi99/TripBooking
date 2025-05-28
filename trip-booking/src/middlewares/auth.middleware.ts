@@ -12,23 +12,16 @@ export class AuthMiddleware implements NestMiddleware {
         if(!token)
             return res.status(403).json({ meesage: "From middleware: Token does not exist."})
 
-        console.log(token);
-        console.log(req.headers['authorization']);
-
         const secret = process.env.JWT_SECRET_KEY
         if(!secret)
             throw new NotFoundException('Secret is empty.');
         
         jwt.verify(token, secret, (err, decoded) => {
-            console.log("err: ", err);
-            console.log("dec: ", decoded);
             if (err || !decoded) {
               return res.status(403).json({ message: 'Invalid or expired token!' });
             }
       
-            console.log("DECODed", decoded);
             req['user'] = decoded;
-            console.log(`User authenticated with token: ${token}`);
             next();
           });
         next();

@@ -13,12 +13,9 @@ export async function GetById_ReturnTRUE(
 ) {
     jest.spyOn(mockedService, `${methodName}`).mockResolvedValue(mockedEntity);
 
-    console.log("MOCKEDENTITY: ", mockedEntity);
-    console.log("ROUTE: ", route);
     const res = await request(app.getHttpServer())
     .get(`${route}${mockedEntity.id}`);
     
-    console.log("RES: ", res.body);
     expect(res.status).toBe(200);
     expect(res.body).toEqual(mockedEntity);
 }

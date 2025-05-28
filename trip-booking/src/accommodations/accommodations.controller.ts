@@ -21,9 +21,6 @@ export class AccommodationsController {
   @Post('/create-acc')
   async create(@Request() request, @Body() createAccommodationDto: CreateAccommodationDto) {
     try {
-      console.log('[AccommodationsController] POST /accommodations hit');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      console.log(request.user);
       return this.accommodationsService.create(request, createAccommodationDto); 
     } catch (error) {
       switch(true) {
