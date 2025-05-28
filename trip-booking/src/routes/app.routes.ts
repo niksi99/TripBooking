@@ -8,7 +8,7 @@ export class AppRoutes {
     static readonly GetByIdRoute = `:id`;  
     static readonly UpdateRoute = `:id`;  
     static readonly HardDeleteRoute = "hard-delete/:id";
-    static readonly HardDeleteWithAccommodationRoute = "hard-delete-with-accommodation/:id";
+    static readonly HardDeleteWithAccommodationRoute = "hard-delete-with-accommodation/";
     static readonly SoftDeleteRoute = "soft-delete/:id";
     static readonly SoftUndeleteRoute = "soft-undelete/:id";
 }

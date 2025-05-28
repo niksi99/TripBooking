@@ -108,7 +108,7 @@ export class UsersController {
   @Roles(Role.ADMINISTRATOR)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Delete(AppRoutes.HardDeleteWithAccommodationRoute)
+  @Delete(AppRoutes.HardDeleteWithAccommodationRoute+":id")
   async hardDeleteUserWithAccommodation(@Param('id') id: string) {
     try {
       return await this.usersService.hardDeleteUserAndAllHisAccommodation(id);

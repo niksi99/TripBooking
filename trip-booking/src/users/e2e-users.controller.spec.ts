@@ -66,6 +66,17 @@ describe('UsersController (e2e)', () => {
             password: 'ZZZZZZZ',
             accommHistory: [],
             deletedAt: true,
+        },
+        {
+            id: '99a85f67-3536-4562-b3fc-2c963f66afa6',
+            firstName: 'Лана',
+            lastName: 'Перковић',
+            username: 'ЛанаЛана',
+            email: 'lana.lana@gmail.com',
+            role: Role.ACCOMMODATION_OWNER,
+            password: 'ЛанаЛана',
+            accommHistory: [],
+            deletedAt: false,
         }
     ];
 
@@ -108,6 +119,7 @@ describe('UsersController (e2e)', () => {
       }),
       create: jest.fn(),
       update: jest.fn(),
+      hardDeleteUserAndAllHisAccommodation: jest.fn()
     };
 
 
@@ -425,7 +437,7 @@ describe('UsersController (e2e)', () => {
       });
     })
 
-    describe("Create an user", () => {
+    describe("Create a user", () => {
       const newUser = {
         id: '22a85f64-5717-4562-b3fc-2c963f66afa6',
         firstName: 'Јовица',
@@ -510,7 +522,7 @@ describe('UsersController (e2e)', () => {
       })
     })
 
-    describe("Update an user", () => {
+    describe("Update a user", () => {
       const updatedUser = {
         id: '4ya85f64-5717-4562-b3fc-2c963f66afa6',
         firstName: 'Мирко',
@@ -602,5 +614,72 @@ describe('UsersController (e2e)', () => {
           expect(response.status).toBe(500);
           expect(response.body.message).toBe('Internal server error'); // or your global exception message
       })
+    })
+
+    describe("Hard delete a user(acc owner) and all his accommodations", () => {
+      const existingUserId = "99a85f67-3536-4562-b3fc-2c963f66afa6";
+      const existingUserIdNotACCOMMODATION_OWNER = "99a85f64-3536-4562-b3fc-2c963f66afa6";
+      const nonExistingUserId = "99a85f67-3536-4562-b3fc-2c963f66afa6c";
+
+      it('hardDeleteUserAndAllHisAccommodation a user - should hard undelte all of it', async () => {
+        let user: any;
+        jest.spyOn(mockedUsersService, 'hardDeleteUserAndAllHisAccommodation').mockImplementation(() => {
+          user = mockedUsers.find(x => x.id === existingUserId && x.role === Role.ACCOMMODATION_OWNER)
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+          return user;          
+        });
+
+        const response = await request(app.getHttpServer())
+          .delete(AppRoutes.BasicUsersRoute+AppRoutes.HardDeleteWithAccommodationRoute+existingUserId);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(user);
+      }, 10000);
+
+      it('DELETE /users/hard-delete-with-accommodation/:id - throw UserDoesNotExist', async () => {
+        const error = new UsersExceptions("", UsersExceptionStatusType.UserDoesNotExist);
+        jest.spyOn(error, 'IsUserExisting').mockReturnValue(true);
+        jest.spyOn(error, 'getMessage').mockReturnValue('User does not exist.');
+
+        jest.spyOn(mockedUsersService, 'hardDeleteUserAndAllHisAccommodation').mockImplementation(() => {
+            throw error;
+        });
+
+        const response = await request(app.getHttpServer())
+          .delete(AppRoutes.BasicUsersRoute+AppRoutes.HardDeleteWithAccommodationRoute+nonExistingUserId);
+
+        expect(response.status).toBe(404);
+        expect(response.body.message).toBe('User does not exist.');
+      })
+
+      it('DELETE /users/hard-delete-with-accommodation/:id - throw UserIsNotAccommodationOwner', async () => {
+        let user;
+        jest.spyOn(mockedUsersService, 'hardDeleteUserAndAllHisAccommodation').mockImplementation(() => {
+          user = mockedUsers.find(u => u.id === existingUserIdNotACCOMMODATION_OWNER);
+          if (!user || user.role !== Role.ACCOMMODATION_OWNER) {
+            throw new UsersExceptions("User is not accommodation owner", UsersExceptionStatusType.UserIsNotAccommodationOwner);
+          }
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+          return user;
+        });
+
+        const response = await request(app.getHttpServer())
+          .delete(AppRoutes.BasicUsersRoute+AppRoutes.HardDeleteWithAccommodationRoute+existingUserIdNotACCOMMODATION_OWNER);
+
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe('User is not accommodation owner');
+      })
+
+      it('DELETE /users/hard-delete-with-accommodation/:id - should return 500 on unexpected error', async () => {
+        jest.spyOn(mockedUsersService, 'hardDeleteUserAndAllHisAccommodation').mockImplementation(() => {
+          throw new Error('Unexpected error');
+        });
+      
+        const response = await request(app.getHttpServer())
+          .delete(AppRoutes.BasicUsersRoute+AppRoutes.HardDeleteWithAccommodationRoute+'some-inalid-id');
+      
+        expect(response.status).toBe(500);
+        expect(response.body.message).toBe('Internal server error');
+      });
     })
 })
