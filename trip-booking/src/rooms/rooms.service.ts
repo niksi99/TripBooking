@@ -27,7 +27,7 @@ export class RoomsService {
 
     const checkRoomExistence = await this.roomRepository.getRoomFromAccommodationByRoomLabel(createRoomDto.accommodationId, createRoomDto.label);
     if(checkRoomExistence)
-      throw new RoomExceptions("Room with this label already exists in this accommodation.", RoomExceptionsStatusType.RoomAlreadyExists);
+      throw new RoomExceptions("Room with this label already exists in this accommodation.", RoomExceptionsStatusType.RoomAlreadyExists, HttpStatus.CONFLICT);
 
     const room = new Room({});
     Object.assign(room, createRoomDto);
@@ -48,7 +48,7 @@ export class RoomsService {
   async findOne(id: string) {
     const room = await this.roomRepository.getById(id);
     if(!room)
-      throw new RoomExceptions("Room does not exist.", RoomExceptionsStatusType.RoomDoesNotExist);
+      throw new RoomExceptions("Room does not exist.", RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
 
     return room;
   }
@@ -56,14 +56,14 @@ export class RoomsService {
   async update(id: string, updateRoomDto: UpdateRoomDto) {
     const doesRoomExist = await this.roomRepository.getById(id);
     if(doesRoomExist == null)
-      throw new RoomExceptions("Room does not exist", RoomExceptionsStatusType.RoomDoesNotExist);
+      throw new RoomExceptions("Room does not exist", RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
 
     if(doesRoomExist.deletedAt != null)
-      throw new RoomExceptions("Room is already block/soft-deleted.", RoomExceptionsStatusType.RoomIsBlocked_SoftDeleted);
+      throw new RoomExceptions("Room is already block/soft-deleted.", RoomExceptionsStatusType.RoomIsBlocked_SoftDeleted, HttpStatus.FORBIDDEN);
 
     const checkRoomLabelExistense = await this.roomRepository.getByLabel(updateRoomDto.label);
     if(checkRoomLabelExistense?.label === updateRoomDto.label)
-      throw new RoomExceptions("Room with this label already exists. ", RoomExceptionsStatusType.RoomAlreadyExists);
+      throw new RoomExceptions("Room with this label already exists. ", RoomExceptionsStatusType.RoomAlreadyExists, HttpStatus.CONFLICT);
     
     Object.assign(doesRoomExist, updateRoomDto);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
@@ -73,7 +73,7 @@ export class RoomsService {
   async hardDelete(id: string) {
     const room = await this.roomRepository.getById(id);
     if(!room)
-      throw new RoomExceptions("Room does not exist.", RoomExceptionsStatusType.RoomDoesNotExist);
+      throw new RoomExceptions("Room does not exist.", RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
 
     return this.roomRepository.hardDelete(id);
   }
@@ -81,10 +81,10 @@ export class RoomsService {
   async softDelete(id: string) {
     const room = await this.roomRepository.getById(id);
     if(!room)
-      throw new RoomExceptions("Room does not exist.", RoomExceptionsStatusType.RoomDoesNotExist);
+      throw new RoomExceptions("Room does not exist.", RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
 
     if(room.deletedAt != null)
-          throw new RoomExceptions("Room is already soft deleted.", RoomExceptionsStatusType.RoomCanNotBeBlocked_SoftDeleted);
+          throw new RoomExceptions("Room is already soft deleted.", RoomExceptionsStatusType.RoomCanNotBeBlocked_SoftDeleted, HttpStatus.FORBIDDEN);
 
     return this.roomRepository.softDelete(room);
   }
@@ -92,10 +92,10 @@ export class RoomsService {
   async softUndelete(id: string) {
     const room = await this.roomRepository.getById(id);
     if(!room)
-      throw new RoomExceptions("Room does not exist.", RoomExceptionsStatusType.RoomDoesNotExist);
+      throw new RoomExceptions("Room does not exist.", RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
 
     if(room.deletedAt == null)
-          throw new RoomExceptions("Room is not soft deleted, therefore, it can not be undeleted.", RoomExceptionsStatusType.RoomIsNotBlocked_SoftDeleted);
+          throw new RoomExceptions("Room is not soft deleted, therefore, it can not be undeleted.", RoomExceptionsStatusType.RoomIsNotBlocked_SoftDeleted, HttpStatus.FORBIDDEN);
         
     return this.roomRepository.hardDelete(id);
   }

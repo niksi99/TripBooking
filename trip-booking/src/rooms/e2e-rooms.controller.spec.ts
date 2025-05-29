@@ -117,7 +117,7 @@ describe('Rooms Controller e2e', () => {
         }, 10000);
 
         it('GET /rooms/:id - thorw RoomDoeNotExist', async () => {
-            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomDoesNotExist);
+            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
             jest.spyOn(error, 'DoesRoomExist').mockReturnValue(true);
             jest.spyOn(error, 'getMessage').mockReturnValue('Room not found');
 
@@ -170,7 +170,7 @@ describe('Rooms Controller e2e', () => {
         }, 10000);
 
         it('DELETE /rooms/hard-delete/:id - thorw RoomDoeNotExist', async () => {
-            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomDoesNotExist);
+            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
             jest.spyOn(error, 'DoesRoomExist').mockReturnValue(true);
             jest.spyOn(error, 'getMessage').mockReturnValue('Room not found');
 
@@ -223,7 +223,7 @@ describe('Rooms Controller e2e', () => {
         }, 10000);
 
         it('PATCH /rooms/soft-delete/:id - thorw RoomDoeNotExist', async () => {
-            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomDoesNotExist);
+            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
             jest.spyOn(error, 'DoesRoomExist').mockReturnValue(true);
             jest.spyOn(error, 'getMessage').mockReturnValue('Room not found');
 
@@ -251,7 +251,7 @@ describe('Rooms Controller e2e', () => {
                 accommodationId: "7a495f64-5717-4562-b3fc-67y63f66afa8"
             };
 
-            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomCanNotBeBlocked_SoftDeleted);
+            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomCanNotBeBlocked_SoftDeleted, HttpStatus.FORBIDDEN);
             jest.spyOn(error, 'CanRoomBeBlocked_SoftDeleted').mockReturnValue(true);
             jest.spyOn(error, 'getMessage').mockReturnValue('Room is already soft deleted.');
 
@@ -304,7 +304,7 @@ describe('Rooms Controller e2e', () => {
         }, 10000);
 
         it('PATCH /rooms/soft-undelete/:id - thorw RoomDoeNotExist', async () => {
-            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomDoesNotExist);
+            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
             jest.spyOn(error, 'DoesRoomExist').mockReturnValue(true);
             jest.spyOn(error, 'getMessage').mockReturnValue('Room not found');
 
@@ -332,7 +332,7 @@ describe('Rooms Controller e2e', () => {
                 accommodationId: "7a495f64-5717-4562-b3fc-67y63f66afa8"
             };
 
-            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomIsNotBlocked_SoftDeleted);
+            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomIsNotBlocked_SoftDeleted, HttpStatus.FORBIDDEN);
             jest.spyOn(error, 'IsRoomBlocked').mockReturnValue(true);
             jest.spyOn(error, 'getMessage').mockReturnValue('Room is not soft deleted, therefore, it can not be undeleted.');
 
@@ -419,7 +419,7 @@ describe('Rooms Controller e2e', () => {
         })
 
         it('POST /rooms - throw Room already exists', async () => {
-            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomAlreadyExists);
+            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomAlreadyExists, HttpStatus.CONFLICT);
             jest.spyOn(error, 'DoesRoomAlreadyExist').mockReturnValue(true);
             jest.spyOn(error, 'getMessage').mockReturnValue('Room with this label already exists in this accommodation.');
 
@@ -472,7 +472,7 @@ describe('Rooms Controller e2e', () => {
         })
 
         it('PATCH /rooms - throw Room does not exist', async () => {
-            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomDoesNotExist);
+            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
             jest.spyOn(error, 'DoesRoomExist').mockReturnValue(true);
             jest.spyOn(error, 'getMessage').mockReturnValue('Room does not exist.');
 
@@ -489,7 +489,7 @@ describe('Rooms Controller e2e', () => {
         })
 
             it('PATCH /rooms - throw Room is already block/soft-deleted.', async () => {
-            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomIsBlocked_SoftDeleted);
+            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomIsBlocked_SoftDeleted, HttpStatus.FORBIDDEN);
             jest.spyOn(error, 'IsRoomBlocked_SoftDeleted').mockReturnValue(true);
             jest.spyOn(error, 'getMessage').mockReturnValue('Room is already block/soft-deleted.');
 
@@ -506,7 +506,7 @@ describe('Rooms Controller e2e', () => {
         })
 
         it('POST /rooms - throw Room already exists', async () => {
-            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomAlreadyExists);
+            const error = new RoomExceptions("", RoomExceptionsStatusType.RoomAlreadyExists, HttpStatus.CONFLICT);
             jest.spyOn(error, 'DoesRoomAlreadyExist').mockReturnValue(true);
             jest.spyOn(error, 'getMessage').mockReturnValue('Room with this label already exists in this accommodation.');
 

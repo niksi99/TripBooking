@@ -91,7 +91,7 @@ describe('RoomsController UnitTest', () => {
         })
 
         it('should throw RoomDoesNotExist', async () => {
-            const errorMock = new RoomExceptions('Room does not exist.', RoomExceptionsStatusType.RoomDoesNotExist);
+            const errorMock = new RoomExceptions('Room does not exist.', RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
             jest.spyOn(errorMock, 'DoesRoomExist').mockReturnValue(true);
             jest.spyOn(errorMock, 'getMessage').mockReturnValue('Room does not exist.');
             (roomsService.findOne as jest.Mock).mockRejectedValue(errorMock);
@@ -121,7 +121,7 @@ describe('RoomsController UnitTest', () => {
         })
 
         it('should throw DoesRoomExist', async () => {
-            const errorMock = new RoomExceptions('Room does not exist.', RoomExceptionsStatusType.RoomDoesNotExist);
+            const errorMock = new RoomExceptions('Room does not exist.', RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
             jest.spyOn(errorMock, 'DoesRoomExist').mockReturnValue(true);
             jest.spyOn(errorMock, 'getMessage').mockReturnValue('Room does not exist.');
             (roomsService.hardDelete as jest.Mock).mockRejectedValue(errorMock);
@@ -151,7 +151,7 @@ describe('RoomsController UnitTest', () => {
         })
 
         it('should throw DoesRoomExist', async () => {
-            const errorMock = new RoomExceptions('Room does not exist.', RoomExceptionsStatusType.RoomDoesNotExist);
+            const errorMock = new RoomExceptions('Room does not exist.', RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
             jest.spyOn(errorMock, 'DoesRoomExist').mockReturnValue(true);
             jest.spyOn(errorMock, 'getMessage').mockReturnValue('Room does not exist.');
             (roomsService.softDelete as jest.Mock).mockRejectedValue(errorMock);
@@ -161,7 +161,7 @@ describe('RoomsController UnitTest', () => {
         })
 
         it('should throw Rooms is already soft-deleted.', async () => {
-            const errorMock = new RoomExceptions('Room is already block/soft-deleted..', RoomExceptionsStatusType.RoomCanNotBeBlocked_SoftDeleted);
+            const errorMock = new RoomExceptions('Room is already block/soft-deleted..', RoomExceptionsStatusType.RoomCanNotBeBlocked_SoftDeleted, HttpStatus.FORBIDDEN);
             jest.spyOn(errorMock, 'CanRoomBeBlocked_SoftDeleted').mockReturnValue(true);
             jest.spyOn(errorMock, 'getMessage').mockReturnValue('Room is already block/soft-deleted.');
             (roomsService.softDelete as jest.Mock).mockRejectedValue(errorMock);
@@ -191,7 +191,7 @@ describe('RoomsController UnitTest', () => {
         })
 
         it('should throw DoesRoomExist', async () => {
-            const errorMock = new RoomExceptions('Room does not exist.', RoomExceptionsStatusType.RoomDoesNotExist);
+            const errorMock = new RoomExceptions('Room does not exist.', RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
             jest.spyOn(errorMock, 'DoesRoomExist').mockReturnValue(true);
             jest.spyOn(errorMock, 'getMessage').mockReturnValue('Room does not exist.');
             (roomsService.softUndelete as jest.Mock).mockRejectedValue(errorMock);
@@ -201,7 +201,7 @@ describe('RoomsController UnitTest', () => {
         })
 
         it('should throw Rooms is already soft-deleted.', async () => {
-            const errorMock = new RoomExceptions('Room is not soft deleted, therefore, it can not be undeleted.', RoomExceptionsStatusType.RoomIsBlocked_SoftDeleted);
+            const errorMock = new RoomExceptions('Room is not soft deleted, therefore, it can not be undeleted.', RoomExceptionsStatusType.RoomIsBlocked_SoftDeleted, HttpStatus.BAD_REQUEST);
             jest.spyOn(errorMock, 'IsRoomBlocked').mockReturnValue(true);
             jest.spyOn(errorMock, 'getMessage').mockReturnValue('Room is not soft deleted, therefore, it can not be undeleted.');
             (roomsService.softUndelete as jest.Mock).mockRejectedValue(errorMock);
@@ -258,7 +258,7 @@ describe('RoomsController UnitTest', () => {
         });
 
         it('should throw BadRequestException: Room with this label already exists.', async () => {
-            const errorMock = new RoomExceptions("Room with this label already exists in this accommodation.", RoomExceptionsStatusType.RoomAlreadyExists);
+            const errorMock = new RoomExceptions("Room with this label already exists in this accommodation.", RoomExceptionsStatusType.RoomAlreadyExists, HttpStatus.CONFLICT);
             jest.spyOn(errorMock, 'DoesRoomAlreadyExist').mockReturnValue(true);
             jest.spyOn(errorMock, 'getMessage').mockReturnValue("Room with this label already exists in this accommodation.");
 
@@ -297,7 +297,7 @@ describe('RoomsController UnitTest', () => {
         })
 
         it('should throw BadRequestException: Room does not exist.', async () => {
-            const errorMock = new RoomExceptions("Room does not exist", RoomExceptionsStatusType.RoomDoesNotExist);
+            const errorMock = new RoomExceptions("Room does not exist", RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
             jest.spyOn(errorMock, 'DoesRoomExist').mockReturnValue(true);
             jest.spyOn(errorMock, 'getMessage').mockReturnValue("Room does not exist");
 
@@ -308,7 +308,7 @@ describe('RoomsController UnitTest', () => {
         });
 
         it('should throw BadRequestException: Room is blocked / soft deleted.', async () => {
-            const errorMock = new RoomExceptions("Room is already block/soft-deleted.", RoomExceptionsStatusType.RoomIsBlocked_SoftDeleted);
+            const errorMock = new RoomExceptions("Room is already block/soft-deleted.", RoomExceptionsStatusType.RoomIsBlocked_SoftDeleted, HttpStatus.FORBIDDEN);
             jest.spyOn(errorMock, 'IsRoomBlocked_SoftDeleted').mockReturnValue(true);
             jest.spyOn(errorMock, 'getMessage').mockReturnValue("Room is already block/soft-deleted.");
 
@@ -319,7 +319,7 @@ describe('RoomsController UnitTest', () => {
         });
 
         it('should throw BadRequestException: Room with this label already exists.', async () => {
-            const errorMock = new RoomExceptions("Room with this label already exists. ", RoomExceptionsStatusType.RoomAlreadyExists);
+            const errorMock = new RoomExceptions("Room with this label already exists. ", RoomExceptionsStatusType.RoomAlreadyExists, HttpStatus.CONFLICT);
             jest.spyOn(errorMock, 'DoesRoomAlreadyExist').mockReturnValue(true);
             jest.spyOn(errorMock, 'getMessage').mockReturnValue("Room with this label already exists. ");
 
