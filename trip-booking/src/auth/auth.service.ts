@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersExceptionStatusType } from 'src/exceptions-handling/exceptions-status-type/user.exceptions.status.type';
 import { UsersExceptions } from 'src/exceptions-handling/exceptions/users.exceptions';
@@ -22,7 +22,7 @@ export class AuthService {
     async login(loginDto: LoginDto) {
         const { accessToken, } = await this.myAuthHelper.generateTokens(loginDto);
         if(!accessToken)
-            throw new AuthExceptions("Token is not generated.", AuthExceptionStatusType.TokenDoesNotExist);
+            throw new AuthExceptions("Token is not generated.", AuthExceptionStatusType.TokenDoesNotExist, HttpStatus.NOT_FOUND);
         return {
             accessToken: accessToken,
         }
@@ -37,7 +37,7 @@ export class AuthService {
             username: user.username,
             role: user.role
         }
-
+        console.log("currentUser", currentUser);
         return currentUser;
     }
 }

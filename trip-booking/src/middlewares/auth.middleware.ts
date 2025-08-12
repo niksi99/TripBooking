@@ -14,11 +14,11 @@ export class AuthMiddleware implements NestMiddleware {
 
         const secret = process.env.JWT_SECRET_KEY
         if(!secret)
-            throw new NotFoundException('Secret is empty.');
+            throw new NotFoundException('From middleware: Secret is empty.');
         
         jwt.verify(token, secret, (err, decoded) => {
             if (err || !decoded) {
-              return res.status(403).json({ message: 'Invalid or expired token!' });
+              return res.status(403).json({ message: 'From middleware: Invalid or expired token!' });
             }
       
             req['user'] = decoded;

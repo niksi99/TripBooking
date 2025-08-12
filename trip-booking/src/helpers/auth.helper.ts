@@ -9,7 +9,7 @@ import { AuthExceptions } from "src/exceptions-handling/exceptions/auth.exceptio
 import { AuthExceptionStatusType } from "src/exceptions-handling/exceptions-status-type/auth.exceptions.status.types";
 import { AuthJwtPayload } from "src/auth/types/auth-jwtPayload";
 import { JwtService } from "@nestjs/jwt";
-import { Injectable } from "@nestjs/common";
+import { HttpStatus, Injectable } from "@nestjs/common";
 
 @Injectable()
 export class AuthHelper {
@@ -29,7 +29,7 @@ export class AuthHelper {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
             const isPasswordMatch = await bcrypt.compare(loginDto.password, user.password);
             if(!isPasswordMatch)
-                throw new AuthExceptions("Invalid password", AuthExceptionStatusType.InvalidPassword);
+                throw new AuthExceptions("Invalid password", AuthExceptionStatusType.InvalidPassword, HttpStatus.FORBIDDEN);
     
             const payload: AuthJwtPayload = {
                 sub: loginDto.username,

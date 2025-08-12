@@ -2,6 +2,7 @@
 export class AppRoutes {
     static readonly BasicUsersRoute = `/users/`
     static readonly BasicRoomsRoute = `/rooms/`
+    static readonly BasicAcommodationRoute = `/accommodations/`
 
     static readonly CreateRoute = `create`;
     static readonly GetAllRoute = `get-all`;

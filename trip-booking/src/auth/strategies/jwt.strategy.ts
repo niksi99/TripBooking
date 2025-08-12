@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Inject } from "@nestjs/common";
+import { Inject, UnauthorizedException } from "@nestjs/common";
 import { ConfigType } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
@@ -18,23 +18,30 @@ export class JwtStragy extends PassportStrategy(Strategy) {
         if (!jwtConfiguration.secret) {
             throw new Error('JWT secret is undefined');
         }
-        
+
         super({
             jwtFromRequest: ExtractJwt.fromExtractors([
                 (request: Request) => {
-                  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
-                  return request?.cookies?.['access_token'];
-                }
-              ]),
-            //: ExtractJwt.fromAuthHeaderAsBearerToken(),
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+                    const token: string = request?.cookies?.['access_token'][0];
+                    if(!token || token === 'undefined')
+                        throw new UnauthorizedException("From jwt strategy: Token is null or undefined.");
+                    return token;
+                    },
+                ExtractJwt.fromAuthHeaderAsBearerToken(),
+            ]),
             secretOrKey: jwtConfiguration.secret,
             ignoreExpiration: false,
         });
 
     }
 
-    validate(payload: AuthJwtPayload): unknown {
-        return this.authService.validateJwtUser(payload.sub);
+    async validate(payload: AuthJwtPayload) {
+        const user = await this.authService.validateJwtUser(payload.sub);
+        if (!user) {
+            throw new UnauthorizedException('User not found or token invalid');
+        }
+        return user;
     }
 
 }
