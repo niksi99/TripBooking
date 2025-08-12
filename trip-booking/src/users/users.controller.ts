@@ -87,7 +87,6 @@ export class UsersController {
   @Delete(AppRoutes.HardDeleteRoute)
   async remove(@Param('id') id: string) {
     try {
-      console.log("HARD DELETE USER");
       return await this.usersService.hardDelete(id);
     } 
     catch (error) {
