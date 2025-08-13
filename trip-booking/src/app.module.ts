@@ -9,9 +9,8 @@ import { AuthModule } from './auth/auth.module';
 import { AccommodationsModule } from './accommodations/accommodations.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { AuthMiddleware } from './middlewares/auth.middleware';
-import { AcceptLanguageResolver, HeaderResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
-import { join } from 'path';
 import { AppRoutes } from './routes/app.routes';
+import { I18nConfigModule } from './i18n/I18nConfigModule';
 
 @Module({
   imports: [
@@ -19,23 +18,7 @@ import { AppRoutes } from './routes/app.routes';
       isGlobal: true,
       envFilePath: '.env',
     }), 
-    DatabaseModule, UsersModule, AuthModule, AccommodationsModule, RoomsModule,
-    I18nModule.forRootAsync({
-      useFactory: () => ({
-        fallbackLanguage: 'en',
-        loaderOptions: {
-          path: join(__dirname, '/i18n/'),
-          watch: true,
-          includeSubfolders: true
-        },
-        typesOutputPath: join(__dirname, '../src/generated/i18n.generated.ts')
-      }),
-      resolvers: [
-        AcceptLanguageResolver, // for Postman Accept-Language
-        new HeaderResolver(['x-custom-lang']),
-        new QueryResolver(['lang']), // for ?lang=sr
-      ],
-    })
+    DatabaseModule, UsersModule, AuthModule, AccommodationsModule, RoomsModule, I18nConfigModule
   ],
   controllers: [AppController],
   providers: [AppService],
