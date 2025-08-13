@@ -9,11 +9,13 @@ import { User } from './entities/user.entity';
 import { Role } from '../auth/enums/role.enum';
 import { AuthExceptionStatusType } from 'src/exceptions-handling/exceptions-status-type/auth.exceptions.status.types';
 import { AuthExceptions } from 'src/exceptions-handling/exceptions/auth.exceptions';
+import { I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class UsersService {
   constructor(
-    private readonly userRepository: UserRepository
+    private readonly userRepository: UserRepository,
+    private readonly i18n_translations: I18nService
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -33,10 +35,13 @@ export class UsersService {
     return await this.userRepository.getAll();
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, lang: string) {
     const myUser = await this.userRepository.getUserById(id);
     if(!myUser)
-      throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist);
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_DOES_NOT_EXIST`, { lang: lang }),
+        UsersExceptionStatusType.UserDoesNotExist
+      );
 
     return myUser; 
   }

@@ -98,10 +98,11 @@ describe('UsersController', () => {
                 return mockUsers.find(user => user.id === id); 
             });
 
-            const result = await usersController.findOne('3fa85f64-5717-4562-b3fc-2c963f66afa6');
+            const header = { 'accept-language': 'fr' };
+            const result = await usersController.findOne('3fa85f64-5717-4562-b3fc-2c963f66afa6', header);
 
             expect(result).toEqual(mockUsers[0]);
-            expect(usersService.findOne).toHaveBeenCalledWith('3fa85f64-5717-4562-b3fc-2c963f66afa6');
+            expect(usersService.findOne).toHaveBeenCalledWith('3fa85f64-5717-4562-b3fc-2c963f66afa6', 'fr');
         })
 
         it('should throw NotFoundException if IsUserExisting from UsersExceptions is TRUE', async() => {
@@ -110,15 +111,15 @@ describe('UsersController', () => {
             jest.spyOn(errorMock, 'getMessage').mockReturnValue('User not found');
             (usersService.findOne as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(usersController.findOne('2')).rejects.toThrow(NotFoundException);
-            await expect(usersController.findOne('2')).rejects.toThrow('User not found');
+            await expect(usersController.findOne('2', 'fr')).rejects.toThrow(NotFoundException);
+            await expect(usersController.findOne('2', 'fr')).rejects.toThrow('User not found');
         })
 
         it('should throw other errors', async () => {
             const errorMock = new Error('Other error');
             (usersService.findOne as jest.Mock).mockRejectedValue(errorMock);
       
-            await expect(usersController.findOne('1')).rejects.toBe(errorMock);
+            await expect(usersController.findOne('1', 'fr')).rejects.toBe(errorMock);
         });
     })
 

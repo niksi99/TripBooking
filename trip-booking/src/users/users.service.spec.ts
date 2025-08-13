@@ -1,6 +1,8 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/unbound-method */
 
+import { I18nService } from "nestjs-i18n";
 import { AuthExceptions } from "../exceptions-handling/exceptions/auth.exceptions";
 import { UsersExceptions } from "../exceptions-handling/exceptions/users.exceptions";
 import { UserRepository } from "../repositories/UserRepository"
@@ -9,6 +11,7 @@ import { UsersService } from "./users.service";
 describe('UsersService', () => {
     let usersRepository: UserRepository;
     let usersService: UsersService;
+    let i18n: I18nService
 
     const mockedUsers = [
         {
@@ -64,7 +67,13 @@ describe('UsersService', () => {
             hardDeleteUserAndOwnedAccommodations: jest.fn(),
         } as unknown as UserRepository;
 
-        usersService = new UsersService(usersRepository);
+        i18n = {
+            //ranslate: jest.fn(),
+            translate: jest.fn().mockImplementation((key) => key),
+            t: jest.fn().mockImplementation((key) => key),
+        } as unknown as I18nService;
+
+        usersService = new UsersService(usersRepository, i18n);
     })
 
     describe('findAll', () => {
@@ -84,7 +93,7 @@ describe('UsersService', () => {
                 return mockedUsers.find(user => user.id === id); 
             });
 
-            const result = await usersService.findOne("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+            const result = await usersService.findOne("3fa85f64-5717-4562-b3fc-2c963f66afa6", "fr");
 
             expect(usersRepository.getUserById).toHaveBeenCalled();
             expect(result).toEqual(mockedUsers[0]);
@@ -93,8 +102,8 @@ describe('UsersService', () => {
         it('should throw UserExceptions if user does not exist.', async () => {
             (usersRepository.getUserById as jest.Mock).mockResolvedValue(null);
 
-            await expect(usersService.findOne('non-existing-id')).rejects.toThrow(UsersExceptions);
-            await expect(usersService.findOne('non-existing-id')).rejects.toThrow("User does not exist.");
+            await expect(usersService.findOne('non-existing-id', 'fr')).rejects.toThrow(UsersExceptions);
+            await expect(usersService.findOne('non-existing-id', 'fr')).rejects.toThrow("exceptions.user.USER_DOES_NOT_EXIST");
         })
     })
 

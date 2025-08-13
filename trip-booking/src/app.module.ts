@@ -9,7 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { AccommodationsModule } from './accommodations/accommodations.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { AuthMiddleware } from './middlewares/auth.middleware';
-import { HeaderResolver, I18nModule } from 'nestjs-i18n';
+import { AcceptLanguageResolver, HeaderResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 import { join } from 'path';
 import { AppRoutes } from './routes/app.routes';
 
@@ -25,11 +25,16 @@ import { AppRoutes } from './routes/app.routes';
         fallbackLanguage: 'en',
         loaderOptions: {
           path: join(__dirname, '/i18n/'),
-          watch: true
+          watch: true,
+          includeSubfolders: true
         },
         typesOutputPath: join(__dirname, '../src/generated/i18n.generated.ts')
       }),
-      resolvers: [new HeaderResolver(['x-custom-lang'])]
+      resolvers: [
+        AcceptLanguageResolver, // for Postman Accept-Language
+        new HeaderResolver(['x-custom-lang']),
+        new QueryResolver(['lang']), // for ?lang=sr
+      ],
     })
   ],
   controllers: [AppController],

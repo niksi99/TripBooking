@@ -18,6 +18,23 @@ export type I18nTranslations = {
         "password.minLen": string;
         "password.weak": string;
     };
+    "exceptions": {
+        "auth": {
+            "TOKEN_IS_NOT_GENERATED": string;
+            "ADMINISTRATOR_CAN'T_BE_DELETED": string;
+            "INVALID_PASSWORD": string;
+            "USER_IS_NOT_LOGGED_IN": string;
+        };
+        "user": {
+            "USER_DOES_NOT_EXIST": string;
+            "USER_IS_NOT_ACCOMMODATION_OWNER": string;
+            "USER_IS_NOT_SOFT_DELETED": string;
+            "USER_IS_ALREADY_SOFT_DELETED": string;
+            "USER_IS_SOFT_DELETED_NO_UPDATE": string;
+            "USER_WITH_THIS_EMAIL_ALREADY_EXISTS": string;
+            "USER_WITH_THIS_USERNAME_ALREADY_EXISTS": string;
+        };
+    };
 };
 /* prettier-ignore */
 export type I18nPath = Path<I18nTranslations>;
