@@ -86,24 +86,36 @@ export class UsersService {
     return await this.userRepository.hardDeleteUser(id);
   }
 
-  async softDelete(id: string) {
+  async softDelete(id: string, lang: string) {
     const user = await this.userRepository.getUserById(id);
     if(user == null)
-      throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist);
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_DOES_NOT_EXIST`, { lang: lang }),
+        UsersExceptionStatusType.UserDoesNotExist
+      );
 
     if(user.deletedAt != null)
-      throw new UsersExceptions("User is already soft deleted.", UsersExceptionStatusType.UserAlreadySoftDeleted);
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_IS_ALREADY_SOFT_DELETED`, { lang: lang }), 
+        UsersExceptionStatusType.UserAlreadySoftDeleted
+      );
 
     return await this.userRepository.softRemove(user);
   }
 
-  async softUndelete(id: string) {
+  async softUndelete(id: string, lang: string) {
     const user = await this.userRepository.getUserById(id);
     if(user == null)
-      throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist);
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_DOES_NOT_EXIST`, { lang: lang }),
+        UsersExceptionStatusType.UserDoesNotExist
+      );
 
     if(user.deletedAt == null)
-      throw new UsersExceptions("User is not soft deleted, therefore, it can not be undeleted.", UsersExceptionStatusType.UserIsNotSoftUndeleted);
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_IS_NOT_SOFT_DELETED`, { lang: lang }),
+        UsersExceptionStatusType.UserIsNotSoftUndeleted
+      );
 
     return await this.userRepository.softUndeleteUser(id);
   }

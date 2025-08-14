@@ -144,7 +144,7 @@ describe('UsersService', () => {
             (usersRepository.getUserById as jest.Mock).mockResolvedValue(mockedUsers[0]);
             (usersRepository.softRemove  as jest.Mock).mockResolvedValue(mockedUsers[0]);
         
-            const result = await usersService.softDelete(mockedUsers[0].id);
+            const result = await usersService.softDelete(mockedUsers[0].id, "en");
         
             expect(usersRepository.getUserById).toHaveBeenCalledWith(mockedUsers[0].id);
             expect(usersRepository.softRemove).toHaveBeenCalledWith(mockedUsers[0]);
@@ -154,8 +154,8 @@ describe('UsersService', () => {
         it('should throw UserExceptions if user does not exist.', async () => {
             (usersRepository.softDeleteUser as jest.Mock).mockResolvedValue(null);
 
-            await expect(usersService.softDelete('non-existing-id')).rejects.toThrow(UsersExceptions);
-            await expect(usersService.softDelete('non-existing-id')).rejects.toThrow("User does not exist.");
+            await expect(usersService.softDelete('non-existing-id', 'en')).rejects.toThrow(UsersExceptions);
+            await expect(usersService.softDelete('non-existing-id', 'en')).rejects.toThrow("exceptions.user.USER_DOES_NOT_EXIST");
 
             expect(usersRepository.getUserById).toHaveBeenCalledWith('non-existing-id');
         })
@@ -164,8 +164,8 @@ describe('UsersService', () => {
             const toSoftDelete = { ...mockedUsers[2] };
             (usersRepository.getUserById as jest.Mock).mockResolvedValue(toSoftDelete);
 
-            await expect(usersService.softDelete(toSoftDelete.id)).rejects.toThrow(UsersExceptions);
-            await expect(usersService.softDelete(toSoftDelete.id)).rejects.toThrow("User is already soft deleted.");
+            await expect(usersService.softDelete(toSoftDelete.id, "en")).rejects.toThrow(UsersExceptions);
+            await expect(usersService.softDelete(toSoftDelete.id, "en")).rejects.toThrow("exceptions.user.USER_IS_ALREADY_SOFT_DELETED");
 
             expect(usersRepository.getUserById).toHaveBeenCalledWith(toSoftDelete.id);
         })
@@ -176,7 +176,7 @@ describe('UsersService', () => {
             (usersRepository.getUserById as jest.Mock).mockResolvedValue(mockedUsers[2]);
             (usersRepository.softUndeleteUser  as jest.Mock).mockResolvedValue(mockedUsers[2]);
         
-            const result = await usersService.softUndelete(mockedUsers[2].id);
+            const result = await usersService.softUndelete(mockedUsers[2].id, "en");
         
             expect(usersRepository.getUserById).toHaveBeenCalledWith(mockedUsers[2].id);
             expect(usersRepository.softUndeleteUser).toHaveBeenCalledWith(mockedUsers[2].id);
@@ -186,8 +186,8 @@ describe('UsersService', () => {
         it('should throw UserExceptions if user does not exist.', async () => {
             (usersRepository.softUndeleteUser as jest.Mock).mockResolvedValue(null);
 
-            await expect(usersService.softUndelete('non-existing-id')).rejects.toThrow(UsersExceptions);
-            await expect(usersService.softUndelete('non-existing-id')).rejects.toThrow("User does not exist.");
+            await expect(usersService.softUndelete('non-existing-id', 'en')).rejects.toThrow(UsersExceptions);
+            await expect(usersService.softUndelete('non-existing-id', 'en')).rejects.toThrow("exceptions.user.USER_DOES_NOT_EXIST");
 
             expect(usersRepository.getUserById).toHaveBeenCalledWith('non-existing-id');
         })
@@ -196,8 +196,8 @@ describe('UsersService', () => {
             const toSoftUndelete = { ...mockedUsers[0] };
             (usersRepository.getUserById as jest.Mock).mockResolvedValue(toSoftUndelete);
 
-            await expect(usersService.softUndelete(toSoftUndelete.id)).rejects.toThrow(UsersExceptions);
-            await expect(usersService.softUndelete(toSoftUndelete.id)).rejects.toThrow("User is not soft deleted, therefore, it can not be undeleted.");
+            await expect(usersService.softUndelete(toSoftUndelete.id, 'en')).rejects.toThrow(UsersExceptions);
+            await expect(usersService.softUndelete(toSoftUndelete.id, 'en')).rejects.toThrow("exceptions.user.USER_IS_NOT_SOFT_DELETED");
 
             expect(usersRepository.getUserById).toHaveBeenCalledWith(toSoftUndelete.id);
         })

@@ -136,9 +136,9 @@ export class UsersController {
   }
 
   @Patch(AppRoutes.SoftDeleteRoute)
-  async softDelete(@Param('id') id: string) {
+  async softDelete(@Param('id') id: string, @Headers() headers) {
     try {
-      return await this.usersService.softDelete(id);
+      return await this.usersService.softDelete(id, headers['accept-language']);
     } 
     catch (error) {
       switch(true) {
@@ -155,9 +155,9 @@ export class UsersController {
   }
 
   @Patch(AppRoutes.SoftUndeleteRoute)
-  async softUndelete(@Param('id') id: string) {
+  async softUndelete(@Param('id') id: string, @Headers() headers) {
     try {
-      return await this.usersService.softUndelete(id);
+      return await this.usersService.softUndelete(id, headers['accept-language']);
     } 
     catch (error) {
       switch(true) {
