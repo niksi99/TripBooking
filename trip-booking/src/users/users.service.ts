@@ -70,13 +70,19 @@ export class UsersService {
     return await this.userRepository.manager.save(User, checkUserExistense);
   }
 
-  async hardDelete(id: string) {
+  async hardDelete(id: string, lang: string) {
     const user = await this.userRepository.getUserById(id);
     if(!user)
-      throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist);
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_DOES_NOT_EXIST`, { lang: lang }),
+        UsersExceptionStatusType.UserDoesNotExist
+      );
 
     if(user.role.toString()  === Role.ADMINISTRATOR.toString())
-      throw new AuthExceptions("Administrator can't be deleted!", AuthExceptionStatusType.AdministratorCanNotBeDeleted, HttpStatus.FORBIDDEN);
+      throw new AuthExceptions(
+        await this.i18n_translations.t(`exceptions.auth.ADMINISTRATOR_CAN'T_BE_DELETED`, { lang: lang }),
+        AuthExceptionStatusType.AdministratorCanNotBeDeleted, HttpStatus.FORBIDDEN
+      );
     return await this.userRepository.hardDeleteUser(id);
   }
 

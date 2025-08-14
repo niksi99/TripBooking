@@ -5,7 +5,7 @@ import { UsersController } from "./users.controller";
 import { UsersService } from "./users.service";
 import { UsersExceptions } from "../exceptions-handling/exceptions/users.exceptions";
 import { UsersExceptionStatusType } from "../exceptions-handling/exceptions-status-type/user.exceptions.status.type";
-import { BadRequestException, HttpStatus, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, HttpStatus, NotFoundException } from "@nestjs/common";
 import { AuthExceptions } from "../exceptions-handling/exceptions/auth.exceptions";
 import { AuthExceptionStatusType } from "../exceptions-handling/exceptions-status-type/auth.exceptions.status.types";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -58,6 +58,7 @@ describe('UsersController', () => {
             findOne: jest.fn(),
             softDelete: jest.fn(),
             softUndelete: jest.fn(),
+            hardDelete: jest.fn(),
             hardDeleteUserAndAllHisAccommodation: jest.fn(),
             create: jest.fn(),
             update: jest.fn()
@@ -120,6 +121,49 @@ describe('UsersController', () => {
             (usersService.findOne as jest.Mock).mockRejectedValue(errorMock);
       
             await expect(usersController.findOne('1', 'fr')).rejects.toBe(errorMock);
+        });
+    })
+
+    describe('hardDelete', () => {
+        const header = { 'accept-language': 'fr' };
+
+        it('should hard-delete the user.', async () => {
+            const userId = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
+            const deletedUser = mockUsers[0];
+
+            (usersService.hardDelete as jest.Mock).mockResolvedValue(deletedUser);
+
+            const result = await usersController.remove(userId, header);
+
+            expect(result).toEqual(deletedUser);
+            expect(usersService.hardDelete).toHaveBeenCalledWith(userId, 'fr');
+        });
+
+        it('should throw NotFoundException if IsUserExisting from UsersExceptions is TRUE', async() => {
+            const errorMock = new UsersExceptions('User not found', UsersExceptionStatusType.UserDoesNotExist);
+            jest.spyOn(errorMock, 'IsUserExisting').mockReturnValue(true);
+            jest.spyOn(errorMock, 'getMessage').mockReturnValue('User not found');
+            (usersService.hardDelete as jest.Mock).mockRejectedValue(errorMock);
+
+            await expect(usersController.remove('2', header)).rejects.toThrow(NotFoundException);
+            await expect(usersController.remove('2', header)).rejects.toThrow('User not found');
+        })
+
+        it('should throw ForbiddenException if CanAdministatorBeDeleted from AuthExceptions is TRUE', async() => {
+            const errorMock = new AuthExceptions('Administrator can\'t be deleted!', AuthExceptionStatusType.AdministratorCanNotBeDeleted, HttpStatus.FORBIDDEN);
+            jest.spyOn(errorMock, 'CanAdministratorBeDeleted').mockReturnValue(true);
+            jest.spyOn(errorMock, 'getMessage').mockReturnValue('Administrator can\'t be deleted!');
+            (usersService.hardDelete as jest.Mock).mockRejectedValue(errorMock);
+
+            await expect(usersController.remove('2', 'fr')).rejects.toThrow(ForbiddenException);
+            await expect(usersController.remove('2', 'fr')).rejects.toThrow('Administrator can\'t be deleted!');
+        })
+
+        it('should throw other errors', async () => {
+            const errorMock = new Error('Other error');
+            (usersService.hardDelete as jest.Mock).mockRejectedValue(errorMock);
+      
+            await expect(usersController.remove('1', 'fr')).rejects.toBe(errorMock);
         });
     })
 

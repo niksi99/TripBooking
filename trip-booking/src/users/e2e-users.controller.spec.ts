@@ -258,7 +258,7 @@ describe('UsersController (e2e)', () => {
           .delete(`/users/hard-delete/${user.id}`);
 
 
-        expect(response.status).toBe(400);
+        expect(response.status).toBe(403);
         expect(response.body.message).toBe('Administrator can\'t be deleted!')
       })
 

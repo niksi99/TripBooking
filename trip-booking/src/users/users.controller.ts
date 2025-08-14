@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable no-useless-catch */
-import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, NotFoundException, UseGuards, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, NotFoundException, UseGuards, Headers, ForbiddenException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -89,9 +89,9 @@ export class UsersController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Delete(AppRoutes.HardDeleteRoute)
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string, @Headers() headers) {
     try {
-      return await this.usersService.hardDelete(id);
+      return await this.usersService.hardDelete(id, headers['accept-language']);
     } 
     catch (error) {
       switch(true) {
@@ -101,7 +101,7 @@ export class UsersController {
           break;
         case error instanceof AuthExceptions:
           if (error.CanAdministratorBeDeleted())
-            throw new BadRequestException(error.getMessage());
+            throw new ForbiddenException(error.getMessage());
           break;
         default:
           throw error;

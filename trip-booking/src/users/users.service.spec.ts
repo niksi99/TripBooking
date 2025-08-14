@@ -112,7 +112,7 @@ describe('UsersService', () => {
             (usersRepository.getUserById as jest.Mock).mockResolvedValue(mockedUsers[0]);
             (usersRepository.hardDeleteUser as jest.Mock).mockResolvedValue(mockedUsers[0]);
         
-            const result = await usersService.hardDelete(mockedUsers[0].id);
+            const result = await usersService.hardDelete(mockedUsers[0].id, "en");
         
             expect(usersRepository.getUserById).toHaveBeenCalledWith(mockedUsers[0].id);
             expect(usersRepository.hardDeleteUser).toHaveBeenCalledWith(mockedUsers[0].id);
@@ -122,8 +122,8 @@ describe('UsersService', () => {
         it('should throw UserExceptions if user does not exist.', async () => {
             (usersRepository.hardDeleteUser as jest.Mock).mockResolvedValue(null);
 
-            await expect(usersService.hardDelete('non-existing-id')).rejects.toThrow(UsersExceptions);
-            await expect(usersService.hardDelete('non-existing-id')).rejects.toThrow("User does not exist.");
+            await expect(usersService.hardDelete('non-existing-id', 'en')).rejects.toThrow(UsersExceptions);
+            await expect(usersService.hardDelete('non-existing-id', 'en')).rejects.toThrow("exceptions.user.USER_DOES_NOT_EXIST");
 
             expect(usersRepository.getUserById).toHaveBeenCalledWith('non-existing-id');
         })
@@ -132,8 +132,8 @@ describe('UsersService', () => {
             const adminUser = { ...mockedUsers[1], role: "ADMINISTRATOR" };
             (usersRepository.getUserById as jest.Mock).mockResolvedValue(adminUser);
 
-            await expect(usersService.hardDelete(adminUser.id)).rejects.toThrow(AuthExceptions);
-            await expect(usersService.hardDelete(adminUser.id)).rejects.toThrow("Administrator can't be deleted!");
+            await expect(usersService.hardDelete(adminUser.id, 'en')).rejects.toThrow(AuthExceptions);
+            await expect(usersService.hardDelete(adminUser.id, 'en')).rejects.toThrow("exceptions.auth.ADMINISTRATOR_CAN'T_BE_DELETED");
 
             expect(usersRepository.getUserById).toHaveBeenCalledWith(adminUser.id);
         })

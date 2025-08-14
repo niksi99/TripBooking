@@ -1,4 +1,6 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Inject, UnauthorizedException } from "@nestjs/common";
 import { ConfigType } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
@@ -22,8 +24,8 @@ export class JwtStragy extends PassportStrategy(Strategy) {
         super({
             jwtFromRequest: ExtractJwt.fromExtractors([
                 (request: Request) => {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-                    const token: string = request?.cookies?.['access_token'][0];
+                    const tokenArray = request?.cookies?.['access_token'];
+                    const token: string | undefined = Array.isArray(tokenArray) ? tokenArray[0] : tokenArray;
                     if(!token || token === 'undefined')
                         throw new UnauthorizedException("From jwt strategy: Token is null or undefined.");
                     return token;
