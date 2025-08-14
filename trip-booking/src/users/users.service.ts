@@ -18,13 +18,19 @@ export class UsersService {
     private readonly i18n_translations: I18nService
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto, lang: string) {
     const checkUser = await this.userRepository.getUserByEmailOrUsername(createUserDto.email, createUserDto.username);
     if(checkUser?.email === createUserDto.email)
-      throw new UsersExceptions("User with this email already exists. ", UsersExceptionStatusType.EmailAlreadyExists);
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_WITH_THIS_EMAIL_ALREADY_EXISTS`, { lang: lang }),
+        UsersExceptionStatusType.EmailAlreadyExists
+      );
 
     if(checkUser?.username === createUserDto.username)
-      throw new UsersExceptions("User with this username already exists. ", UsersExceptionStatusType.UsernameAlreadyExists);
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_WITH_THIS_USERNAME_ALREADY_EXISTS`, { lang: lang }), 
+        UsersExceptionStatusType.UsernameAlreadyExists
+      );
 
     const user = new User({});
     Object.assign(user, createUserDto);

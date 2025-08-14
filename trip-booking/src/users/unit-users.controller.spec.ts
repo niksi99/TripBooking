@@ -260,14 +260,15 @@ describe('UsersController', () => {
             email: 'lana.milankovic@gmail.com',
             role: Role.ADMINISTRATOR
         };
-        
+        const header = { 'accept-language': 'fr' };
+
         it('should return created user with no errors.', async () => {
             const expectedResult = { id: '1', ...newUser };
             (usersService.create as jest.Mock).mockResolvedValue(expectedResult);
-            const result = await usersController.create(newUser);
+            const result = await usersController.create(newUser, header);
 
             expect(result).toEqual(expectedResult);
-            expect(usersService.create).toHaveBeenCalledWith(newUser);
+            expect(usersService.create).toHaveBeenCalledWith(newUser, "fr");
         })
 
         it('should throw BadRequestException if DoesEmailAlreadyExist from UserExpections is TRUE', async () => {
@@ -277,8 +278,8 @@ describe('UsersController', () => {
 
             (usersService.create as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(usersController.create(newUser)).rejects.toThrow(BadRequestException);
-            await expect(usersController.create(newUser)).rejects.toThrow("Email already exists");
+            await expect(usersController.create(newUser, header)).rejects.toThrow(BadRequestException);
+            await expect(usersController.create(newUser, header)).rejects.toThrow("Email already exists");
         });
 
         it('should throw BadRequestException if DoesUsernameAlreadyExist from UserExceptions is TRUE', async () => {
@@ -288,15 +289,15 @@ describe('UsersController', () => {
 
             (usersService.create as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(usersController.create(newUser)).rejects.toThrow(BadRequestException);
-            await expect(usersController.create(newUser)).rejects.toThrow("Username already exists");
+            await expect(usersController.create(newUser, header)).rejects.toThrow(BadRequestException);
+            await expect(usersController.create(newUser, header)).rejects.toThrow("Username already exists");
         })
 
         it('should throw other errors', async () => {
             const errorMock = new Error('Other error');
             (usersService.create as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(usersController.create(newUser)).rejects.toBe(errorMock);
+            await expect(usersController.create(newUser, header)).rejects.toBe(errorMock);
         });
     })
 

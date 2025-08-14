@@ -1,4 +1,7 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable no-useless-catch */
 import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, NotFoundException, UseGuards, Headers } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -17,9 +20,9 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post(AppRoutes.CreateRoute)
-  async create(@Body() createUserDto: CreateUserDto) {
+  async create(@Body() createUserDto: CreateUserDto, @Headers() headers) {
     try {
-      return await this.usersService.create(createUserDto);
+      return await this.usersService.create(createUserDto, headers['accept-language']);
     } 
     catch (error) {
       switch(true) {
@@ -47,7 +50,6 @@ export class UsersController {
 
   @Get(':id')
   async findOne(@Param('id') id: string, @Headers() headers) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     const lang: string = headers['accept-language'];
     try {
       return await this.usersService.findOne(id, lang);
