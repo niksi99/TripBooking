@@ -52,13 +52,19 @@ export class UsersService {
     return myUser; 
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto, lang: string) {
     const checkUserExistense = await this.userRepository.getUserById(id);
     if(checkUserExistense == null)
-      throw new UsersExceptions("User does not exist", UsersExceptionStatusType.UserDoesNotExist);
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_DOES_NOT_EXIST`, { lang: lang }),
+        UsersExceptionStatusType.UserDoesNotExist
+      );
     
     if(checkUserExistense.deletedAt !== null)
-      throw new UsersExceptions("User is soft deleted, can not be updated.", UsersExceptionStatusType.UserAlreadySoftDeleted);
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_IS_SOFT_DELETED_NO_UPDATE`, { lang: lang }),
+        UsersExceptionStatusType.UserAlreadySoftDeleted
+      );
     
     Object.assign(checkUserExistense, updateUserDto);
     return await this.userRepository.manager.save(User, checkUserExistense);

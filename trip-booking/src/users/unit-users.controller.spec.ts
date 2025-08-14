@@ -307,15 +307,16 @@ describe('UsersController', () => {
                 lastName: "До"
             };
             const userId = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
-    
+            const header = { 'accept-language': 'fr' };
+
             it('should return created room with no errors.', async () => {
                 const expectedResult = { id: '3fa85f64-5717-4562-b3fc-67y63f66afa6', ...updateExistingUser };
                 (usersService.update as jest.Mock).mockResolvedValue(expectedResult);
 
-                const result = await usersController.update(userId, updateExistingUser);
+                const result = await usersController.update(userId, updateExistingUser, header);
     
                 expect(result).toEqual(expectedResult);
-                expect(usersService.update).toHaveBeenCalledWith(userId, updateExistingUser);
+                expect(usersService.update).toHaveBeenCalledWith(userId, updateExistingUser, "fr");
             })
     
             it('should throw BadRequestException: User does not exist.', async () => {
@@ -325,8 +326,8 @@ describe('UsersController', () => {
     
                 (usersService.update as jest.Mock).mockRejectedValue(errorMock);
     
-                await expect(usersController.update(userId, updateExistingUser)).rejects.toThrow(NotFoundException);
-                await expect(usersController.update(userId, updateExistingUser)).rejects.toThrow("User does not exist");
+                await expect(usersController.update(userId, updateExistingUser, header)).rejects.toThrow(NotFoundException);
+                await expect(usersController.update(userId, updateExistingUser, header)).rejects.toThrow("User does not exist");
             });
     
             it('should throw BadRequestException: User is soft deleted, can not be updated.', async () => {
@@ -336,15 +337,15 @@ describe('UsersController', () => {
     
                 (usersService.update as jest.Mock).mockRejectedValue(errorMock);
     
-                await expect(usersController.update(userId, updateExistingUser)).rejects.toThrow(BadRequestException);
-                await expect(usersController.update(userId, updateExistingUser)).rejects.toThrow("User is soft deleted, can not be updated.");
+                await expect(usersController.update(userId, updateExistingUser, header)).rejects.toThrow(BadRequestException);
+                await expect(usersController.update(userId, updateExistingUser, header)).rejects.toThrow("User is soft deleted, can not be updated.");
             });
     
             it('should throw other errors', async () => {
                 const errorMock = new Error('Other error');
                 (usersService.update as jest.Mock).mockRejectedValue(errorMock);
     
-                await expect(usersController.update(userId, updateExistingUser)).rejects.toBe(errorMock);
+                await expect(usersController.update(userId, updateExistingUser, header)).rejects.toBe(errorMock);
             });
         })
 });
