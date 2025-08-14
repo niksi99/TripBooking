@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable no-useless-catch */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Controller, Get, Post, Headers, Body, Patch, Param, Delete, NotFoundException, Request, UseGuards, BadRequestException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
@@ -112,7 +113,12 @@ export class AccommodationsController {
 
   @Get('/get-all')
   async findAll() {
-    return await this.accommodationsService.findAll();
+    try {
+      return await this.accommodationsService.findAll();
+    }
+    catch (error) {
+      throw error;
+    }
   }
 
   @Get(':id')
