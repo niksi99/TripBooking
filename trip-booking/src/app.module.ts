@@ -30,6 +30,7 @@ export class AppModule implements NestModule{
       .apply(AuthMiddleware)
       .exclude(
         { path: AppRoutes.BasicAcommodationRoute + AppRoutes.GetAllRoute, method: RequestMethod.GET },
+        { path: AppRoutes.BasicAcommodationRoute + AppRoutes.GetByIdRoute, method: RequestMethod.GET },
       )
       .forRoutes(AppRoutes.BasicAcommodationRoute);
   }

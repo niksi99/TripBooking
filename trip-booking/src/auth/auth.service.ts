@@ -9,6 +9,7 @@ import { LoginDto } from './dto/login.dto';
 import { AuthExceptions } from 'src/exceptions-handling/exceptions/auth.exceptions';
 import { AuthExceptionStatusType } from 'src/exceptions-handling/exceptions-status-type/auth.exceptions.status.types';
 import { AuthHelper } from 'src/helpers/auth.helper';
+import { I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class AuthService {
@@ -16,13 +17,18 @@ export class AuthService {
     constructor(
         private userRepository: UserRepository,
         private jwtService: JwtService,
-        private myAuthHelper: AuthHelper
+        private myAuthHelper: AuthHelper,
+        private readonly i18n_translations: I18nService
     ) {}
 
-    async login(loginDto: LoginDto) {
+    async login(loginDto: LoginDto, lang: string) {
         const { accessToken, } = await this.myAuthHelper.generateTokens(loginDto);
         if(!accessToken)
-            throw new AuthExceptions("Token is not generated.", AuthExceptionStatusType.TokenDoesNotExist, HttpStatus.NOT_FOUND);
+            throw new AuthExceptions(
+                await this.i18n_translations.t(`exceptions.auth.TOKEN_IS_NOT_GENERATED`, { lang: lang }),
+                AuthExceptionStatusType.TokenDoesNotExist, 
+                HttpStatus.NOT_FOUND
+            );
         return {
             accessToken: accessToken,
         }

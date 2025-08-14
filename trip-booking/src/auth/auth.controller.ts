@@ -1,5 +1,7 @@
 /* eslint-disable prettier/prettier */
-import { BadRequestException, Body, Controller, NotFoundException, Post, Res } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import { BadRequestException, Body, Controller, NotFoundException, Post, Res, Headers } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { UsersExceptions } from 'src/exceptions-handling/exceptions/users.exceptions';
@@ -13,10 +15,11 @@ export class AuthController {
   @Post('/login')
   async login(
     @Body() loginDto: LoginDto,
+    @Headers() headers,
     @Res({ passthrough: true }) response: Response
   ) {
     try {
-      const loginResult = await this.authService.login(loginDto);
+      const loginResult = await this.authService.login(loginDto, headers['accept-language']);
       
       response.cookie('access_token', loginResult.accessToken, {
         httpOnly: true,

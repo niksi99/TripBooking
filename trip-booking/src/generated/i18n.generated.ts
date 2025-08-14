@@ -19,6 +19,9 @@ export type I18nTranslations = {
         "password.weak": string;
     };
     "exceptions": {
+        "accommodation": {
+            "ACCOMMODATION_DOES_NOT_EXIST": string;
+        };
         "auth": {
             "TOKEN_IS_NOT_GENERATED": string;
             "ADMINISTRATOR_CAN'T_BE_DELETED": string;

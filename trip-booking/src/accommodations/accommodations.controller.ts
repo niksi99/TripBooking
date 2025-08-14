@@ -1,5 +1,7 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, Request, UseGuards, BadRequestException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+import { Controller, Get, Post, Headers, Body, Patch, Param, Delete, NotFoundException, Request, UseGuards, BadRequestException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { AccommodationsService } from './accommodations.service';
 import { CreateAccommodationDto } from './dto/create-accommodation.dto';
 import { UpdateAccommodationDto } from './dto/update-accommodation.dto';
@@ -114,9 +116,9 @@ export class AccommodationsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string, @Headers() headers) {
     try {
-      return this.accommodationsService.findOne(id);
+      return this.accommodationsService.findOne(id, headers['accept-language']);
     } 
     catch (error) {
       switch(true) {

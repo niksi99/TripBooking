@@ -12,12 +12,14 @@ import { AuthExceptions } from 'src/exceptions-handling/exceptions/auth.exceptio
 import { AuthExceptionStatusType } from 'src/exceptions-handling/exceptions-status-type/auth.exceptions.status.types';
 import { Accommodation } from './entities/accommodation.entity';
 import { Role } from 'src/auth/enums/role.enum';
+import { I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class AccommodationsService {
   constructor(
     private readonly accommodationRepository: AccommodationRepository,
-    private readonly userRepository: UserRepository
+    private readonly userRepository: UserRepository,
+    private readonly i18n_translations: I18nService
   ) {}
 
   async create(@Request() request, createAccommodationDto: CreateAccommodationDto) {
@@ -48,10 +50,14 @@ export class AccommodationsService {
     return await this.accommodationRepository.GetAllAccommodations();
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, lang: string) {
     const accomm = await this.accommodationRepository.GetAccommodationById(id);
     if(!accomm) 
-      throw new AccommodationExceptions("Accommodation does no exist.", AccommodationExceptionsStatusType.AccommodationDoesNotExist, HttpStatus.NOT_FOUND);
+      throw new AccommodationExceptions(
+        await this.i18n_translations.t(`exceptions.accommodation.ACCOMMODATION_DOES_NOT_EXIST`, { lang: lang }),
+        AccommodationExceptionsStatusType.AccommodationDoesNotExist,
+        HttpStatus.NOT_FOUND
+      );
 
     return accomm;
   }
