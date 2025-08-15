@@ -22,21 +22,35 @@ export class AccommodationsService {
     private readonly i18n_translations: I18nService
   ) {}
 
-  async create(@Request() request, createAccommodationDto: CreateAccommodationDto) {
+  async create(@Request() request, createAccommodationDto: CreateAccommodationDto, lang: string) {
     if(!request)
-      throw new AuthExceptions("User is not logged in", AuthExceptionStatusType.UserIsNotLoggedIn, HttpStatus.UNAUTHORIZED);
+      throw new AuthExceptions(
+        await this.i18n_translations.t(`exceptions.auth.USER_IS_NOT_LOGGED_IN`, { lang: lang }), 
+        AuthExceptionStatusType.UserIsNotLoggedIn,
+        HttpStatus.UNAUTHORIZED
+      );
     
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     const user = await this.userRepository.getUserByUsername(request.user.username);
     if(!user)
-      throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist)
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_DOES_NOT_EXIST`, { lang: lang }), 
+        UsersExceptionStatusType.UserDoesNotExist
+      );
 
     if(user.role !== Role.ACCOMMODATION_OWNER)
-      throw new UsersExceptions("User is not accommodaiton owner", UsersExceptionStatusType.UserIsNotAccommodationOwner);
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_IS_NOT_ACCOMMODATION_OWNER`, { lang: lang }), 
+        UsersExceptionStatusType.UserIsNotAccommodationOwner
+      );
 
     const checkAccommExistence = await this.accommodationRepository.GetAccommByItsLocation(createAccommodationDto.location.lat, createAccommodationDto.location.lng);
     if(checkAccommExistence)
-      throw new AccommodationExceptions("Accommodation already exist on this location", AccommodationExceptionsStatusType.AccommodationOnThisLocationAlreadyExists, HttpStatus.CONFLICT);
+      throw new AccommodationExceptions(
+        await this.i18n_translations.t(`exceptions.accommodation.ACCOMMODATION_ALREADY_EXIST_ON_THIS_LOCATION`, { lang: lang }),
+        AccommodationExceptionsStatusType.AccommodationOnThisLocationAlreadyExists, 
+        HttpStatus.CONFLICT
+      );
     
     const accomm = new Accommodation({});
 

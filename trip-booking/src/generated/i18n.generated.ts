@@ -21,6 +21,7 @@ export type I18nTranslations = {
     "exceptions": {
         "accommodation": {
             "ACCOMMODATION_DOES_NOT_EXIST": string;
+            "ACCOMMODATION_ALREADY_EXIST_ON_THIS_LOCATION": string;
         };
         "auth": {
             "TOKEN_IS_NOT_GENERATED": string;

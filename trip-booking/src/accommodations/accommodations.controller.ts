@@ -18,13 +18,13 @@ import { UsersExceptions } from 'src/exceptions-handling/exceptions/users.except
 export class AccommodationsController {
   constructor(private readonly accommodationsService: AccommodationsService) {}
 
-  //@Roles(Role.ACCOMMODATION_OWNER)
-  //@UseGuards(RolesGuard)
-  // @UseGuards(JwtAuthGuard)
-  @Post('/create-acc')
-  async create(@Request() request, @Body() createAccommodationDto: CreateAccommodationDto) {
+  @Roles(Role.ACCOMMODATION_OWNER)
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
+  @Post('/create')
+  async create(@Request() request, @Body() createAccommodationDto: CreateAccommodationDto, @Headers() headers) {
     try {
-      return this.accommodationsService.create(request, createAccommodationDto); 
+      return this.accommodationsService.create(request, createAccommodationDto, headers['accept-language']); 
     } catch (error) {
       switch(true) {
         case error instanceof AuthExceptions:

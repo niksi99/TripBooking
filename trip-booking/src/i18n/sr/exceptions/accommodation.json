@@ -1,3 +1,4 @@
 {
-    "ACCOMMODATION_DOES_NOT_EXIST": " Смештај не постоји."
+    "ACCOMMODATION_DOES_NOT_EXIST": " Смештај не постоји.",
+    "ACCOMMODATION_ALREADY_EXIST_ON_THIS_LOCATION": "Смештај већ постоји на овој локацији. Локација заузета."
 }
