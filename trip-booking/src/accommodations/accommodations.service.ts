@@ -168,9 +168,6 @@ export class AccommodationsService {
     if(accom.deletedAt !== null)
       throw new AccommodationExceptions("Accommodation is blocked_SoftDeleted", AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted, HttpStatus.FORBIDDEN);
 
-    console.log(accom);
-    console.log(user);
-
     accom.appliedUsers.forEach(element => {
       console.log("element", element);
       if(element.id !== user.id)
@@ -181,9 +178,6 @@ export class AccommodationsService {
     
     user.accommHistory = user.accommHistory.filter(a => a.id !== accom.id);
 
-    console.log("\n");
-    console.log("After unbooking", accom);
-    console.log(user);
     await this.accommodationRepository.manager.save(accom);
     await this.userRepository.save(user);
   }
