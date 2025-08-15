@@ -1,6 +1,8 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable no-useless-catch */
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, BadRequestException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, BadRequestException, UseGuards, Headers } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
@@ -16,7 +18,7 @@ import { AppRoutes } from 'src/routes/app.routes';
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
 
-  @Roles(Role.ACCOMMODATION_OWNER, Role.ADMINISTRATOR)
+  @Roles(Role.ACCOMMODATION_OWNER)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -51,8 +53,8 @@ export class RoomsController {
     }
   }
 
-  @Get('/all-rooms-of-single-accommodation')
-  async findAllRoomsOfSingleAccommodation(accommodationId: string) {
+  @Get(AppRoutes.GetAllRoomsOfSingleAccommodation)
+  async findAllRoomsOfSingleAccommodation(@Param('accommodationId') accommodationId: string) {
     try {
       return await this.roomsService.findAllRoomOfSingleAccommodation(accommodationId); 
     } catch (error) {
@@ -60,10 +62,10 @@ export class RoomsController {
     }
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
+  @Get(AppRoutes.GetByIdRoute)
+  async findOne(@Param('id') id: string, @Headers() headers) {
     try {
-      return await this.roomsService.findOne(id);
+      return await this.roomsService.findOne(id, headers['accept-language']);
     } 
     catch (error) {
       switch(true) {
@@ -83,7 +85,6 @@ export class RoomsController {
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateRoomDto: UpdateRoomDto) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return await this.roomsService.update(id, updateRoomDto); 
     } catch (error) {
       switch(true) {

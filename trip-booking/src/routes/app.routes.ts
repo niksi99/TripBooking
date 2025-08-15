@@ -12,4 +12,6 @@ export class AppRoutes {
     static readonly HardDeleteWithAccommodationRoute = "hard-delete-with-accommodation/";
     static readonly SoftDeleteRoute = "soft-delete/:id";
     static readonly SoftUndeleteRoute = "soft-undelete/:id";
+
+    static readonly GetAllRoomsOfSingleAccommodation = "all-rooms-of-single-accommodation/:accommodationId";
 }

@@ -1,19 +1,39 @@
 /* eslint-disable prettier/prettier */
 
 import { Room } from "src/rooms/entities/room.entity";
-import { ElementalRepository } from "./ElementalRepository";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 
-export class RoomRepository extends ElementalRepository<Room> {
+export class RoomRepository extends Repository<Room> {
     constructor(@InjectRepository(Room) private readonly roomRepository: Repository<Room>) {
-        super(roomRepository);
+        super(
+            roomRepository.target,
+            roomRepository.manager,
+            roomRepository.queryRunner
+        );
     }
+
+    public async getAll() : Promise<Room[]> {
+        return await this.roomRepository.find({
+            withDeleted: true,
+            relations: ['accommodation']
+        });
+    }
+    
+
+    async getById(id: string) {
+        return await this.roomRepository.findOne({
+            where: {id: id},
+            withDeleted: true,
+            relations: ['accommodation']
+        });
+    } 
 
     async getByLabel(label: string) {
         return await this.roomRepository.findOne({
             where: {label: label},
-            withDeleted: true
+            withDeleted: true,
+            relations: ['accommodation']
         });
     } 
 
@@ -38,6 +58,18 @@ export class RoomRepository extends ElementalRepository<Room> {
             },
             relations: ['accommodation']
         })
+    }
+
+    public async hardDelete(id: string) {
+        return await this.roomRepository.delete({id: id});
+    }
+    
+    public async softDeleteRoom(room: Room) {
+        return await this.roomRepository.softRemove(room);
+    }
+    
+    public async softUndelete(id: string){
+        return await this.roomRepository.restore(id);
     }
 
     async saveRoom(room: Room) {

@@ -31,6 +31,9 @@ export type I18nTranslations = {
             "INVALID_PASSWORD": string;
             "USER_IS_NOT_LOGGED_IN": string;
         };
+        "room": {
+            "ROOM_DOES_NOT_EXIST": string;
+        };
         "user": {
             "USER_DOES_NOT_EXIST": string;
             "USER_IS_NOT_ACCOMMODATION_OWNER": string;

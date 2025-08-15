@@ -9,12 +9,14 @@ import { Room } from './entities/room.entity';
 import { AccommodationRepository } from 'src/repositories/AccommodationRepository';
 import { AccommodationExceptions } from 'src/exceptions-handling/exceptions/accommodation.exceptions';
 import { AccommodationExceptionsStatusType } from 'src/exceptions-handling/exceptions-status-type/accommodation.exceptions';
+import { I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class RoomsService {
   constructor(
     private roomRepository: RoomRepository,
-    private accommodationRepository: AccommodationRepository
+    private accommodationRepository: AccommodationRepository,
+    private readonly i18n_translations: I18nService
   ) {}
 
   async create(createRoomDto: CreateRoomDto) {
@@ -45,10 +47,14 @@ export class RoomsService {
     return await this.roomRepository.getAllRoomsOfThisAccommodation(accommodationId);
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, lang: string) {
     const room = await this.roomRepository.getById(id);
     if(!room)
-      throw new RoomExceptions("Room does not exist.", RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
+      throw new RoomExceptions(
+        await this.i18n_translations.t(`exceptions.room.ROOM_DOES_NOT_EXIST`, { lang: lang }),
+        RoomExceptionsStatusType.RoomDoesNotExist, 
+      HttpStatus.NOT_FOUND
+    );
 
     return room;
   }
@@ -66,7 +72,6 @@ export class RoomsService {
       throw new RoomExceptions("Room with this label already exists. ", RoomExceptionsStatusType.RoomAlreadyExists, HttpStatus.CONFLICT);
     
     Object.assign(doesRoomExist, updateRoomDto);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     return await this.roomRepository.manager.save(Room, doesRoomExist);
   }
 
@@ -86,7 +91,7 @@ export class RoomsService {
     if(room.deletedAt != null)
           throw new RoomExceptions("Room is already soft deleted.", RoomExceptionsStatusType.RoomCanNotBeBlocked_SoftDeleted, HttpStatus.FORBIDDEN);
 
-    return this.roomRepository.softDelete(room);
+    return this.roomRepository.softDeleteRoom(room);
   }
   
   async softUndelete(id: string) {

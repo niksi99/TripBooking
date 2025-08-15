@@ -15,6 +15,7 @@ describe('RoomsController UnitTest', () => {
     let roomsController: RoomsController;
     let roomsService: Partial<RoomsService>;
 
+    const header = { 'accept-language': 'fr' };
     const mockRooms = [
         {
             id: "3fa85f64-5717-4562-b3fc-67y63f66afa6",
@@ -84,10 +85,10 @@ describe('RoomsController UnitTest', () => {
                 return mockRooms.find(x => x.id === id)
             })
 
-            const result = await roomsController.findOne('3fa85f64-5717-4562-b3fc-67y63f66afa6');
+            const result = await roomsController.findOne('3fa85f64-5717-4562-b3fc-67y63f66afa6', header);
 
             expect(result).toEqual(mockRooms[0]);
-            expect(roomsService.findOne).toHaveBeenCalledWith('3fa85f64-5717-4562-b3fc-67y63f66afa6');
+            expect(roomsService.findOne).toHaveBeenCalledWith('3fa85f64-5717-4562-b3fc-67y63f66afa6', 'fr');
         })
 
         it('should throw RoomDoesNotExist', async () => {
@@ -96,15 +97,15 @@ describe('RoomsController UnitTest', () => {
             jest.spyOn(errorMock, 'getMessage').mockReturnValue('Room does not exist.');
             (roomsService.findOne as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(roomsController.findOne('2')).rejects.toThrow(NotFoundException);
-            await expect(roomsController.findOne('2')).rejects.toThrow('Room does not exist.');
+            await expect(roomsController.findOne('2', header)).rejects.toThrow(NotFoundException);
+            await expect(roomsController.findOne('2', header)).rejects.toThrow('Room does not exist.');
         })
 
         it('should throw other errors', async () => {
             const errorMock = new Error('Other error');
             (roomsService.findOne as jest.Mock).mockRejectedValue(errorMock);
       
-            await expect(roomsController.findOne('1')).rejects.toBe(errorMock);
+            await expect(roomsController.findOne('1', 'fr')).rejects.toBe(errorMock);
         });
     })
 
