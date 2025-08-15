@@ -1,4 +1,6 @@
 {
     "ACCOMMODATION_DOES_NOT_EXIST": "Un hébergement n'existe pas.",
-    "ACCOMMODATION_ALREADY_EXIST_ON_THIS_LOCATION": "L'hébergement existe deja dans cette location."
+    "ACCOMMODATION_ALREADY_EXIST_ON_THIS_LOCATION": "L'hébergement existe deja dans cette location.",
+    "ACCOMMODATION_IS_BLOCKED_SOFTDELETED": "L'hébergement est marque suprime",
+    "USER_HAS_ALREADY_BOOKED_THIS_ACCOMMODATION": "L'utilisiteur a deja reserve ce hébergement."
 }

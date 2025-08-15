@@ -19,28 +19,32 @@ export class UserRepository extends Repository<User> {
     
         public async getAll() : Promise<User[]> {
             return await this.userRepository.find({
-                withDeleted: true
+                withDeleted: true,
+                relations: ['accommHistory']
             });
         }
 
         public async getUserById(id: string): Promise<User | null> {
             return await this.findOne({
                 where: {id: id},
-                withDeleted: true
+                withDeleted: true,
+                relations: ['accommHistory']
             });
         }
 
         public async getUserByEmail(email: string): Promise<User | null> {
             return await this.userRepository.findOne({
                 where: {email: email},
-                withDeleted: true
+                withDeleted: true,
+                relations: ['accommHistory']
             });
         }
 
         public async getUserByUsername(username: string): Promise<User | null> {
             return await this.userRepository.findOne({
                 where: {username: username},
-                withDeleted: true
+                withDeleted: true,
+                relations: ['accommHistory']
             });
         }
 
@@ -50,7 +54,8 @@ export class UserRepository extends Repository<User> {
                 { email },
                 { username },
               ],
-              withDeleted: true
+              withDeleted: true,
+              relations: ['accommHistory']
             });
         }
 

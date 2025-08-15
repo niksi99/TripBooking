@@ -47,13 +47,13 @@ export class AccommodationsController {
     }
   }
 
-  @Roles(Role.ACCOMMODATION_OWNER)
+  @Roles(Role.PASSENGER)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Patch('/book-accommodation')
-  async bookAccommodation(@Request() request, accomId: string) {
+  @Patch('/book-accommodation/:accommId')
+  async bookAccommodation(@Request() request, @Param('accommId') accomId: string, @Headers() headers) {
     try {
-      return await this.accommodationsService.bookAccommodation(request, accomId);  
+      return await this.accommodationsService.bookAccommodation(request, accomId, headers['accept-language']);  
     } 
     catch (error) {
       switch(true) {
@@ -81,11 +81,11 @@ export class AccommodationsController {
     }
   }
 
-  @Roles(Role.ACCOMMODATION_OWNER)
+  @Roles(Role.PASSENGER)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Patch('/unbook-accommodation')
-  async unbookAccommodation(@Request() request, accomId: string) {
+  @Patch('/unbook-accommodation/:accommId')
+  async unbookAccommodation(@Request() request, @Param('accommId') accomId: string) {
     try {
       return await this.accommodationsService.unBookAccommodation(request, accomId);  
     } 

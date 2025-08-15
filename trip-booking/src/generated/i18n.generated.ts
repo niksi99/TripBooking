@@ -22,6 +22,8 @@ export type I18nTranslations = {
         "accommodation": {
             "ACCOMMODATION_DOES_NOT_EXIST": string;
             "ACCOMMODATION_ALREADY_EXIST_ON_THIS_LOCATION": string;
+            "ACCOMMODATION_IS_BLOCKED_SOFTDELETED": string;
+            "USER_HAS_ALREADY_BOOKED_THIS_ACCOMMODATION": string;
         };
         "auth": {
             "TOKEN_IS_NOT_GENERATED": string;
@@ -32,6 +34,7 @@ export type I18nTranslations = {
         "user": {
             "USER_DOES_NOT_EXIST": string;
             "USER_IS_NOT_ACCOMMODATION_OWNER": string;
+            "USER_IS_NOT_ACCOMMODATION_PASSENGER": string;
             "USER_IS_NOT_SOFT_DELETED": string;
             "USER_IS_ALREADY_SOFT_DELETED": string;
             "USER_IS_SOFT_DELETED_NO_UPDATE": string;

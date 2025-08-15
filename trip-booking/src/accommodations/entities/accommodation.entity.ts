@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { IsNotEmpty, IsNotEmptyObject, Length } from "class-validator";
 import { AbstactEntity } from "../../database/AbstractEntity";
 import { MyLocation } from "../../locations/location";

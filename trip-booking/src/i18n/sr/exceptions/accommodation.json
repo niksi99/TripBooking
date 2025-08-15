@@ -1,4 +1,6 @@
 {
     "ACCOMMODATION_DOES_NOT_EXIST": " Смештај не постоји.",
-    "ACCOMMODATION_ALREADY_EXIST_ON_THIS_LOCATION": "Смештај већ постоји на овој локацији. Локација заузета."
+    "ACCOMMODATION_ALREADY_EXIST_ON_THIS_LOCATION": "Смештај већ постоји на овој локацији. Локација заузета.",
+    "ACCOMMODATION_IS_BLOCKED_SOFTDELETED": "Смештај је блокиран / означен као обрисан.",
+    "USER_HAS_ALREADY_BOOKED_THIS_ACCOMMODATION": "Корисник је већ резервисао овај смештај."
 }

@@ -1,6 +1,7 @@
 {
     "USER_DOES_NOT_EXIST": "L'utilisateur n'existe pas.",
     "USER_IS_NOT_ACCOMMODATION_OWNER": "L'utilisateur n'est pas propriétaire de l'hébergement.",
+    "USER_IS_NOT_ACCOMMODATION_PASSENGER": "L'utilisateur n'est pas passenger",
     "USER_IS_NOT_SOFT_DELETED": "L'utilisateur n'est pas marqué comme supprimé, donc il ne peut pas être restauré.",
     "USER_IS_ALREADY_SOFT_DELETED": "L'utilisateur est déjà marqué comme supprimé.",
     "USER_IS_SOFT_DELETED_NO_UPDATE": "L'utilisateur est marqué comme supprimé et ne peut pas être mis à jour.",

@@ -57,7 +57,7 @@ export class AccommodationsService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     accomm.owner = request.user.username;
     Object.assign(accomm, createAccommodationDto);
-    return await this.accommodationRepository.saveEntity(accomm);
+    return await this.accommodationRepository.manager.save(Accommodation, accomm);
   }
 
   async findAll() {
@@ -84,34 +84,72 @@ export class AccommodationsService {
     return `This action removes a #${id} accommodation`;
   }
 
-  async bookAccommodation(@Request() request, accommId: string) {
+  async bookAccommodation(@Request() request, accommId: string, lang: string) {
+    console.log("accommId", accommId);
     if(!request)
-      throw new AuthExceptions("User is not logged in", AuthExceptionStatusType.UserIsNotLoggedIn, HttpStatus.UNAUTHORIZED);
+      throw new AuthExceptions(
+        await this.i18n_translations.t(`exceptions.auth.TOKEN_IS_NOT_GENERATED`, { lang: lang }),
+        AuthExceptionStatusType.UserIsNotLoggedIn, 
+        HttpStatus.UNAUTHORIZED
+      );
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     const user = await this.userRepository.getUserByUsername(request.user.username);
     if(!user)
-      throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist)
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_DOES_NOT_EXIST`, { lang: lang }),
+        UsersExceptionStatusType.UserDoesNotExist
+      )
 
     if(user.role.toString() !== Role.PASSENGER.toString())
-      throw new UsersExceptions("User is not passenger", UsersExceptionStatusType.UserIsNotPassenger);
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_IS_NOT_PASSENGER`, { lang: lang }),
+        UsersExceptionStatusType.UserIsNotPassenger
+      );
 
     const accom = await this.accommodationRepository.GetAccommodationById(accommId);
     if(!accom)
-      throw new AccommodationExceptions("Accommodation does not exist.", AccommodationExceptionsStatusType.AccommodationDoesNotExist, HttpStatus.NOT_FOUND);
+      throw new AccommodationExceptions(
+        await this.i18n_translations.t(`exceptions.accommodation.ACCOMMODATION_DOES_NOT_EXIST`, { lang: lang }), 
+        AccommodationExceptionsStatusType.AccommodationDoesNotExist, 
+        HttpStatus.NOT_FOUND
+      );
 
     if(accom.deletedAt !== null)
-      throw new AccommodationExceptions("Accommodation is blocked_SoftDeleted", AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted, HttpStatus.NOT_FOUND);
+      throw new AccommodationExceptions(
+        await this.i18n_translations.t(`exceptions.accommodation.ACCOMMODATION_IS_BLOCKED_SOFTDELETED`, { lang: lang }),  
+        AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted, 
+        HttpStatus.NOT_FOUND
+      );
 
-    accom.appliedUsers.forEach(element => {
-      if(element === user)
-        throw new AccommodationExceptions("Users has already booked this accommodation.", AccommodationExceptionsStatusType.UserHasAlreadyBookedAccommodation, HttpStatus.CONFLICT);
-    });
+    accom.arivalDate = new Date(Date.now());
+
+    if (accom.appliedUsers?.some(element => element.id === user.id)) {
+      throw new AccommodationExceptions(
+        this.i18n_translations.t(`exceptions.accommodation.USER_HAS_ALREADY_BOOKED_THIS_ACCOMMODATION`, { lang }),
+        AccommodationExceptionsStatusType.UserHasAlreadyBookedAccommodation,
+        HttpStatus.CONFLICT
+      );
+    }
 
     user.accommHistory.push(accom);
     accom.appliedUsers.push(user);
 
-    return accom;
+    const safeAccom = {
+      id: accom.id,
+      name: accom.name,
+      location: accom.location,
+      myRooms: accom.myRooms,
+      appliedUsers: accom.appliedUsers?.map(u => ({
+        id: u.id,
+        username: u.username, // only expose minimal user info
+      })),
+      owner: accom.owner,
+      arivalDate: accom.arivalDate,
+      departureDate: accom.departureDate,
+    };
+
+    return safeAccom;
   }
 
   async unBookAccommodation(@Request() request, accommId: string) {
@@ -130,16 +168,23 @@ export class AccommodationsService {
     if(accom.deletedAt !== null)
       throw new AccommodationExceptions("Accommodation is blocked_SoftDeleted", AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted, HttpStatus.FORBIDDEN);
 
+    console.log(accom);
+    console.log(user);
+
     accom.appliedUsers.forEach(element => {
-      if(element !== user)
+      console.log("element", element);
+      if(element.id !== user.id)
         throw new AccommodationExceptions("Users has not booked this accommodation at all. Invalid method.", AccommodationExceptionsStatusType.UserHasNotBookedAccommodation, HttpStatus.BAD_REQUEST);
       else
       accom.appliedUsers = accom.appliedUsers.filter(u => u.id !== user.id);
     });
-
+    
     user.accommHistory = user.accommHistory.filter(a => a.id !== accom.id);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    await this.accommodationRepository.save(accom);
+
+    console.log("\n");
+    console.log("After unbooking", accom);
+    console.log(user);
+    await this.accommodationRepository.manager.save(accom);
     await this.userRepository.save(user);
   }
 }

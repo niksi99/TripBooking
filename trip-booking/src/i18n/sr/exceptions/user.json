@@ -1,6 +1,7 @@
 {
     "USER_DOES_NOT_EXIST": "Корисник не постоји.",
     "USER_IS_NOT_ACCOMMODATION_OWNER": "Корисник није власник смештаја.",
+    "USER_IS_NOT_ACCOMMODATION_PASSENGER": "Корисник није путник.",
     "USER_IS_NOT_SOFT_DELETED": "Корисник има ознаку да је обрисан тј. онемогућен.",
     "USER_IS_ALREADY_SOFT_DELETED": "Коринсик је већ означен обрисаним.",
     "USER_IS_SOFT_DELETED_NO_UPDATE": "Корисник не може да буде измењен јер је онемогућен.",
