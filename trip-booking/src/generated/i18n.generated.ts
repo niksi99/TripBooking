@@ -34,6 +34,7 @@ export type I18nTranslations = {
         "room": {
             "ROOM_DOES_NOT_EXIST": string;
             "ROOM_WITH_THIS_LABEL_ALREADY_EXISTS_IN_THIS_ACCOMMODATION": string;
+            "ROOM_IS_BLOCKED_SOFT_DELETED": string;
         };
         "user": {
             "USER_DOES_NOT_EXIST": string;

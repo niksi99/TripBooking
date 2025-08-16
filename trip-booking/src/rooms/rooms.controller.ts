@@ -90,9 +90,9 @@ export class RoomsController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateRoomDto: UpdateRoomDto) {
+  async update(@Param('id') id: string, @Body() updateRoomDto: UpdateRoomDto, @Headers() headers) {
     try {
-      return await this.roomsService.update(id, updateRoomDto); 
+      return await this.roomsService.update(id, updateRoomDto, headers['accept-language']); 
     } catch (error) {
       switch(true) {
         case error instanceof RoomExceptions:

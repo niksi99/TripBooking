@@ -79,17 +79,29 @@ export class RoomsService {
     return room;
   }
 
-  async update(id: string, updateRoomDto: UpdateRoomDto) {
+  async update(id: string, updateRoomDto: UpdateRoomDto, lang: string) {
     const doesRoomExist = await this.roomRepository.getById(id);
     if(doesRoomExist == null)
-      throw new RoomExceptions("Room does not exist", RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
+      throw new RoomExceptions(
+        await this.i18n_translations.t(`exceptions.room.ROOM_DOES_NOT_EXIST`, { lang: lang }), 
+        RoomExceptionsStatusType.RoomDoesNotExist, 
+        HttpStatus.NOT_FOUND
+      );
 
     if(doesRoomExist.deletedAt != null)
-      throw new RoomExceptions("Room is already block/soft-deleted.", RoomExceptionsStatusType.RoomIsBlocked_SoftDeleted, HttpStatus.FORBIDDEN);
+      throw new RoomExceptions(
+        await this.i18n_translations.t(`exceptions.room.ROOM_IS_BLOCKED_SOFT_DELETED`, { lang: lang }),
+        RoomExceptionsStatusType.RoomIsBlocked_SoftDeleted, 
+        HttpStatus.FORBIDDEN
+      );
 
     const checkRoomLabelExistense = await this.roomRepository.getByLabel(updateRoomDto.label);
     if(checkRoomLabelExistense?.label === updateRoomDto.label)
-      throw new RoomExceptions("Room with this label already exists. ", RoomExceptionsStatusType.RoomAlreadyExists, HttpStatus.CONFLICT);
+      throw new RoomExceptions(
+        await this.i18n_translations.t(`exceptions.room.ROOM_WITH_THIS_LABEL_ALREADY_EXISTS_IN_THIS_ACCOMMODATION`, { lang: lang }),
+        RoomExceptionsStatusType.RoomAlreadyExists, 
+        HttpStatus.CONFLICT
+      );
     
     Object.assign(doesRoomExist, updateRoomDto);
     return await this.roomRepository.manager.save(Room, doesRoomExist);
