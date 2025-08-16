@@ -113,9 +113,9 @@ export class RoomsController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Delete('/hard-delete/:id')
-  async hardDelete(@Param('id') id: string) {
+  async hardDelete(@Param('id') id: string, @Headers() headers) {
     try {
-      return await this.roomsService.hardDelete(id);
+      return await this.roomsService.hardDelete(id, headers['accept-language']);
     } 
     catch (error) {
       switch(true) {
@@ -133,9 +133,9 @@ export class RoomsController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Patch('/soft-delete/:id')
-  async softDelete(@Param('id') id: string) {
+  async softDelete(@Param('id') id: string, @Headers() headers) {
     try {
-      return await this.roomsService.softDelete(id);
+      return await this.roomsService.softDelete(id, headers['accept-language']);
     } 
     catch (error) {
       switch(true) {
@@ -155,9 +155,9 @@ export class RoomsController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Patch('/soft-undelete/:id')
-  async softUndelete(@Param('id') id: string) {
+  async softUndelete(@Param('id') id: string, @Headers() headers) {
     try {
-      return await this.roomsService.softUndelete(id);
+      return await this.roomsService.softUndelete(id, headers['accept-language']);
     } 
     catch (error) {
       switch(true) {
