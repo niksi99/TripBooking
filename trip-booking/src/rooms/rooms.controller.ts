@@ -22,9 +22,9 @@ export class RoomsController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() createRoomDto: CreateRoomDto) {
+  async create(@Body() createRoomDto: CreateRoomDto, @Headers() headers) {
     try { 
-      return await this.roomsService.create(createRoomDto);
+      return await this.roomsService.create(createRoomDto, headers['accept-language']);
     } 
     catch (error) {
       switch(true) {
@@ -54,11 +54,18 @@ export class RoomsController {
   }
 
   @Get(AppRoutes.GetAllRoomsOfSingleAccommodation)
-  async findAllRoomsOfSingleAccommodation(@Param('accommodationId') accommodationId: string) {
+  async findAllRoomsOfSingleAccommodation(@Param('accommodationId') accommodationId: string, @Headers() headers) {
     try {
-      return await this.roomsService.findAllRoomOfSingleAccommodation(accommodationId); 
+      return await this.roomsService.findAllRoomOfSingleAccommodation(accommodationId, headers['accept-language']); 
     } catch (error) {
-      throw new BadRequestException(error);
+        switch(true) {
+          case error instanceof AccommodationExceptions:
+            if(error.DoesAccommodationExist())
+              throw new NotFoundException(error.getMessage());
+            break;
+          default:
+            throw error;
+        }
     }
   }
 

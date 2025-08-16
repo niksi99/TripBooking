@@ -1,3 +1,4 @@
 {
-    "ROOM_DOES_NOT_EXIST": "Соба не постоји."
+    "ROOM_DOES_NOT_EXIST": "Соба не постоји.",
+    "ROOM_WITH_THIS_LABEL_ALREADY_EXISTS_IN_THIS_ACCOMMODATION": "Соба са тим називом већ постоји у овом смештају."
 }

@@ -1,3 +1,4 @@
 {
-    "ROOM_DOES_NOT_EXIST": "Room does not exist."
+    "ROOM_DOES_NOT_EXIST": "Room does not exist.",
+    "ROOM_WITH_THIS_LABEL_ALREADY_EXISTS_IN_THIS_ACCOMMODATION": "Room with this label already exists in this accommodation."
 }

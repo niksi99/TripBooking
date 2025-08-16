@@ -31,7 +31,8 @@ export class AppModule implements NestModule{
       .exclude(
         { path: AppRoutes.BasicAcommodationRoute + AppRoutes.GetAllRoute, method: RequestMethod.GET },
         { path: AppRoutes.BasicAcommodationRoute + AppRoutes.GetByIdRoute, method: RequestMethod.GET },
+        { path: AppRoutes.BasicRoomsRoute + AppRoutes.GetAllRoomsOfSingleAccommodation, method: RequestMethod.GET },
       )
-      .forRoutes(AppRoutes.BasicAcommodationRoute);
+      .forRoutes(AppRoutes.BasicAcommodationRoute, AppRoutes.BasicRoomsRoute);
   }
 }

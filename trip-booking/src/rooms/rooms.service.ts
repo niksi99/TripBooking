@@ -19,17 +19,29 @@ export class RoomsService {
     private readonly i18n_translations: I18nService
   ) {}
 
-  async create(createRoomDto: CreateRoomDto) {
+  async create(createRoomDto: CreateRoomDto, lang: string) {
     const checkAccommodationExistence = await this.accommodationRepository.GetAccommodationById(createRoomDto.accommodationId);
     if(!checkAccommodationExistence)
-      throw new AccommodationExceptions("Accommodation does not exist.", AccommodationExceptionsStatusType.AccommodationDoesNotExist, HttpStatus.NOT_FOUND);
-
+      throw new AccommodationExceptions(
+        await this.i18n_translations.t(`exceptions.accommodation.ACCOMMODATION_DOES_NOT_EXIST`, { lang: lang }), 
+        AccommodationExceptionsStatusType.AccommodationDoesNotExist, 
+        HttpStatus.NOT_FOUND
+      );
+      
     if(checkAccommodationExistence.deletedAt !== null)
-      throw new AccommodationExceptions("Accommodation is blocked/soft-deleted.", AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted, HttpStatus.FORBIDDEN);
-
+      throw new AccommodationExceptions(
+      await this.i18n_translations.t(`exceptions.accommodation.ACCOMMODATION_IS_BLOCKED_SOFTDELETED`, { lang: lang }), 
+      AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted, 
+      HttpStatus.FORBIDDEN
+    );
+    
     const checkRoomExistence = await this.roomRepository.getRoomFromAccommodationByRoomLabel(createRoomDto.accommodationId, createRoomDto.label);
     if(checkRoomExistence)
-      throw new RoomExceptions("Room with this label already exists in this accommodation.", RoomExceptionsStatusType.RoomAlreadyExists, HttpStatus.CONFLICT);
+      throw new RoomExceptions(
+        await this.i18n_translations.t(`exceptions.room.ROOM_WITH_THIS_LABEL_ALREADY_EXISTS_IN_THIS_ACCOMMODATION`, { lang: lang }), 
+        RoomExceptionsStatusType.RoomAlreadyExists, 
+        HttpStatus.CONFLICT
+      );
 
     const room = new Room({});
     Object.assign(room, createRoomDto);
@@ -43,7 +55,15 @@ export class RoomsService {
     return await this.roomRepository.getAll();
   }
 
-  async findAllRoomOfSingleAccommodation(accommodationId: string) {
+  async findAllRoomOfSingleAccommodation(accommodationId: string, lang: string) {
+    const accomm = await this.accommodationRepository.GetAccommodationById(accommodationId);
+    if(!accomm)
+      throw new AccommodationExceptions(
+        await this.i18n_translations.t(`exceptions.accommodation.ACCOMMODATION_DOES_NOT_EXIST`, { lang: lang }),
+        AccommodationExceptionsStatusType.AccommodationDoesNotExist, 
+        HttpStatus.NOT_FOUND
+      );
+
     return await this.roomRepository.getAllRoomsOfThisAccommodation(accommodationId);
   }
 
