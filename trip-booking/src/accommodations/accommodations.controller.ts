@@ -85,9 +85,9 @@ export class AccommodationsController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Patch('/unbook-accommodation/:accommId')
-  async unbookAccommodation(@Request() request, @Param('accommId') accomId: string) {
+  async unbookAccommodation(@Request() request, @Param('accommId') accomId: string,  @Headers() headers) {
     try {
-      return await this.accommodationsService.unBookAccommodation(request, accomId);  
+      return await this.accommodationsService.unBookAccommodation(request, accomId, headers['accept-language']);  
     } 
     catch (error) {
       switch(true) {

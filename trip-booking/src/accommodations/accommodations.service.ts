@@ -152,28 +152,46 @@ export class AccommodationsService {
     return safeAccom;
   }
 
-  async unBookAccommodation(@Request() request, accommId: string) {
+  async unBookAccommodation(@Request() request, accommId: string, lang: string) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     const user = await this.userRepository.getUserByUsername(request.user.username);
     if(!user)
-      throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist)
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_DOES_NOT_EXIST`, { lang: lang }),
+        UsersExceptionStatusType.UserDoesNotExist
+      )
 
     if(user.role.toString() !== Role.PASSENGER.toString())
-      throw new UsersExceptions("User is not passenger", UsersExceptionStatusType.UserIsNotPassenger);
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_DOES_NOT_EXIST`, { lang: lang }), 
+        UsersExceptionStatusType.UserIsNotPassenger
+      );
 
     const accom = await this.accommodationRepository.GetAccommodationById(accommId);
     if(!accom)
-      throw new AccommodationExceptions("Accommodation does not exist.", AccommodationExceptionsStatusType.AccommodationDoesNotExist, HttpStatus.NOT_FOUND);
+      throw new AccommodationExceptions(
+        await this.i18n_translations.t(`exceptions.accommodation.ACCOMMODATION_DOES_NOT_EXIST`, { lang: lang }),
+        AccommodationExceptionsStatusType.AccommodationDoesNotExist, 
+        HttpStatus.NOT_FOUND
+      );
 
     if(accom.deletedAt !== null)
-      throw new AccommodationExceptions("Accommodation is blocked_SoftDeleted", AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted, HttpStatus.FORBIDDEN);
+      throw new AccommodationExceptions(
+        await this.i18n_translations.t(`exceptions.accommodation.ACCOMMODATION_IS_BLOCKED_SOFTDELETED`, { lang: lang }),
+        AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted, 
+        HttpStatus.FORBIDDEN
+      );
 
-    accom.appliedUsers.forEach(element => {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    accom.appliedUsers.forEach(async element => {
       console.log("element", element);
       if(element.id !== user.id)
-        throw new AccommodationExceptions("Users has not booked this accommodation at all. Invalid method.", AccommodationExceptionsStatusType.UserHasNotBookedAccommodation, HttpStatus.BAD_REQUEST);
+        throw new AccommodationExceptions(
+          await this.i18n_translations.t(`exceptions.accommodation.USER_HAS_NOT_BOOKED_THIS_ACCOMMODATION_AT_ALL`, { lang: lang }), 
+          AccommodationExceptionsStatusType.UserHasNotBookedAccommodation, 
+          HttpStatus.BAD_REQUEST);
       else
-      accom.appliedUsers = accom.appliedUsers.filter(u => u.id !== user.id);
+        accom.appliedUsers = accom.appliedUsers.filter(u => u.id !== user.id);
     });
     
     user.accommHistory = user.accommHistory.filter(a => a.id !== accom.id);
