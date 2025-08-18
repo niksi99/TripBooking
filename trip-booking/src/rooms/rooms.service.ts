@@ -149,7 +149,7 @@ export class RoomsService {
 
     if(room.deletedAt == null)
       throw new RoomExceptions(
-        "Room is not soft deleted, therefore, it can not be undeleted.", 
+        await this.i18n_translations.t(`exceptions.room.ROOM_IS_NOT_SOFT_DELETED`, { lang: lang }),
         RoomExceptionsStatusType.RoomIsNotBlocked_SoftDeleted, 
         HttpStatus.FORBIDDEN
       );

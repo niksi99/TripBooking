@@ -2,5 +2,6 @@
     "ROOM_DOES_NOT_EXIST": "Room does not exist.",
     "ROOM_WITH_THIS_LABEL_ALREADY_EXISTS_IN_THIS_ACCOMMODATION": "Room with this label already exists in this accommodation.",
     "ROOM_IS_BLOCKED_SOFT_DELETED": "Room is already blocked / soft-deleted",
-    "ROOM_IS_ALREADY_SOFT_DELETED": "Room is already soft deleted."
+    "ROOM_IS_ALREADY_SOFT_DELETED": "Room is already soft deleted.",
+    "ROOM_IS_NOT_SOFT_DELETED": "Room is not soft deleted, therefore, it can not be undeleted."
 }

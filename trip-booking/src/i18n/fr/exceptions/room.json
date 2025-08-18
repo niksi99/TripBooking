@@ -1,5 +1,7 @@
 {
     "ROOM_DOES_NOT_EXIST": "La chambre n'existe pas.",
     "ROOM_WITH_THIS_LABEL_ALREADY_EXISTS_IN_THIS_ACCOMMODATION": "Chambre avec ca nom deja existe dans cet hébergement.",
-    "ROOM_IS_BLOCKED_SOFT_DELETED": "La chambre est marque suprrime."
+    "ROOM_IS_BLOCKED_SOFT_DELETED": "La chambre est marque suprrime.",
+    "ROOM_IS_ALREADY_SOFT_DELETED": "La chambre est deja marque supprime.",
+    "ROOM_IS_NOT_SOFT_DELETED": "La chambre n'est pas marque marque suprrime, donc, elle ne peut pas etre "
 }
