@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable no-useless-catch */
-import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, NotFoundException, UseGuards, Headers, ForbiddenException, UseFilters } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, NotFoundException, UseGuards, Headers, UseFilters, ForbiddenException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -41,29 +41,18 @@ export class UsersController {
     return await this.usersService.findOne(id, headers['accept-language']);
   }
 
-  @Patch(':id')
+  @Patch(AppRoutes.UpdateRoute)
+  @UseFilters(UsersExceptionsFilter)
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Headers() headers) {
-    try {
-      return await this.usersService.update(id, updateUserDto, headers['accept-language']);
-    } 
-    catch (error) {
-      switch(true) {
-        case error instanceof UsersExceptions:
-          if (error.IsUserExisting())
-            throw new NotFoundException(error.getMessage());
-          if (error.IsUserSoftDeleted())
-            throw new BadRequestException(error.getMessage());
-          break;
-        default:
-          throw error;
-      }
-    }
+    return await this.usersService.update(id, updateUserDto, headers['accept-language']);
   }
 
   @Roles(Role.ADMINISTRATOR)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Delete(AppRoutes.HardDeleteRoute)
+  //@UseFilters(UsersExceptionsFilter)
+  //@UseFilters(AuthExceptionsFilter)
   async remove(@Param('id') id: string, @Headers() headers) {
     try {
       return await this.usersService.hardDelete(id, headers['accept-language']);
