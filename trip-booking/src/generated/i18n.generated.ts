@@ -24,6 +24,7 @@ export type I18nTranslations = {
             "ACCOMMODATION_ALREADY_EXIST_ON_THIS_LOCATION": string;
             "ACCOMMODATION_IS_BLOCKED_SOFTDELETED": string;
             "USER_HAS_ALREADY_BOOKED_THIS_ACCOMMODATION": string;
+            "USER_HAS_NOT_BOOKED_THIS_ACCOMMODATION_AT_ALL": string;
         };
         "auth": {
             "TOKEN_IS_NOT_GENERATED": string;
@@ -35,6 +36,8 @@ export type I18nTranslations = {
             "ROOM_DOES_NOT_EXIST": string;
             "ROOM_WITH_THIS_LABEL_ALREADY_EXISTS_IN_THIS_ACCOMMODATION": string;
             "ROOM_IS_BLOCKED_SOFT_DELETED": string;
+            "ROOM_IS_ALREADY_SOFT_DELETED": string;
+            "ROOM_IS_NOT_SOFT_DELETED": string;
         };
         "user": {
             "USER_DOES_NOT_EXIST": string;

@@ -1,9 +1,8 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable no-useless-catch */
-import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, NotFoundException, UseGuards, Headers, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, NotFoundException, UseGuards, Headers, ForbiddenException, UseFilters } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -14,28 +13,16 @@ import { RolesGuard } from '../auth/guards/roles/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AuthExceptions } from '../exceptions-handling/exceptions/auth.exceptions';
 import { AppRoutes } from 'src/routes/app.routes';
+import { UsersExceptionsFilter } from 'src/exceptions-handling/exceptions-filters/users.exceptions.filter';
 
 @Controller(AppRoutes.BasicUsersRoute)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post(AppRoutes.CreateRoute)
+  @UseFilters(UsersExceptionsFilter)
   async create(@Body() createUserDto: CreateUserDto, @Headers() headers) {
-    try {
-      return await this.usersService.create(createUserDto, headers['accept-language']);
-    } 
-    catch (error) {
-      switch(true) {
-        case error instanceof UsersExceptions:
-          if (error.DoesEmailAlreadyExist())
-            throw new BadRequestException(error.getMessage());
-          if (error.DoesUsernameAlreadyExist())
-            throw new BadRequestException(error.getMessage());
-          break;
-        default:
-          throw error;
-      }
-    }
+    return await this.usersService.create(createUserDto, headers['accept-language']);
   }
 
   @Get(AppRoutes.GetAllRoute)
@@ -48,22 +35,10 @@ export class UsersController {
     }
   }
 
-  @Get(':id')
+  @Get(AppRoutes.GetByIdRoute)
+  @UseFilters(UsersExceptionsFilter)
   async findOne(@Param('id') id: string, @Headers() headers) {
-    const lang: string = headers['accept-language'];
-    try {
-      return await this.usersService.findOne(id, lang);
-    } 
-    catch (error) {
-      switch(true) {
-        case error instanceof UsersExceptions:
-          if (error.IsUserExisting())
-            throw new NotFoundException(error.getMessage());
-          break;
-        default:
-          throw error;
-      }
-    }
+    return await this.usersService.findOne(id, headers['accept-language']);
   }
 
   @Patch(':id')
