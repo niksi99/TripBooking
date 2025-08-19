@@ -5,6 +5,9 @@ export class AppRoutes {
     static readonly BasicAcommodationRoute = `/accommodations/`
     static readonly BasicAuthRoute = `/auth/`
 
+    static readonly Login = `login`;
+    static readonly Logout = `logout`;
+
     static readonly CreateRoute = `create`;
     static readonly GetAllRoute = `get-all`;
     static readonly GetByIdRoute = `:id`;  

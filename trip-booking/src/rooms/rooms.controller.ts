@@ -89,7 +89,7 @@ export class RoomsController {
   @Roles(Role.ACCOMMODATION_OWNER, Role.ADMINISTRATOR)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Patch(':id')
+  @Patch(AppRoutes.UpdateRoute)
   async update(@Param('id') id: string, @Body() updateRoomDto: UpdateRoomDto, @Headers() headers) {
     try {
       return await this.roomsService.update(id, updateRoomDto, headers['accept-language']); 
@@ -112,7 +112,7 @@ export class RoomsController {
   @Roles(Role.ACCOMMODATION_OWNER, Role.ADMINISTRATOR)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Delete('/hard-delete/:id')
+  @Delete(AppRoutes.HardDeleteRoute)
   async hardDelete(@Param('id') id: string, @Headers() headers) {
     try {
       return await this.roomsService.hardDelete(id, headers['accept-language']);
@@ -132,7 +132,7 @@ export class RoomsController {
   @Roles(Role.ACCOMMODATION_OWNER, Role.ADMINISTRATOR)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Patch('/soft-delete/:id')
+  @Patch(AppRoutes.SoftDeleteRoute)
   async softDelete(@Param('id') id: string, @Headers() headers) {
     try {
       return await this.roomsService.softDelete(id, headers['accept-language']);
@@ -154,7 +154,7 @@ export class RoomsController {
   @Roles(Role.ACCOMMODATION_OWNER, Role.ADMINISTRATOR)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Patch('/soft-undelete/:id')
+  @Patch(AppRoutes.SoftUndeleteRoute)
   async softUndelete(@Param('id') id: string, @Headers() headers) {
     try {
       return await this.roomsService.softUndelete(id, headers['accept-language']);

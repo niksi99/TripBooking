@@ -13,15 +13,16 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from 'src/auth/enums/role.enum';
 import { AuthExceptions } from 'src/exceptions-handling/exceptions/auth.exceptions';
 import { UsersExceptions } from 'src/exceptions-handling/exceptions/users.exceptions';
+import { AppRoutes } from '../routes/app.routes';
 
-@Controller('accommodations')
+@Controller(AppRoutes.BasicAcommodationRoute)
 export class AccommodationsController {
   constructor(private readonly accommodationsService: AccommodationsService) {}
 
   @Roles(Role.ACCOMMODATION_OWNER)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Post('/create')
+  @Post(AppRoutes.CreateRoute)
   async create(@Request() request, @Body() createAccommodationDto: CreateAccommodationDto, @Headers() headers) {
     try {
       return this.accommodationsService.create(request, createAccommodationDto, headers['accept-language']); 
@@ -50,7 +51,7 @@ export class AccommodationsController {
   @Roles(Role.PASSENGER)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Patch('/book-accommodation/:accommId')
+  @Patch(AppRoutes.BookRoomsOfSingleAccommodation)
   async bookAccommodation(@Request() request, @Param('accommId') accomId: string, @Headers() headers) {
     try {
       return await this.accommodationsService.bookAccommodation(request, accomId, headers['accept-language']);  
@@ -84,7 +85,7 @@ export class AccommodationsController {
   @Roles(Role.PASSENGER)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  @Patch('/unbook-accommodation/:accommId')
+  @Patch(AppRoutes.UnbookAccommodation)
   async unbookAccommodation(@Request() request, @Param('accommId') accomId: string,  @Headers() headers) {
     try {
       return await this.accommodationsService.unBookAccommodation(request, accomId, headers['accept-language']);  
@@ -111,7 +112,7 @@ export class AccommodationsController {
     }
   }
 
-  @Get('/get-all')
+  @Get(AppRoutes.GetAllRoute)
   async findAll() {
     try {
       return await this.accommodationsService.findAll();
@@ -121,7 +122,7 @@ export class AccommodationsController {
     }
   }
 
-  @Get(':id')
+  @Get(AppRoutes.GetByIdRoute)
   findOne(@Param('id') id: string, @Headers() headers) {
     try {
       return this.accommodationsService.findOne(id, headers['accept-language']);
@@ -138,12 +139,12 @@ export class AccommodationsController {
     }
   }
 
-  @Patch(':id')
+  @Patch(AppRoutes.UpdateRoute)
   update(@Param('id') id: string, @Body() updateAccommodationDto: UpdateAccommodationDto) {
     return this.accommodationsService.update(+id, updateAccommodationDto);
   }
 
-  @Delete(':id')
+  @Delete(AppRoutes.HardDeleteRoute)
   remove(@Param('id') id: string) {
     return this.accommodationsService.remove(+id);
   }

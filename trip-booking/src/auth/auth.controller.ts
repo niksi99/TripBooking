@@ -7,12 +7,13 @@ import { LoginDto } from './dto/login.dto';
 import { UsersExceptions } from 'src/exceptions-handling/exceptions/users.exceptions';
 import { AuthExceptions } from 'src/exceptions-handling/exceptions/auth.exceptions';
 import { Response } from 'express';
+import { AppRoutes } from 'src/routes/app.routes';
 
-@Controller('auth')
+@Controller(AppRoutes.BasicAuthRoute)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
   
-  @Post('/login')
+  @Post(AppRoutes.Login)
   async login(
     @Body() loginDto: LoginDto,
     @Headers() headers,
@@ -49,7 +50,7 @@ export class AuthController {
     }
   }
 
-  @Post('logout')
+  @Post(AppRoutes.Logout)
   logout(@Res({ passthrough: true }) response: Response) {
     response.clearCookie('access_token');
     return { message: 'Logged out' };
