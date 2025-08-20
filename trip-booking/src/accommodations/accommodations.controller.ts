@@ -2,7 +2,7 @@
 /* eslint-disable no-useless-catch */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-import { Controller, Get, Post, Headers, Body, Patch, Param, Delete, NotFoundException, Request, UseGuards, BadRequestException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Post, Headers, Body, Patch, Param, Delete, NotFoundException, Request, UseGuards, BadRequestException, ForbiddenException, UnauthorizedException, UseFilters } from '@nestjs/common';
 import { AccommodationsService } from './accommodations.service';
 import { CreateAccommodationDto } from './dto/create-accommodation.dto';
 import { UpdateAccommodationDto } from './dto/update-accommodation.dto';
@@ -14,38 +14,43 @@ import { Role } from 'src/auth/enums/role.enum';
 import { AuthExceptions } from 'src/exceptions-handling/exceptions/auth.exceptions';
 import { UsersExceptions } from 'src/exceptions-handling/exceptions/users.exceptions';
 import { AppRoutes } from '../routes/app.routes';
+import { AccommodationsExceptionsFilter } from 'src/exceptions-handling/exceptions-filters/accommodation.exceptions.filter';
+import { UsersExceptionsFilter } from 'src/exceptions-handling/exceptions-filters/users.exceptions.filter';
+import { AuthExceptionsFilter } from 'src/exceptions-handling/exceptions-filters/auth.exceptions.filter';
 
 @Controller(AppRoutes.BasicAcommodationRoute)
 export class AccommodationsController {
   constructor(private readonly accommodationsService: AccommodationsService) {}
 
   @Roles(Role.ACCOMMODATION_OWNER)
-  @UseGuards(RolesGuard)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseFilters(AccommodationsExceptionsFilter, UsersExceptionsFilter, AuthExceptionsFilter)
   @Post(AppRoutes.CreateRoute)
   async create(@Request() request, @Body() createAccommodationDto: CreateAccommodationDto, @Headers() headers) {
-    try {
-      return this.accommodationsService.create(request, createAccommodationDto, headers['accept-language']); 
-    } catch (error) {
-      switch(true) {
-        case error instanceof AuthExceptions:
-          if (error.IsUserLoggedOut())
-            throw new NotFoundException(error.getMessage());
-          break;
-        case error instanceof UsersExceptions:
-          if (error.IsUserExisting())
-            throw new NotFoundException(error.getMessage());
-          if (error.IsUserAccommodationOwner())
-            throw new NotFoundException(error.getMessage());
-          break;
-        case error instanceof AccommodationExceptions:
-          if(error.IsLocationAlreadyBusy())
-            throw new BadRequestException(error.getMessage());
-          break;
-        default:
-          throw error;
-      }
-    }
+    console.log("FROM ACCOM CONTROLLER: CREATE ACCOM. ");
+    return this.accommodationsService.create(request, createAccommodationDto, headers['accept-language']);
+    // try {
+    //   return this.accommodationsService.create(request, createAccommodationDto, headers['accept-language']); 
+    // } catch (error) {
+    //   switch(true) {
+    //     case error instanceof AuthExceptions:
+    //       if (error.IsUserLoggedOut())
+    //         throw new NotFoundException(error.getMessage());
+    //       break;
+    //     case error instanceof UsersExceptions:
+    //       if (error.IsUserExisting())
+    //         throw new NotFoundException(error.getMessage());
+    //       if (error.IsUserAccommodationOwner())
+    //         throw new NotFoundException(error.getMessage());
+    //       break;
+    //     case error instanceof AccommodationExceptions:
+    //       if(error.IsLocationAlreadyBusy())
+    //         throw new BadRequestException(error.getMessage());
+    //       break;
+    //     default:
+    //       throw error;
+    //   }
+    // }
   }
 
   @Roles(Role.PASSENGER)
@@ -123,20 +128,22 @@ export class AccommodationsController {
   }
 
   @Get(AppRoutes.GetByIdRoute)
+  @UseFilters(AccommodationsExceptionsFilter)
   findOne(@Param('id') id: string, @Headers() headers) {
-    try {
-      return this.accommodationsService.findOne(id, headers['accept-language']);
-    } 
-    catch (error) {
-      switch(true) {
-        case error instanceof AccommodationExceptions:
-          if (error.DoesAccommodationExist())
-            throw new NotFoundException(error.getMessage());
-          break;
-        default:
-          throw error;
-      }
-    }
+    return this.accommodationsService.findOne(id, headers['accept-language']);
+    // try {
+    //   return this.accommodationsService.findOne(id, headers['accept-language']);
+    // } 
+    // catch (error) {
+    //   switch(true) {
+    //     case error instanceof AccommodationExceptions:
+    //       if (error.DoesAccommodationExist())
+    //         throw new NotFoundException(error.getMessage());
+    //       break;
+    //     default:
+    //       throw error;
+    //   }
+    // }
   }
 
   @Patch(AppRoutes.UpdateRoute)

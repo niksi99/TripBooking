@@ -23,6 +23,7 @@ export class AccommodationsService {
   ) {}
 
   async create(@Request() request, createAccommodationDto: CreateAccommodationDto, lang: string) {
+    console.log("FROM ACCOM SERVICE: CREATE ACCOM. ");
     if(!request)
       throw new AuthExceptions(
         await this.i18n_translations.t(`exceptions.auth.USER_IS_NOT_LOGGED_IN`, { lang: lang }), 

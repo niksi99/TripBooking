@@ -33,6 +33,6 @@ export class AppModule implements NestModule{
         { path: AppRoutes.BasicAcommodationRoute + AppRoutes.GetByIdRoute, method: RequestMethod.GET },
         { path: AppRoutes.BasicRoomsRoute + AppRoutes.GetAllRoomsOfSingleAccommodation, method: RequestMethod.GET },
       )
-      .forRoutes(AppRoutes.BasicAcommodationRoute, AppRoutes.BasicRoomsRoute);
+      .forRoutes(AppRoutes.BasicRoomsRoute);
   }
 }

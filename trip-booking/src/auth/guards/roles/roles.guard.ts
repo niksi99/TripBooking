@@ -2,10 +2,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Role } from 'src/auth/enums/role.enum';
 import * as dotenv from 'dotenv';
+import { AuthExceptions } from 'src/exceptions-handling/exceptions/auth.exceptions';
+import { AuthExceptionStatusType } from 'src/exceptions-handling/exceptions-status-type/auth.exceptions.status.types';
 dotenv.config();
 
 @Injectable()
@@ -21,16 +23,26 @@ export class RolesGuard implements CanActivate {
     ]);
 
     const user = context.switchToHttp().getRequest().user;
-    const hasRequiredRole = requiredRoles.some(role => user.role === role);
+    console.log("FROM roles.guards: CREATE ACCOM. ", user);
+    //const hasRequiredRole = requiredRoles.some(role => user.role === role);
 
-    if (!requiredRoles.includes(user.role)) {
-      throw new ForbiddenException({
-        statusCode: 403,
-        message: `Access denied: Only ${requiredRoles.join(', ')} can perform this action`,
-        error: 'Forbidden',
-      });
+    if (!requiredRoles.length) {
+      console.log("ROLES GUARD: NO ROLES REQUIRED → PASS");
+      return true;
     }
 
-    return hasRequiredRole;
+    const hasRole = requiredRoles.includes(user.role);
+
+    if (!hasRole) {
+      console.log("ROLES GUARD: THROW FORBIDDEN", hasRole);
+      throw new AuthExceptions(
+        `Access denied: Only ${requiredRoles.join(', ')} can perform this action`,
+        AuthExceptionStatusType.UsersRoleDoesNotLetHimUsingThisMethod,
+        HttpStatus.FORBIDDEN
+      );
+    }
+
+    console.log("ROLES GUARD PASS");
+    return true;
   }
 }

@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -13,6 +14,8 @@ export class UsersExceptionsFilter implements ExceptionFilter
         const context = host.switchToHttp();
         const response = context.getResponse();
         const request = context.getRequest();
+
+        console.log("From user exceptons filter");
 
         if(exception instanceof UsersExceptions)
         {
@@ -61,9 +64,22 @@ export class UsersExceptionsFilter implements ExceptionFilter
                 })
                 return;
             } 
+            if(exception.IsUserAccommodationOwner())
+            {
+                response.status(HttpStatus.FORBIDDEN).json({
+                    method: request.url,
+                    statusCode: HttpStatus.FORBIDDEN,
+                    message: exception.getMessage()
+                })
+                return;
+            } 
+
+            return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+                method: `${request.controller} ${request.url}`,
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: 'USERS.EXCEPTION.FILTER: Internal server error'
+            });
         }
-        
-        //throw new Error("Method not implemented.");
     }
 
 } 
