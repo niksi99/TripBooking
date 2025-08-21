@@ -23,7 +23,6 @@ export class AccommodationsService {
   ) {}
 
   async create(@Request() request, createAccommodationDto: CreateAccommodationDto, lang: string) {
-    console.log("FROM ACCOM SERVICE: CREATE ACCOM. ");
     if(!request)
       throw new AuthExceptions(
         await this.i18n_translations.t(`exceptions.auth.USER_IS_NOT_LOGGED_IN`, { lang: lang }), 
@@ -86,7 +85,6 @@ export class AccommodationsService {
   }
 
   async bookAccommodation(@Request() request, accommId: string, lang: string) {
-    console.log("accommId", accommId);
     if(!request)
       throw new AuthExceptions(
         await this.i18n_translations.t(`exceptions.auth.TOKEN_IS_NOT_GENERATED`, { lang: lang }),
@@ -101,7 +99,7 @@ export class AccommodationsService {
         await this.i18n_translations.t(`exceptions.user.USER_DOES_NOT_EXIST`, { lang: lang }),
         UsersExceptionStatusType.UserDoesNotExist
       )
-    console.log("user", user);
+
     if(user.role.toString() !== Role.PASSENGER.toString())
       throw new UsersExceptions(
         await this.i18n_translations.t(`exceptions.user.USER_IS_NOT_PASSENGER`, { lang: lang }),
@@ -109,14 +107,13 @@ export class AccommodationsService {
       );
 
     const accom = await this.accommodationRepository.GetAccommodationById(accommId);
-    console.log("1 accom in accomm.service.");
     if(!accom)
       throw new AccommodationExceptions(
         await this.i18n_translations.t(`exceptions.accommodation.ACCOMMODATION_DOES_NOT_EXIST`, { lang: lang }), 
         AccommodationExceptionsStatusType.AccommodationDoesNotExist, 
         HttpStatus.NOT_FOUND
       );
-    console.log("2 accom in accomm.service.");
+
     if(accom.deletedAt !== null)
       throw new AccommodationExceptions(
         await this.i18n_translations.t(`exceptions.accommodation.ACCOMMODATION_IS_BLOCKED_SOFTDELETED`, { lang: lang }),  
@@ -125,11 +122,6 @@ export class AccommodationsService {
       );
 
     accom.arivalDate = new Date(Date.now());
-
-    const userHasBooked = accom.appliedUsers.some(u => u.id === user.id);
-    console.log(user);
-    console.log(accom);
-    console.log("userHasBooked", userHasBooked);
 
     if (accom.appliedUsers?.some(element => element.id === user.id)) {
       throw new AccommodationExceptions(
@@ -144,7 +136,7 @@ export class AccommodationsService {
 
     await this.accommodationRepository.manager.save(accom);
     await this.userRepository.save(user);
-    
+
     const safeAccom = {
       id: accom.id,
       name: accom.name,
@@ -159,7 +151,6 @@ export class AccommodationsService {
       departureDate: accom.departureDate,
     };
 
-    console.log("End of book accomm in accomm.service.");
     return safeAccom;
   }
 
@@ -174,7 +165,7 @@ export class AccommodationsService {
 
     if(user.role.toString() !== Role.PASSENGER.toString())
       throw new UsersExceptions(
-        await this.i18n_translations.t(`exceptions.user.USER_DOES_NOT_EXIST`, { lang: lang }), 
+        await this.i18n_translations.t(`exceptions.user.USER_IS_NOT_PASSENGER`, { lang: lang }), 
         UsersExceptionStatusType.UserIsNotPassenger
       );
 
@@ -234,7 +225,6 @@ export class AccommodationsService {
       departureDate: accom.departureDate,
     };
 
-    console.log("End of unbook accomm in accomm.service.");
     return safeAccom;
   }
 }
