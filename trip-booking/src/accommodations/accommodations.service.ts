@@ -54,10 +54,29 @@ export class AccommodationsService {
     
     const accomm = new Accommodation({});
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    accomm.owner = request.user.username;
+    //accomm.owner = request.user.username;
+    accomm.owner = user;
     Object.assign(accomm, createAccommodationDto);
-    return await this.accommodationRepository.manager.save(Accommodation, accomm);
+    await this.accommodationRepository.manager.save(Accommodation, accomm);
+
+    console.log(accomm);
+    user.ownedAccommodations.push(accomm);
+    await this.userRepository.manager.save(user);
+
+    return {
+        statusCode: HttpStatus.OK,
+        message: "Created accommodation",
+        accommodation: {
+          id: accomm.id,
+          name: accomm.name,
+          location: accomm.location,
+          owner: {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+          }
+        }
+    };
   }
 
   async findAll() {

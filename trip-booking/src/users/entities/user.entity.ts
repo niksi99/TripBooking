@@ -5,7 +5,7 @@
 
 import { Role } from "../../auth/enums/role.enum";
 import { AbstactEntity } from "../../database/AbstractEntity";
-import { BeforeInsert, Column, Entity, ManyToMany } from "typeorm";
+import { BeforeInsert, Column, Entity, ManyToMany, OneToMany } from "typeorm";
 import * as bcrypt from "bcrypt";
 import { Accommodation } from "../../accommodations/entities/accommodation.entity";
 import { IsEmail, IsNotEmpty, Length, MinLength } from "class-validator";
@@ -58,6 +58,12 @@ export class User extends AbstactEntity<User>{
     })
     role: Role
 
+    @OneToMany(() => Accommodation, (accommodation) => accommodation.owner, {
+        cascade: ['remove'], // Remove accommodations if user is deleted
+        onDelete: 'CASCADE', // Enforce DB-level cascading
+    })
+    ownedAccommodations: Accommodation[];
+    
     @ManyToMany(() => Accommodation, (accomm) => accomm.appliedUsers)
     accommHistory: Accommodation[];
 

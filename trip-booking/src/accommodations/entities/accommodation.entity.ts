@@ -4,13 +4,13 @@ import { AbstactEntity } from "../../database/AbstractEntity";
 import { MyLocation } from "../../locations/location";
 import { Room } from "../../rooms/entities/room.entity";
 import { User } from "../../users/entities/user.entity";
-import { Column, Entity, JoinTable, ManyToMany, OneToMany } from "typeorm"
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany } from "typeorm"
 
 @Entity()
 export class Accommodation extends AbstactEntity<Accommodation> {
+    @ManyToOne(() => User, (user) => user.ownedAccommodations, { onDelete: 'CASCADE' })
     @IsNotEmpty({ message: 'Owner is required.' })
-    @Column()
-    owner: string;
+    owner: User;
 
     @IsNotEmpty({ message: 'Name is required.' })
     @Length(2, 25, { message: 'Last must be between 2 and 25 characters.' })

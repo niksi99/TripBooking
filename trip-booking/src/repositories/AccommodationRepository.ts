@@ -22,7 +22,7 @@ export class AccommodationRepository extends Repository<Accommodation> {
     public async GetAllAccommodations() {
         return this.accommodationRepository.find({
             withDeleted: true,
-            relations: ['myRooms', 'appliedUsers']
+            relations: ['myRooms', 'appliedUsers', 'owner']
         })
     }
 

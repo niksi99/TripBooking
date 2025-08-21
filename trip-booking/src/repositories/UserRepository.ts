@@ -20,7 +20,7 @@ export class UserRepository extends Repository<User> {
         public async getAll() : Promise<User[]> {
             return await this.userRepository.find({
                 withDeleted: true,
-                relations: ['accommHistory']
+                relations: ['accommHistory', 'ownedAccommodations']
             });
         }
 
@@ -28,7 +28,7 @@ export class UserRepository extends Repository<User> {
             return await this.findOne({
                 where: {id: id},
                 withDeleted: true,
-                relations: ['accommHistory']
+                relations: ['accommHistory', 'ownedAccommodations']
             });
         }
 
@@ -36,7 +36,7 @@ export class UserRepository extends Repository<User> {
             return await this.userRepository.findOne({
                 where: {email: email},
                 withDeleted: true,
-                relations: ['accommHistory']
+                relations: ['accommHistory', 'ownedAccommodations']
             });
         }
 
@@ -44,7 +44,7 @@ export class UserRepository extends Repository<User> {
             return await this.userRepository.findOne({
                 where: {username: username},
                 withDeleted: true,
-                relations: ['accommHistory']
+                relations: ['accommHistory', 'ownedAccommodations']
             });
         }
 
@@ -55,7 +55,7 @@ export class UserRepository extends Repository<User> {
                 { username },
               ],
               withDeleted: true,
-              relations: ['accommHistory']
+              relations: ['accommHistory', 'ownedAccommodations']
             });
         }
 
