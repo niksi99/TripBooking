@@ -18,6 +18,7 @@ export class AuthExceptionsFilter implements ExceptionFilter {
 
         if (exception.IsPasswordInvalid()) {
         return response.status(HttpStatus.BAD_REQUEST).json({
+            method: request.url,
             statusCode: HttpStatus.BAD_REQUEST,
             message: exception.getMessage()
         });
@@ -25,6 +26,7 @@ export class AuthExceptionsFilter implements ExceptionFilter {
 
         if (exception.DoesTokenExist()) {
             return response.status(HttpStatus.UNAUTHORIZED).json({
+                method: request.url,
                 statusCode: HttpStatus.UNAUTHORIZED,
                 message: exception.getMessage()
             });
@@ -32,6 +34,7 @@ export class AuthExceptionsFilter implements ExceptionFilter {
 
         if (exception.IsUserLoggedOut()) {
             return response.status(HttpStatus.UNAUTHORIZED).json({
+                method: request.url,
                 statusCode: HttpStatus.UNAUTHORIZED,
                 message: exception.getMessage()
             });
@@ -39,6 +42,7 @@ export class AuthExceptionsFilter implements ExceptionFilter {
 
         if (exception.IsUserLoggedIn()) {
             return response.status(HttpStatus.CONFLICT).json({
+                method: request.url,
                 statusCode: HttpStatus.CONFLICT,
                 message: exception.getMessage()
             });
@@ -46,6 +50,15 @@ export class AuthExceptionsFilter implements ExceptionFilter {
 
         if (exception.CanUserUseThisMethod()) {
             return response.status(HttpStatus.FORBIDDEN).json({
+                method: request.url,
+                statusCode: HttpStatus.FORBIDDEN,
+                message: exception.getMessage()
+            });
+        }
+
+        if (exception.CanAdministratorBeDeleted()) {
+            return response.status(HttpStatus.FORBIDDEN).json({
+                method: request.url,
                 statusCode: HttpStatus.FORBIDDEN,
                 message: exception.getMessage()
             });

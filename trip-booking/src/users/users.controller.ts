@@ -1,8 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable no-useless-catch */
-import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, NotFoundException, UseGuards, Headers, UseFilters, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, NotFoundException, UseGuards, Headers, UseFilters } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -14,6 +13,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { AuthExceptions } from '../exceptions-handling/exceptions/auth.exceptions';
 import { AppRoutes } from 'src/routes/app.routes';
 import { UsersExceptionsFilter } from 'src/exceptions-handling/exceptions-filters/users.exceptions.filter';
+import { AuthExceptionsFilter } from 'src/exceptions-handling/exceptions-filters/auth.exceptions.filter';
 
 @Controller(AppRoutes.BasicUsersRoute)
 export class UsersController {
@@ -26,13 +26,9 @@ export class UsersController {
   }
 
   @Get(AppRoutes.GetAllRoute)
+  @UseFilters(UsersExceptionsFilter)
   async findAll() {
-    try {
-      return await this.usersService.findAll(); 
-    } 
-    catch (error) {
-      throw error;
-    }
+    return await this.usersService.findAll(); 
   }
 
   @Get(AppRoutes.GetByIdRoute)
@@ -50,27 +46,27 @@ export class UsersController {
   @Roles(Role.ADMINISTRATOR)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
+  @UseFilters(UsersExceptionsFilter, AuthExceptionsFilter)
   @Delete(AppRoutes.HardDeleteRoute)
-  //@UseFilters(UsersExceptionsFilter)
-  //@UseFilters(AuthExceptionsFilter)
   async remove(@Param('id') id: string, @Headers() headers) {
-    try {
-      return await this.usersService.hardDelete(id, headers['accept-language']);
-    } 
-    catch (error) {
-      switch(true) {
-        case error instanceof UsersExceptions:
-          if (error.IsUserExisting())
-            throw new NotFoundException(error.getMessage());
-          break;
-        case error instanceof AuthExceptions:
-          if (error.CanAdministratorBeDeleted())
-            throw new ForbiddenException(error.getMessage());
-          break;
-        default:
-          throw error;
-      }
-    }
+    return await this.usersService.hardDelete(id, headers['accept-language']);
+    // try {
+    //   return await this.usersService.hardDelete(id, headers['accept-language']);
+    // } 
+    // catch (error) {
+    //   switch(true) {
+    //     case error instanceof UsersExceptions:
+    //       if (error.IsUserExisting())
+    //         throw new NotFoundException(error.getMessage());
+    //       break;
+    //     case error instanceof AuthExceptions:
+    //       if (error.CanAdministratorBeDeleted())
+    //         throw new ForbiddenException(error.getMessage());
+    //       break;
+    //     default:
+    //       throw error;
+    //   }
+    // }
   }
 
   @Roles(Role.ADMINISTRATOR)
