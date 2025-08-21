@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable no-useless-catch */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Controller, Get, Post, Headers, Body, Patch, Param, Delete, Request, UseGuards, UseFilters } from '@nestjs/common';
@@ -24,127 +23,35 @@ export class AccommodationsController {
   @UseFilters(AccommodationsExceptionsFilter, UsersExceptionsFilter, AuthExceptionsFilter)
   @Post(AppRoutes.CreateRoute)
   async create(@Request() request, @Body() createAccommodationDto: CreateAccommodationDto, @Headers() headers) {
-    console.log("FROM ACCOM CONTROLLER: CREATE ACCOM. ");
     return this.accommodationsService.create(request, createAccommodationDto, headers['accept-language']);
-    // try {
-    //   return this.accommodationsService.create(request, createAccommodationDto, headers['accept-language']); 
-    // } catch (error) {
-    //   switch(true) {
-    //     case error instanceof AuthExceptions:
-    //       if (error.IsUserLoggedOut())
-    //         throw new NotFoundException(error.getMessage());
-    //       break;
-    //     case error instanceof UsersExceptions:
-    //       if (error.IsUserExisting())
-    //         throw new NotFoundException(error.getMessage());
-    //       if (error.IsUserAccommodationOwner())
-    //         throw new NotFoundException(error.getMessage());
-    //       break;
-    //     case error instanceof AccommodationExceptions:
-    //       if(error.IsLocationAlreadyBusy())
-    //         throw new BadRequestException(error.getMessage());
-    //       break;
-    //     default:
-    //       throw error;
-    //   }
-    // }
   }
 
   @Roles(Role.PASSENGER)
-  @UseGuards(RolesGuard)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @UseFilters(AccommodationsExceptionsFilter, UsersExceptionsFilter, AuthExceptionsFilter)
   @Patch(AppRoutes.BookRoomsOfSingleAccommodation)
   async bookAccommodation(@Request() request, @Param('accommId') accomId: string, @Headers() headers) {
     return await this.accommodationsService.bookAccommodation(request, accomId, headers['accept-language']);
-    // try {
-    //   return await this.accommodationsService.bookAccommodation(request, accomId, headers['accept-language']);  
-    // } 
-    // catch (error) {
-    //   switch(true) {
-    //     case error instanceof AuthExceptions:
-    //       if(error.IsUserLoggedIn())
-    //         throw new ForbiddenException(error.getMessage());
-    //       break;
-    //     case error instanceof UsersExceptions:
-    //       if(error.IsUserExisting())
-    //         throw new NotFoundException(error.getMessage());
-    //       if(error.IsUserPassenger())
-    //         throw new UnauthorizedException(error.getMessage());
-    //       break;
-    //     case error instanceof AccommodationExceptions:
-    //       if(error.DoesAccommodationExist())
-    //         throw new NotFoundException(error.getMessage());
-    //       if(error.IsAccommodationBlocked_SoftDeleted())
-    //         throw new NotFoundException(error.getMessage());
-    //       if(error.HasAccommodationBeedlreadyBooked())
-    //         throw new BadRequestException(error.getMessage());
-    //       break;
-    //     default:
-    //       throw error;
-    //   }
-    // }
   }
 
   @Roles(Role.PASSENGER)
-  @UseGuards(RolesGuard)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @UseFilters(AccommodationsExceptionsFilter, UsersExceptionsFilter, AuthExceptionsFilter)
   @Patch(AppRoutes.UnbookAccommodation)
   async unbookAccommodation(@Request() request, @Param('accommId') accomId: string,  @Headers() headers) {
     return await this.accommodationsService.unBookAccommodation(request, accomId, headers['accept-language']);  
-    // try {
-    //   return await this.accommodationsService.unBookAccommodation(request, accomId, headers['accept-language']);  
-    // } 
-    // catch (error) {
-    //   switch(true) {
-    //     case error instanceof UsersExceptions:
-    //       if(error.IsUserExisting())
-    //         throw new NotFoundException(error.getMessage());
-    //       if(error.IsUserPassenger())
-    //         throw new UnauthorizedException(error.getMessage());
-    //       break;
-    //     case error instanceof AccommodationExceptions:
-    //       if(error.DoesAccommodationExist())
-    //         throw new NotFoundException(error.getMessage());
-    //       if(error.IsAccommodationBlocked_SoftDeleted())
-    //         throw new BadRequestException(error.getMessage());
-    //       if(error.HasNotAccommodationBeedBooked())
-    //         throw new BadRequestException(error.getMessage());
-    //       break;
-    //     default: 
-    //       throw error;
-    //   }
-    // }
   }
 
+  @UseFilters(AccommodationsExceptionsFilter)
   @Get(AppRoutes.GetAllRoute)
   async findAll() {
-    try {
-      return await this.accommodationsService.findAll();
-    }
-    catch (error) {
-      throw error;
-    }
+    return await this.accommodationsService.findAll();
   }
 
-  @Get(AppRoutes.GetByIdRoute)
   @UseFilters(AccommodationsExceptionsFilter)
+  @Get(AppRoutes.GetByIdRoute)
   findOne(@Param('id') id: string, @Headers() headers) {
     return this.accommodationsService.findOne(id, headers['accept-language']);
-    // try {
-    //   return this.accommodationsService.findOne(id, headers['accept-language']);
-    // } 
-    // catch (error) {
-    //   switch(true) {
-    //     case error instanceof AccommodationExceptions:
-    //       if (error.DoesAccommodationExist())
-    //         throw new NotFoundException(error.getMessage());
-    //       break;
-    //     default:
-    //       throw error;
-    //   }
-    // }
   }
 
   @Patch(AppRoutes.UpdateRoute)
