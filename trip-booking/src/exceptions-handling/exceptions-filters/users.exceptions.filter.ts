@@ -7,7 +7,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from "@nestjs/common";
 import { UsersExceptions } from "../exceptions/users.exceptions";
 
-@Catch()
+@Catch(UsersExceptions)
 export class UsersExceptionsFilter implements ExceptionFilter
 {
     catch(exception: UsersExceptions, host: ArgumentsHost) {
@@ -15,7 +15,7 @@ export class UsersExceptionsFilter implements ExceptionFilter
         const response = context.getResponse();
         const request = context.getRequest();
 
-        console.log("From user exceptons filter");
+        console.log("From user exceptons filter: ", exception.getMessage(), exception);
 
         if(exception instanceof UsersExceptions)
         {
@@ -73,6 +73,16 @@ export class UsersExceptionsFilter implements ExceptionFilter
                 })
                 return;
             } 
+
+            if(exception.IsUserPassenger())
+            {
+                response.status(HttpStatus.FORBIDDEN).json({
+                    method: request.url,
+                    statusCode: HttpStatus.FORBIDDEN,
+                    message: exception.getMessage()
+                })
+                return;
+            }
 
             return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 method: `${request.controller} ${request.url}`,

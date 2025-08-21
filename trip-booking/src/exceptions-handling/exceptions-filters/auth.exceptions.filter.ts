@@ -14,7 +14,7 @@ export class AuthExceptionsFilter implements ExceptionFilter {
         const response = context.getResponse();
         const request = context.getRequest();
 
-        console.log("From auth exception filter.");
+        console.log("From auth exception filter: ", exception.getMessage());
 
         if (exception.IsPasswordInvalid()) {
         return response.status(HttpStatus.BAD_REQUEST).json({

@@ -7,14 +7,14 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from "@nestjs/common";
 import { AccommodationExceptions } from "../exceptions/accommodation.exceptions";
 
-@Catch()
+@Catch(AccommodationExceptions)
 export class AccommodationsExceptionsFilter implements ExceptionFilter {
     catch(exception: AccommodationExceptions, host: ArgumentsHost) {
         const context = host.switchToHttp();
         const response = context.getResponse();
         const request = context.getRequest();
 
-        console.log("From accomm exceptons filter");
+        console.log("From accomm exceptons filter: ", exception.getMessage());
 
         if(exception.DoesAccommodationExist())
         {

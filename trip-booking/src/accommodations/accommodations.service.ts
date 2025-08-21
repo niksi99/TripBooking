@@ -101,7 +101,7 @@ export class AccommodationsService {
         await this.i18n_translations.t(`exceptions.user.USER_DOES_NOT_EXIST`, { lang: lang }),
         UsersExceptionStatusType.UserDoesNotExist
       )
-
+    console.log("user", user);
     if(user.role.toString() !== Role.PASSENGER.toString())
       throw new UsersExceptions(
         await this.i18n_translations.t(`exceptions.user.USER_IS_NOT_PASSENGER`, { lang: lang }),
@@ -109,13 +109,14 @@ export class AccommodationsService {
       );
 
     const accom = await this.accommodationRepository.GetAccommodationById(accommId);
+    console.log("1 accom in accomm.service.");
     if(!accom)
       throw new AccommodationExceptions(
         await this.i18n_translations.t(`exceptions.accommodation.ACCOMMODATION_DOES_NOT_EXIST`, { lang: lang }), 
         AccommodationExceptionsStatusType.AccommodationDoesNotExist, 
         HttpStatus.NOT_FOUND
       );
-
+    console.log("2 accom in accomm.service.");
     if(accom.deletedAt !== null)
       throw new AccommodationExceptions(
         await this.i18n_translations.t(`exceptions.accommodation.ACCOMMODATION_IS_BLOCKED_SOFTDELETED`, { lang: lang }),  
@@ -124,6 +125,11 @@ export class AccommodationsService {
       );
 
     accom.arivalDate = new Date(Date.now());
+
+    const userHasBooked = accom.appliedUsers.some(u => u.id === user.id);
+    console.log(user);
+    console.log(accom);
+    console.log("userHasBooked", userHasBooked);
 
     if (accom.appliedUsers?.some(element => element.id === user.id)) {
       throw new AccommodationExceptions(
@@ -136,6 +142,9 @@ export class AccommodationsService {
     user.accommHistory.push(accom);
     accom.appliedUsers.push(user);
 
+    await this.accommodationRepository.manager.save(accom);
+    await this.userRepository.save(user);
+    
     const safeAccom = {
       id: accom.id,
       name: accom.name,
@@ -143,13 +152,14 @@ export class AccommodationsService {
       myRooms: accom.myRooms,
       appliedUsers: accom.appliedUsers?.map(u => ({
         id: u.id,
-        username: u.username, // only expose minimal user info
+        username: u.username, 
       })),
       owner: accom.owner,
       arivalDate: accom.arivalDate,
       departureDate: accom.departureDate,
     };
 
+    console.log("End of book accomm in accomm.service.");
     return safeAccom;
   }
 
@@ -183,21 +193,48 @@ export class AccommodationsService {
         HttpStatus.FORBIDDEN
       );
 
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    accom.appliedUsers.forEach(async element => {
-      console.log("element", element);
-      if(element.id !== user.id)
-        throw new AccommodationExceptions(
+    if(accom.appliedUsers.length === 0)
+    {
+      throw new AccommodationExceptions(
           await this.i18n_translations.t(`exceptions.accommodation.USER_HAS_NOT_BOOKED_THIS_ACCOMMODATION_AT_ALL`, { lang: lang }), 
           AccommodationExceptionsStatusType.UserHasNotBookedAccommodation, 
           HttpStatus.BAD_REQUEST);
-      else
-        accom.appliedUsers = accom.appliedUsers.filter(u => u.id !== user.id);
-    });
-    
+    }
+
+    const userHasBooked = accom.appliedUsers.some(u => u.id === user.id);
+
+    if (!userHasBooked) {
+      throw new AccommodationExceptions(
+        await this.i18n_translations.t(
+          `exceptions.accommodation.USER_HAS_NOT_BOOKED_THIS_ACCOMMODATION_AT_ALL`,
+          { lang }
+        ),
+        AccommodationExceptionsStatusType.UserHasNotBookedAccommodation,
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
+    accom.appliedUsers = accom.appliedUsers.filter(u => u.id !== user.id);
     user.accommHistory = user.accommHistory.filter(a => a.id !== accom.id);
 
     await this.accommodationRepository.manager.save(accom);
     await this.userRepository.save(user);
+
+    const safeAccom = {
+      id: accom.id,
+      name: accom.name,
+      location: accom.location,
+      myRooms: accom.myRooms,
+      appliedUsers: accom.appliedUsers?.map(u => ({
+        id: u.id,
+        username: u.username, 
+      })),
+      owner: accom.owner,
+      arivalDate: accom.arivalDate,
+      departureDate: accom.departureDate,
+    };
+
+    console.log("End of unbook accomm in accomm.service.");
+    return safeAccom;
   }
 }
