@@ -82,7 +82,7 @@ export class UsersService {
       throw new AuthExceptions(
         await this.i18n_translations.t(`exceptions.auth.ADMINISTRATOR_CAN'T_BE_DELETED`, { lang: lang }),
         AuthExceptionStatusType.AdministratorCanNotBeDeleted, HttpStatus.FORBIDDEN
-      );
+      ); 
     return await this.userRepository.hardDeleteUser(id);
   }
 
