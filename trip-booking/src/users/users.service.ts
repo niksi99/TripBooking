@@ -118,7 +118,7 @@ export class UsersService {
     return await this.userRepository.softRemove(user);
   }
 
-  async softUndelete(id: string, lang: string) {
+  async softUndelete(@Request() request, id: string, lang: string) {
     const user = await this.userRepository.getUserById(id);
     if(user == null)
       throw new UsersExceptions(
@@ -132,6 +132,19 @@ export class UsersService {
         UsersExceptionStatusType.UserIsNotSoftUndeleted
       );
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+    const loggedInUser = await this.userRepository.getUserByUsername(request.user.username);
+    if(loggedInUser == null)
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_DOES_NOT_EXIST loggedInUser`, { lang: lang }),
+        UsersExceptionStatusType.UserDoesNotExist
+      );
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    user.ownedAccommodations.map(async accomm => {
+      await this.accommodationRepository.softUndeleteAccommodation(accomm, loggedInUser);
+    });
+    
     return await this.userRepository.softUndeleteUser(id);
   }
 

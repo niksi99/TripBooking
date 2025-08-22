@@ -35,4 +35,8 @@ export class AccommodationExceptions extends HttpException {
     public IsAccommodationBlocked_SoftDeleted(): boolean {
         return this.statusType === AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted
     }
+
+    public IsNotAccommodation_SoftDeleted(): boolean {
+        return this.statusType === AccommodationExceptionsStatusType.AccommodationIsNotBlocked_SoftDeleted
+    }
 }

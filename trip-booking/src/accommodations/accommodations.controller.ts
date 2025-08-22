@@ -90,4 +90,29 @@ export class AccommodationsController {
         }
       }
     }
+
+    @Roles(Role.ACCOMMODATION_OWNER)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Patch(AppRoutes.SoftUndeleteRoute)
+    async softUndelete(@Request() request, @Param('id') id: string, @Headers() headers) {
+      try {
+        return await this.accommodationsService.softUnDelete(request, id, headers['accept-language']);
+      } 
+      catch (error) {
+        switch(true) {
+          case error instanceof UsersExceptions:
+            if (error.IsUserExisting())
+              throw new NotFoundException(error.getMessage());
+            break;
+          case error instanceof AccommodationExceptions:
+            if (error.DoesAccommodationExist())
+              throw new NotFoundException(error.getMessage());
+            if (error.IsNotAccommodation_SoftDeleted())
+              throw new BadRequestException(error.getMessage());
+            break;
+          default:
+            throw error;
+        }
+      }
+    }
 }

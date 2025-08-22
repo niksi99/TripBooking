@@ -80,7 +80,34 @@ export class AccommodationRepository extends Repository<Accommodation> {
         return accommodation;
     }
     
-    public async softUndeleteAccommodation(id: string){
-        return await this.accommodationRepository.restore(id);
+    public async softUndeleteAccommodation(accommodation: Accommodation, user: User){
+        if(user.role === Role.ACCOMMODATION_OWNER && accommodation.softDeletedByAccommodationOwner === true && accommodation.softDeletedByAdministrator === false)
+        {
+            accommodation.softDeletedByAccommodationOwner = false;
+            await this.accommodationRepository.manager.save(accommodation);
+            await this.accommodationRepository.restore(accommodation.id)
+        }
+
+        if(user.role === Role.ACCOMMODATION_OWNER && accommodation.softDeletedByAdministrator === true && accommodation.softDeletedByAccommodationOwner === true)
+        {
+            accommodation.softDeletedByAccommodationOwner = false;
+            await this.accommodationRepository.manager.save(accommodation);
+        }
+            
+        if(user.role === Role.ADMINISTRATOR && accommodation.softDeletedByAdministrator === true && accommodation.softDeletedByAccommodationOwner === false)
+        {
+            accommodation.softDeletedByAdministrator = false;
+            await this.accommodationRepository.manager.save(accommodation);
+            await this.accommodationRepository.restore(accommodation.id)
+        }
+
+        if(user.role === Role.ADMINISTRATOR && accommodation.softDeletedByAccommodationOwner === true && accommodation.softDeletedByAdministrator === true)
+        {
+            accommodation.softDeletedByAdministrator = false;
+            await this.accommodationRepository.manager.save(accommodation);
+        }
+        
+        console.log(user.role, " ");
+        return accommodation;
     }
 }

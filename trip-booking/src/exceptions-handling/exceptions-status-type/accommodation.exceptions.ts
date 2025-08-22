@@ -4,5 +4,6 @@ export enum AccommodationExceptionsStatusType {
     AccommodationOnThisLocationAlreadyExists,
     UserHasAlreadyBookedAccommodation,
     UserHasNotBookedAccommodation,
-    AccommodationIsBlocked_SoftDeleted
+    AccommodationIsBlocked_SoftDeleted,
+    AccommodationIsNotBlocked_SoftDeleted
 }

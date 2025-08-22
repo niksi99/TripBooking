@@ -117,10 +117,13 @@ export class UsersController {
     }
   }
 
+  @Roles(Role.ADMINISTRATOR)
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
   @Patch(AppRoutes.SoftUndeleteRoute)
-  async softUndelete(@Param('id') id: string, @Headers() headers) {
+  async softUndelete(@Request() request, @Param('id') id: string, @Headers() headers) {
     try {
-      return await this.usersService.softUndelete(id, headers['accept-language']);
+      return await this.usersService.softUndelete(request, id, headers['accept-language']);
     } 
     catch (error) {
       switch(true) {
