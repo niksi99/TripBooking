@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
@@ -28,11 +28,6 @@ export class AppModule implements NestModule{
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware)
-      .exclude(
-        { path: AppRoutes.BasicAcommodationRoute + AppRoutes.GetAllRoute, method: RequestMethod.GET },
-        { path: AppRoutes.BasicAcommodationRoute + AppRoutes.GetByIdRoute, method: RequestMethod.GET },
-        { path: AppRoutes.BasicRoomsRoute + AppRoutes.GetAllRoomsOfSingleAccommodation, method: RequestMethod.GET },
-      )
       .forRoutes(AppRoutes.BasicRoomsRoute);
   }
 }

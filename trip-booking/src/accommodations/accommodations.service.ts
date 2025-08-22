@@ -103,6 +103,39 @@ export class AccommodationsService {
     return `This action removes a #${id} accommodation`;
   }
 
+  async softDelete(@Request() request, id: string, lang: string) {
+    const accommodation = await this.accommodationRepository.GetAccommodationById(id);
+    if(!accommodation) 
+      throw new AccommodationExceptions(
+        await this.i18n_translations.t(`exceptions.accommodation.ACCOMMODATION_DOES_NOT_EXIST`, { lang: lang }),
+        AccommodationExceptionsStatusType.AccommodationDoesNotExist,
+        HttpStatus.NOT_FOUND
+      );
+
+    if(accommodation.deletedAt !== null)
+      throw new AccommodationExceptions(
+        await this.i18n_translations.t(`exceptions.accommodation.ACCOMMODATION_IS_BLOCKED_SOFTDELETED`, { lang: lang }),
+        AccommodationExceptionsStatusType.AccommodationIsBlocked_SoftDeleted,
+        HttpStatus.BAD_REQUEST
+      );
+    
+    console.log("SOFT-DELETE ACCOMMODATION: ");
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+    const user = await this.userRepository.getUserByUsername(request.user.username);
+    if(!user)
+    throw new UsersExceptions(
+      await this.i18n_translations.t(`exceptions.user.USER_DOES_NOT_EXIST`, { lang: lang }), 
+      UsersExceptionStatusType.UserDoesNotExist
+    );
+
+    await this.accommodationRepository.softDeleteAccommodation(accommodation, user);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: `Accommodation is soft-deleted by ${user.role}: ${user.username}`,
+    }
+  }
+
   async bookAccommodation(@Request() request, accommId: string, lang: string) {
     if(!request)
       throw new AuthExceptions(

@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-import { Controller, Get, Post, Headers, Body, Patch, Param, Delete, Request, UseGuards, UseFilters } from '@nestjs/common';
+import { Controller, Get, Post, Headers, Body, Patch, Param, Delete, Request, UseGuards, UseFilters, NotFoundException, BadRequestException } from '@nestjs/common';
 import { AccommodationsService } from './accommodations.service';
 import { CreateAccommodationDto } from './dto/create-accommodation.dto';
 import { UpdateAccommodationDto } from './dto/update-accommodation.dto';
@@ -13,6 +13,8 @@ import { AppRoutes } from '../routes/app.routes';
 import { AccommodationsExceptionsFilter } from 'src/exceptions-handling/exceptions-filters/accommodation.exceptions.filter';
 import { UsersExceptionsFilter } from 'src/exceptions-handling/exceptions-filters/users.exceptions.filter';
 import { AuthExceptionsFilter } from 'src/exceptions-handling/exceptions-filters/auth.exceptions.filter';
+import { UsersExceptions } from 'src/exceptions-handling/exceptions/users.exceptions';
+import { AccommodationExceptions } from 'src/exceptions-handling/exceptions/accommodation.exceptions';
 
 @Controller(AppRoutes.BasicAcommodationRoute)
 export class AccommodationsController {
@@ -63,4 +65,29 @@ export class AccommodationsController {
   remove(@Param('id') id: string) {
     return this.accommodationsService.remove(+id);
   }
+
+  @Roles(Role.ACCOMMODATION_OWNER, Role.ADMINISTRATOR)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Patch(AppRoutes.SoftDeleteRoute)
+    async softDelete(@Request() request, @Param('id') id: string, @Headers() headers) {
+      try {
+        return await this.accommodationsService.softDelete(request, id, headers['accept-language']);
+      } 
+      catch (error) {
+        switch(true) {
+          case error instanceof UsersExceptions:
+            if (error.IsUserExisting())
+              throw new NotFoundException(error.getMessage());
+            break;
+          case error instanceof AccommodationExceptions:
+            if (error.DoesAccommodationExist())
+              throw new NotFoundException(error.getMessage());
+            if (error.IsAccommodationBlocked_SoftDeleted())
+              throw new BadRequestException(error.getMessage());
+            break;
+          default:
+            throw error;
+        }
+      }
+    }
 }

@@ -33,4 +33,7 @@ export class Accommodation extends AbstactEntity<Accommodation> {
 
     @Column({default: null})
     departureDate: Date;
+
+    @Column({default: false})
+    softDeletedByAccommodationOwner: boolean    
 }

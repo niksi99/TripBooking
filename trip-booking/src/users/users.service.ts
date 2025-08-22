@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Request } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepository } from '../repositories/UserRepository';
@@ -10,11 +10,13 @@ import { Role } from '../auth/enums/role.enum';
 import { AuthExceptionStatusType } from 'src/exceptions-handling/exceptions-status-type/auth.exceptions.status.types';
 import { AuthExceptions } from 'src/exceptions-handling/exceptions/auth.exceptions';
 import { I18nService } from 'nestjs-i18n';
+import { AccommodationRepository } from 'src/repositories/AccommodationRepository';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly userRepository: UserRepository,
+    private readonly accommodationRepository: AccommodationRepository,
     private readonly i18n_translations: I18nService
   ) {}
 
@@ -86,7 +88,7 @@ export class UsersService {
     return await this.userRepository.hardDeleteUser(id);
   }
 
-  async softDelete(id: string, lang: string) {
+  async softDelete(@Request() request, id: string, lang: string) {
     const user = await this.userRepository.getUserById(id);
     if(user == null)
       throw new UsersExceptions(
@@ -100,6 +102,19 @@ export class UsersService {
         UsersExceptionStatusType.UserAlreadySoftDeleted
       );
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+    const loggedInUser = await this.userRepository.getUserByUsername(request.user.username);
+    if(loggedInUser == null)
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_DOES_NOT_EXIST loggedInUser`, { lang: lang }),
+        UsersExceptionStatusType.UserDoesNotExist
+      );
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    user.ownedAccommodations.map(async accomm => {
+      await this.accommodationRepository.softDeleteAccommodation(accomm, loggedInUser);
+    });
+    
     return await this.userRepository.softRemove(user);
   }
 

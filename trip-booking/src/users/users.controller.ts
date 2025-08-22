@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, NotFoundException, UseGuards, Headers, UseFilters } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Request, Param, Delete, BadRequestException, NotFoundException, UseGuards, Headers, UseFilters } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -95,10 +95,13 @@ export class UsersController {
     }
   }
 
+  @Roles(Role.ADMINISTRATOR)
+  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
   @Patch(AppRoutes.SoftDeleteRoute)
-  async softDelete(@Param('id') id: string, @Headers() headers) {
+  async softDelete(@Request() request, @Param('id') id: string, @Headers() headers) {
     try {
-      return await this.usersService.softDelete(id, headers['accept-language']);
+      return await this.usersService.softDelete(request, id, headers['accept-language']);
     } 
     catch (error) {
       switch(true) {

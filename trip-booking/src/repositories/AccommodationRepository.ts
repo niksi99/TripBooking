@@ -2,6 +2,8 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Accommodation } from "src/accommodations/entities/accommodation.entity";
+import { Role } from "src/auth/enums/role.enum";
+import { User } from "src/users/entities/user.entity";
 import { Repository } from "typeorm";
 
 
@@ -58,5 +60,27 @@ export class AccommodationRepository extends Repository<Accommodation> {
             .leftJoin('accommodation', 'user')
             .where('user.username = :username', {username})
             .getMany();
+    }
+
+    public async hardDeleteAccommodation(id: string) {
+        return await this.accommodationRepository.delete({id: id});
+    }
+    
+    public async softDeleteAccommodation(accommodation: Accommodation, user: User) {
+        if(user.role === Role.ADMINISTRATOR)
+            accommodation.softDeletedByAdministrator = true;
+    
+        if(user.role === Role.ACCOMMODATION_OWNER)
+            accommodation.softDeletedByAccommodationOwner = true;
+        
+        console.log(user.role, " ");
+        await this.accommodationRepository.manager.save(accommodation);
+        await this.accommodationRepository.softRemove(accommodation);  
+
+        return accommodation;
+    }
+    
+    public async softUndeleteAccommodation(id: string){
+        return await this.accommodationRepository.restore(id);
     }
 }

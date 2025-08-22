@@ -8,7 +8,7 @@ dotenv.config();
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
     use(req: Request, res: Response, next: NextFunction) {
-        console.log("FROM MIDDLEWARE: CREATE ACCOM. ");
+        console.log("Middleare: ", req.headers);
         const token = req.headers.cookie?.split("=")[1]
         if(!token)
             return res.status(403).json({ meesage: "From middleware: Token does not exist."})

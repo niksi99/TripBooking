@@ -6,16 +6,18 @@ import { User } from './entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserRepository } from '../repositories/UserRepository';
 import { DataSource } from 'typeorm';
+import { Accommodation } from 'src/accommodations/entities/accommodation.entity';
+import { AccommodationRepository } from 'src/repositories/AccommodationRepository';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Accommodation]),
   ],
   controllers: [UsersController],
   providers: [
-    UsersService,
+    UsersService, AccommodationRepository,
     {
-      provide: UserRepository,
+      provide: UserRepository, 
       useFactory: (dataSource: DataSource) => {
         const baseRepository = dataSource.getRepository(User);
         return new UserRepository(dataSource, baseRepository);
@@ -23,5 +25,6 @@ import { DataSource } from 'typeorm';
       inject: [DataSource],
     },
   ],
+  exports: [UsersService, AccommodationRepository]
 })
 export class UsersModule {}

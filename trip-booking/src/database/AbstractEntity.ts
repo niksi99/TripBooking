@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { DeleteDateColumn, PrimaryGeneratedColumn } from "typeorm";
+import { Column, DeleteDateColumn, PrimaryGeneratedColumn } from "typeorm";
 
 export abstract class AbstactEntity<T> {
     @PrimaryGeneratedColumn('uuid')
@@ -7,6 +7,9 @@ export abstract class AbstactEntity<T> {
 
     @DeleteDateColumn() 
     deletedAt?: Date
+
+    @Column({default: false})
+    softDeletedByAdministrator: boolean
 
     constructor(entity: Partial<T>) {
         Object.assign(this, entity);
