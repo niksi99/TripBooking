@@ -147,7 +147,7 @@ export class AccommodationsService {
 
     if(accommodation.deletedAt === null)
       throw new AccommodationExceptions(
-        await this.i18n_translations.t(`exceptions.accommodation.ACCOMMODATION_IS_BLOCKED_SOFTDELETED`, { lang: lang }),
+        await this.i18n_translations.t(`exceptions.accommodation.ACCOMMODATION_IS_NOT_BLOCKED_SOFTDELETED`, { lang: lang }),
         AccommodationExceptionsStatusType.AccommodationIsNotBlocked_SoftDeleted,
         HttpStatus.BAD_REQUEST
       );

@@ -2,6 +2,7 @@
     "ACCOMMODATION_DOES_NOT_EXIST": "Accommodation does not exist.",
     "ACCOMMODATION_ALREADY_EXIST_ON_THIS_LOCATION": "Accommodation already exist on this location",
     "ACCOMMODATION_IS_BLOCKED_SOFTDELETED": "Accommodation is blocked_SoftDeleted",
+    "ACCOMMODATION_IS_NOT_BLOCKED_SOFTDELETED": "Accommodation is not blocked_SoftDeleted",
     "USER_HAS_ALREADY_BOOKED_THIS_ACCOMMODATION": "Users has already booked this accommodation.",
     "USER_HAS_NOT_BOOKED_THIS_ACCOMMODATION_AT_ALL": "Users has not booked this accommodation at all. Invalid method."
 }

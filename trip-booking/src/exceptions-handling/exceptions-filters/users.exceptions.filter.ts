@@ -84,6 +84,16 @@ export class UsersExceptionsFilter implements ExceptionFilter
                 return;
             }
 
+            if(exception.IsNotUserSoftDeleted())
+            {
+                response.status(HttpStatus.BAD_REQUEST).json({
+                    method: request.url,
+                    statusCode: HttpStatus.BAD_REQUEST,
+                    message: exception.getMessage()
+                })
+                return;
+            }
+
             return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 method: `${request.controller} ${request.url}`,
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,

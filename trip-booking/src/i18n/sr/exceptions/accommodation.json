@@ -2,5 +2,7 @@
     "ACCOMMODATION_DOES_NOT_EXIST": " Смештај не постоји.",
     "ACCOMMODATION_ALREADY_EXIST_ON_THIS_LOCATION": "Смештај већ постоји на овој локацији. Локација заузета.",
     "ACCOMMODATION_IS_BLOCKED_SOFTDELETED": "Смештај је блокиран / означен као обрисан.",
-    "USER_HAS_ALREADY_BOOKED_THIS_ACCOMMODATION": "Корисник је већ резервисао овај смештај."
+    "ACCOMMODATION_IS_NOT_BLOCKED_SOFTDELETED": "Смештај није ни блокиран / ни означен као обрисан.",
+    "USER_HAS_ALREADY_BOOKED_THIS_ACCOMMODATION": "Корисник је већ резервисао овај смештај.",
+    "USER_HAS_NOT_BOOKED_THIS_ACCOMMODATION_AT_ALL": "КОрисник није резервисао овај смештаи ич."
 }

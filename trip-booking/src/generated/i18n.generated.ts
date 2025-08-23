@@ -23,6 +23,7 @@ export type I18nTranslations = {
             "ACCOMMODATION_DOES_NOT_EXIST": string;
             "ACCOMMODATION_ALREADY_EXIST_ON_THIS_LOCATION": string;
             "ACCOMMODATION_IS_BLOCKED_SOFTDELETED": string;
+            "ACCOMMODATION_IS_NOT_BLOCKED_SOFTDELETED": string;
             "USER_HAS_ALREADY_BOOKED_THIS_ACCOMMODATION": string;
             "USER_HAS_NOT_BOOKED_THIS_ACCOMMODATION_AT_ALL": string;
         };

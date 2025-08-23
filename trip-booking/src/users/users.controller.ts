@@ -14,6 +14,7 @@ import { AuthExceptions } from '../exceptions-handling/exceptions/auth.exception
 import { AppRoutes } from 'src/routes/app.routes';
 import { UsersExceptionsFilter } from 'src/exceptions-handling/exceptions-filters/users.exceptions.filter';
 import { AuthExceptionsFilter } from 'src/exceptions-handling/exceptions-filters/auth.exceptions.filter';
+import { AccommodationsExceptionsFilter } from 'src/exceptions-handling/exceptions-filters/accommodation.exceptions.filter';
 
 @Controller(AppRoutes.BasicUsersRoute)
 export class UsersController {
@@ -50,28 +51,10 @@ export class UsersController {
   @Delete(AppRoutes.HardDeleteRoute)
   async remove(@Param('id') id: string, @Headers() headers) {
     return await this.usersService.hardDelete(id, headers['accept-language']);
-    // try {
-    //   return await this.usersService.hardDelete(id, headers['accept-language']);
-    // } 
-    // catch (error) {
-    //   switch(true) {
-    //     case error instanceof UsersExceptions:
-    //       if (error.IsUserExisting())
-    //         throw new NotFoundException(error.getMessage());
-    //       break;
-    //     case error instanceof AuthExceptions:
-    //       if (error.CanAdministratorBeDeleted())
-    //         throw new ForbiddenException(error.getMessage());
-    //       break;
-    //     default:
-    //       throw error;
-    //   }
-    // }
   }
 
   @Roles(Role.ADMINISTRATOR)
-  @UseGuards(RolesGuard)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(AppRoutes.HardDeleteWithAccommodationRoute+":id")
   async hardDeleteUserWithAccommodation(@Param('id') id: string) {
     try {
@@ -96,46 +79,18 @@ export class UsersController {
   }
 
   @Roles(Role.ADMINISTRATOR)
-  @UseGuards(RolesGuard)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseFilters(UsersExceptionsFilter, AuthExceptionsFilter, AccommodationsExceptionsFilter)
   @Patch(AppRoutes.SoftDeleteRoute)
   async softDelete(@Request() request, @Param('id') id: string, @Headers() headers) {
-    try {
-      return await this.usersService.softDelete(request, id, headers['accept-language']);
-    } 
-    catch (error) {
-      switch(true) {
-        case error instanceof UsersExceptions:
-          if (error.IsUserExisting())
-            throw new NotFoundException(error.getMessage());
-          if (error.IsUserSoftDeleted())
-            throw new BadRequestException(error.getMessage());
-          break;
-        default:
-          throw error;
-      }
-    }
+    return await this.usersService.softDelete(request, id, headers['accept-language']);
   }
 
   @Roles(Role.ADMINISTRATOR)
-  @UseGuards(RolesGuard)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseFilters(UsersExceptionsFilter, AuthExceptionsFilter, AccommodationsExceptionsFilter)
   @Patch(AppRoutes.SoftUndeleteRoute)
   async softUndelete(@Request() request, @Param('id') id: string, @Headers() headers) {
-    try {
-      return await this.usersService.softUndelete(request, id, headers['accept-language']);
-    } 
-    catch (error) {
-      switch(true) {
-        case error instanceof UsersExceptions:
-          if (error.IsUserExisting())
-            throw new NotFoundException(error.getMessage());
-          if (error.IsNotUserSoftDeleted())
-            throw new BadRequestException(error.getMessage());
-          break;
-        default:
-          throw error;
-      }
-    }
+    return await this.usersService.softUndelete(request, id, headers['accept-language']);
   }
 }

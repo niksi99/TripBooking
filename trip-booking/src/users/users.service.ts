@@ -110,10 +110,13 @@ export class UsersService {
         UsersExceptionStatusType.UserDoesNotExist
       );
 
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    user.ownedAccommodations.map(async accomm => {
-      await this.accommodationRepository.softDeleteAccommodation(accomm, loggedInUser);
-    });
+    if(user.role === Role.ACCOMMODATION_OWNER) 
+    {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      user.ownedAccommodations.map(async accomm => {
+        await this.accommodationRepository.softDeleteAccommodation(accomm, loggedInUser);
+      });
+    }
     
     return await this.userRepository.softRemove(user);
   }

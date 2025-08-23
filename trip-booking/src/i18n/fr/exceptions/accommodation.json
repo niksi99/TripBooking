@@ -2,5 +2,7 @@
     "ACCOMMODATION_DOES_NOT_EXIST": "Un hébergement n'existe pas.",
     "ACCOMMODATION_ALREADY_EXIST_ON_THIS_LOCATION": "L'hébergement existe deja dans cette location.",
     "ACCOMMODATION_IS_BLOCKED_SOFTDELETED": "L'hébergement est marque suprime",
-    "USER_HAS_ALREADY_BOOKED_THIS_ACCOMMODATION": "L'utilisiteur a deja reserve ce hébergement."
+    "ACCOMMODATION_IS_NOT_BLOCKED_SOFTDELETED": "L'hébergement n'est pas marque suprime",
+    "USER_HAS_ALREADY_BOOKED_THIS_ACCOMMODATION": "L'utilisiteur a deja reserve ce hébergement.",
+    "USER_HAS_NOT_BOOKED_THIS_ACCOMMODATION_AT_ALL": "L'utilisiteur n'a jamais ete reserve cet hébergement. Le method invalide."
 }

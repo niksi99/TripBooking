@@ -14,7 +14,7 @@ export class AccommodationsExceptionsFilter implements ExceptionFilter {
         const response = context.getResponse();
         const request = context.getRequest();
 
-        console.log("From accomm exceptons filter: ", exception.getMessage());
+        console.log("From accomm exceptons filter: ", exception);
 
         if(exception.DoesAccommodationExist())
         {
@@ -44,6 +44,26 @@ export class AccommodationsExceptionsFilter implements ExceptionFilter {
             return;
         }
         if(exception.HasNotAccommodationBeedBooked())
+        {
+            response.status(HttpStatus.BAD_REQUEST).json({
+                method: request.url,
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: exception.getMessage()
+            })
+            return;
+        }
+
+        if(exception.IsAccommodationBlocked_SoftDeleted())
+        {
+            response.status(HttpStatus.BAD_REQUEST).json({
+                method: request.url,
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: exception.getMessage()
+            })
+            return;
+        }
+
+        if(exception.IsNotAccommodation_SoftDeleted())
         {
             response.status(HttpStatus.BAD_REQUEST).json({
                 method: request.url,
