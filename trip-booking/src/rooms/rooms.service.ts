@@ -1,5 +1,7 @@
 /* eslint-disable prettier/prettier */
-import { HttpStatus, Injectable } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+import { HttpStatus, Injectable, Request } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { RoomRepository } from 'src/repositories/RoomRepository';
@@ -10,16 +12,20 @@ import { AccommodationRepository } from 'src/repositories/AccommodationRepositor
 import { AccommodationExceptions } from 'src/exceptions-handling/exceptions/accommodation.exceptions';
 import { AccommodationExceptionsStatusType } from 'src/exceptions-handling/exceptions-status-type/accommodation.exceptions';
 import { I18nService } from 'nestjs-i18n';
+import { UsersExceptions } from 'src/exceptions-handling/exceptions/users.exceptions';
+import { UsersExceptionStatusType } from 'src/exceptions-handling/exceptions-status-type/user.exceptions.status.type';
+import { UserRepository } from 'src/repositories/UserRepository';
 
 @Injectable()
 export class RoomsService {
   constructor(
     private roomRepository: RoomRepository,
     private accommodationRepository: AccommodationRepository,
+    private userRepository: UserRepository,
     private readonly i18n_translations: I18nService
   ) {}
 
-  async create(createRoomDto: CreateRoomDto, lang: string) {
+  async create(@Request() request, createRoomDto: CreateRoomDto, lang: string) {
     const checkAccommodationExistence = await this.accommodationRepository.GetAccommodationById(createRoomDto.accommodationId);
     if(!checkAccommodationExistence)
       throw new AccommodationExceptions(
@@ -41,6 +47,19 @@ export class RoomsService {
         await this.i18n_translations.t(`exceptions.room.ROOM_WITH_THIS_LABEL_ALREADY_EXISTS_IN_THIS_ACCOMMODATION`, { lang: lang }), 
         RoomExceptionsStatusType.RoomAlreadyExists, 
         HttpStatus.CONFLICT
+      );
+
+    const user = await this.userRepository.getUserByUsername(request.user.username);
+    if(!user)
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_DOES_NOT_EXIST`, { lang: lang }), 
+        UsersExceptionStatusType.UserDoesNotExist
+      );
+
+    if(checkAccommodationExistence.owner.id !== user.id)
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_IS_NOT_ACCOMMODATION_OWNER_OF_SELECTED_ACCOMMODATION`, { lang: lang }), 
+        UsersExceptionStatusType.UserIsNotAccommodationOwnerOfSelectedAccommodation_RoomCreation
       );
 
     const room = new Room({});

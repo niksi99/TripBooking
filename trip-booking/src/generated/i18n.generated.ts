@@ -43,6 +43,7 @@ export type I18nTranslations = {
         "user": {
             "USER_DOES_NOT_EXIST": string;
             "USER_IS_NOT_ACCOMMODATION_OWNER": string;
+            "USER_IS_NOT_ACCOMMODATION_OWNER_OF_SELECTED_ACCOMMODATION": string;
             "USER_IS_NOT_ACCOMMODATION_PASSENGER": string;
             "USER_IS_NOT_SOFT_DELETED": string;
             "USER_IS_ALREADY_SOFT_DELETED": string;

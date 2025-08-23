@@ -25,6 +25,14 @@ export class RoomsExceptionsFilter implements ExceptionFilter {
             });
         }
 
+        if (exception.DoesRoomAlreadyExist()) {
+            return response.status(HttpStatus.BAD_REQUEST).json({
+                method: request.url,
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: exception.getMessage()
+            });
+        }
+
         return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             method: request.url,
             statusCode: HttpStatus.INTERNAL_SERVER_ERROR,

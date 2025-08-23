@@ -54,4 +54,8 @@ export class UsersExceptions extends HttpException {
     public IsUserAdministrator(): boolean {
         return this.statusType === UsersExceptionStatusType.UserIsAdministrator
     }
+
+    public IsUserAnOwnerOfSelectedAccommodation_RoomCreation(): boolean {
+        return this.statusType === UsersExceptionStatusType.UserIsNotAccommodationOwnerOfSelectedAccommodation_RoomCreation
+    }
 }

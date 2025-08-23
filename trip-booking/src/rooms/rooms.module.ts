@@ -7,12 +7,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { RoomRepository } from 'src/repositories/RoomRepository';
 import { AccommodationRepository } from 'src/repositories/AccommodationRepository';
 import { Accommodation } from 'src/accommodations/entities/accommodation.entity';
+import { UserRepository } from 'src/repositories/UserRepository';
+import { User } from 'src/users/entities/user.entity';
 
 @Module({
   imports: [
-      TypeOrmModule.forFeature([Room, Accommodation]),
+      TypeOrmModule.forFeature([Room, Accommodation, User]),
     ],
   controllers: [RoomsController],
-  providers: [RoomsService, RoomRepository, AccommodationRepository],
+  providers: [RoomsService, RoomRepository, AccommodationRepository, UserRepository],
 })
 export class RoomsModule {}

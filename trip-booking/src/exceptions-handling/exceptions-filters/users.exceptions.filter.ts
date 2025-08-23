@@ -94,6 +94,16 @@ export class UsersExceptionsFilter implements ExceptionFilter
                 return;
             }
 
+            if(exception.IsUserAnOwnerOfSelectedAccommodation_RoomCreation())
+            {
+                response.status(HttpStatus.FORBIDDEN).json({
+                    method: request.url,
+                    statusCode: HttpStatus.FORBIDDEN,
+                    message: exception.getMessage()
+                })
+                return;
+            }
+
             return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 method: `${request.controller} ${request.url}`,
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,

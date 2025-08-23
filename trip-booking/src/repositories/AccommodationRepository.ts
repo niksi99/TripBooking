@@ -32,7 +32,7 @@ export class AccommodationRepository extends Repository<Accommodation> {
         return this.accommodationRepository.findOne({
             where: {id: id},
             withDeleted: true,
-            relations: ['myRooms', 'appliedUsers']
+            relations: ['myRooms', 'appliedUsers', 'owner']
         })
     }
 
@@ -40,7 +40,7 @@ export class AccommodationRepository extends Repository<Accommodation> {
         return this.accommodationRepository.findOne({
             where: {name: name},
             withDeleted: true,
-            relations: ['myRooms', 'appliedUsers']
+            relations: ['myRooms', 'appliedUsers', 'owner']
         })
     }
 
@@ -50,7 +50,7 @@ export class AccommodationRepository extends Repository<Accommodation> {
                 location: {lat: lat, lng: lng}
             },
             withDeleted: true,
-            relations: ['myRooms', 'appliedUsers']
+            relations: ['myRooms', 'appliedUsers', 'owner']
         })
     }
 

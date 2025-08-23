@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, BadRequestException, UseGuards, Headers, UseFilters } from '@nestjs/common';
+import { Controller, Request, Get, Post, Body, Patch, Param, Delete, NotFoundException, BadRequestException, UseGuards, Headers, UseFilters } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
@@ -10,10 +10,11 @@ import { RolesGuard } from 'src/auth/guards/roles/roles.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
 import { Role } from 'src/auth/enums/role.enum';
 import { Roles } from 'src/auth/decorators/roles.decorator';
-import { AccommodationExceptions } from 'src/exceptions-handling/exceptions/accommodation.exceptions';
 import { AppRoutes } from 'src/routes/app.routes';
 import { RoomsExceptionsFilter } from 'src/exceptions-handling/exceptions-filters/rooms.exceptions.filter';
 import { AccommodationsExceptionsFilter } from 'src/exceptions-handling/exceptions-filters/accommodation.exceptions.filter';
+import { AuthExceptionsFilter } from 'src/exceptions-handling/exceptions-filters/auth.exceptions.filter';
+import { UsersExceptionsFilter } from 'src/exceptions-handling/exceptions-filters/users.exceptions.filter';
 
 @Controller(AppRoutes.BasicRoomsRoute)
 export class RoomsController {
@@ -22,27 +23,10 @@ export class RoomsController {
   @Roles(Role.ACCOMMODATION_OWNER)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
+  @UseFilters(RoomsExceptionsFilter, AuthExceptionsFilter, AccommodationsExceptionsFilter, UsersExceptionsFilter)
   @Post()
-  async create(@Body() createRoomDto: CreateRoomDto, @Headers() headers) {
-    try { 
-      return await this.roomsService.create(createRoomDto, headers['accept-language']);
-    } 
-    catch (error) {
-      switch(true) {
-        case error instanceof AccommodationExceptions:
-          if(error.DoesAccommodationExist())
-            throw new NotFoundException(error.getMessage());
-          if(error.IsAccommodationBlocked_SoftDeleted())
-            throw new BadRequestException(error.getMessage());
-          break;
-        case error instanceof RoomExceptions:
-          if(error.DoesRoomAlreadyExist())
-            throw new BadRequestException(error.getMessage());
-          break;
-        default:
-          throw error;
-      }
-    }
+  async create(@Request() request, @Body() createRoomDto: CreateRoomDto, @Headers() headers) {
+    return await this.roomsService.create(request, createRoomDto, headers['accept-language']);
   }
 
   @UseFilters(RoomsExceptionsFilter)

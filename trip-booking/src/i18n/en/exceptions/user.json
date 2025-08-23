@@ -1,6 +1,7 @@
 {
     "USER_DOES_NOT_EXIST": "User does not exist.",
     "USER_IS_NOT_ACCOMMODATION_OWNER": "User is not accommodation owner",
+    "USER_IS_NOT_ACCOMMODATION_OWNER_OF_SELECTED_ACCOMMODATION": "Logged user is not accommodation owner of selected accommodation, therefore, the owner can't create a room.",
     "USER_IS_NOT_ACCOMMODATION_PASSENGER": "User is not passenger",
     "USER_IS_NOT_SOFT_DELETED": "User is not soft deleted, therefore, it can not be undeleted.",
     "USER_IS_ALREADY_SOFT_DELETED": "User is soft deleted.",
