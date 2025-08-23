@@ -3,7 +3,7 @@
     "USER_IS_NOT_ACCOMMODATION_OWNER": "User is not accommodation owner",
     "USER_IS_NOT_ACCOMMODATION_PASSENGER": "User is not passenger",
     "USER_IS_NOT_SOFT_DELETED": "User is not soft deleted, therefore, it can not be undeleted.",
-    "USER_IS_ALREADY_SOFT_DELETED": "User is already soft deleted.",
+    "USER_IS_ALREADY_SOFT_DELETED": "User is soft deleted.",
     "USER_IS_SOFT_DELETED_NO_UPDATE": "User is soft deleted, can not be updated.",
     "USER_WITH_THIS_EMAIL_ALREADY_EXISTS": "User with this email already exists. ",
     "USER_WITH_THIS_USERNAME_ALREADY_EXISTS": "User with this username already exists. "

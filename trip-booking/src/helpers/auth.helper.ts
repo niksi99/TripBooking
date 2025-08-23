@@ -10,38 +10,51 @@ import { AuthExceptionStatusType } from "src/exceptions-handling/exceptions-stat
 import { AuthJwtPayload } from "src/auth/types/auth-jwtPayload";
 import { JwtService } from "@nestjs/jwt";
 import { HttpStatus, Injectable } from "@nestjs/common";
+import { I18nService } from "nestjs-i18n";
 
 @Injectable()
 export class AuthHelper {
     constructor(
         private readonly userRepository: UserRepository,
-        private jwtService: JwtService
+        private jwtService: JwtService,
+        private readonly i18n_translations: I18nService
     ) {}
 
-    public async generateTokens(loginDto: LoginDto) {
-            //TODO REFRESH TOKEN
-            const user = await this.userRepository.getUserByUsername(loginDto?.username);
-            if(!user)
-                throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist);
-    
-            if(user.deletedAt !== null)
-                throw new UsersExceptions("User is soft-deleted ie. blocked.", UsersExceptionStatusType.UserAlreadySoftDeleted)
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-            const isPasswordMatch = await bcrypt.compare(loginDto.password, user.password);
-            if(!isPasswordMatch)
-                throw new AuthExceptions("Invalid password", AuthExceptionStatusType.InvalidPassword, HttpStatus.FORBIDDEN);
-    
-            const payload: AuthJwtPayload = {
-                sub: loginDto.username,
-                role: user.role
-            };
-    
-            const accessToken = await Promise.all([
-                this.jwtService.signAsync(payload)
-            ])
-            
-            return {
-                accessToken,
-            }
+    public async generateTokens(loginDto: LoginDto, lang: string) {
+        //TODO REFRESH TOKEN
+        const user = await this.userRepository.getUserByUsername(loginDto?.username);
+        if(!user)
+            throw new UsersExceptions(
+                await this.i18n_translations.t(`exceptions.user.USER_DOES_NOT_EXIST`, { lang: lang }), 
+                UsersExceptionStatusType.UserDoesNotExist
+            );
+
+        if(user.deletedAt !== null)
+            throw new UsersExceptions(
+                await this.i18n_translations.t(`exceptions.user.USER_IS_ALREADY_SOFT_DELETED`, { lang: lang }), 
+                UsersExceptionStatusType.UserAlreadySoftDeleted
+            );
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+        const isPasswordMatch = await bcrypt.compare(loginDto.password, user.password);
+        if(!isPasswordMatch)
+            throw new AuthExceptions(
+                await this.i18n_translations.t(`exceptions.auth.TOKEN_INVALID_PASSWORD`, { lang: lang }), 
+                AuthExceptionStatusType.InvalidPassword, 
+                HttpStatus.FORBIDDEN
+            );
+
+        const payload: AuthJwtPayload = {
+            sub: loginDto.username,
+            role: user.role
+        };
+
+        const accessToken = await Promise.all([
+            this.jwtService.signAsync(payload)
+        ])
+        
+        return {
+            accessToken,
         }
+    }
 }

@@ -22,15 +22,20 @@ export class AuthService {
     ) {}
 
     async login(loginDto: LoginDto, lang: string) {
-        const { accessToken, } = await this.myAuthHelper.generateTokens(loginDto);
+        const { accessToken, } = await this.myAuthHelper.generateTokens(loginDto, lang);
         if(!accessToken)
             throw new AuthExceptions(
                 await this.i18n_translations.t(`exceptions.auth.TOKEN_IS_NOT_GENERATED`, { lang: lang }),
                 AuthExceptionStatusType.TokenDoesNotExist, 
                 HttpStatus.NOT_FOUND
             );
+        
+        console.log(accessToken[0], "login");
+
         return {
-            accessToken: accessToken,
+            accessToken: accessToken[0],
+            message: "Log in succesfully",
+            statusCode: HttpStatus.OK
         }
     }
 
