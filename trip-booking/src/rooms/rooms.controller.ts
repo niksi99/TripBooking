@@ -1,8 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable no-useless-catch */
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, BadRequestException, UseGuards, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, BadRequestException, UseGuards, Headers, UseFilters } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
@@ -13,6 +12,8 @@ import { Role } from 'src/auth/enums/role.enum';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AccommodationExceptions } from 'src/exceptions-handling/exceptions/accommodation.exceptions';
 import { AppRoutes } from 'src/routes/app.routes';
+import { RoomsExceptionsFilter } from 'src/exceptions-handling/exceptions-filters/rooms.exceptions.filter';
+import { AccommodationsExceptionsFilter } from 'src/exceptions-handling/exceptions-filters/accommodation.exceptions.filter';
 
 @Controller(AppRoutes.BasicRoomsRoute)
 export class RoomsController {
@@ -44,46 +45,22 @@ export class RoomsController {
     }
   }
 
+  @UseFilters(RoomsExceptionsFilter)
   @Get(AppRoutes.GetAllRoute)
   async findAll() {
-    try {
-      return await this.roomsService.findAll(); 
-    } catch (error) {
-      throw error;
-    }
+    return await this.roomsService.findAll(); 
   }
 
+  @UseFilters(AccommodationsExceptionsFilter)
   @Get(AppRoutes.GetAllRoomsOfSingleAccommodation)
   async findAllRoomsOfSingleAccommodation(@Param('accommodationId') accommodationId: string, @Headers() headers) {
-    try {
-      return await this.roomsService.findAllRoomOfSingleAccommodation(accommodationId, headers['accept-language']); 
-    } catch (error) {
-        switch(true) {
-          case error instanceof AccommodationExceptions:
-            if(error.DoesAccommodationExist())
-              throw new NotFoundException(error.getMessage());
-            break;
-          default:
-            throw error;
-        }
-    }
+    return await this.roomsService.findAllRoomOfSingleAccommodation(accommodationId, headers['accept-language']); 
   }
 
+  @UseFilters(RoomsExceptionsFilter)
   @Get(AppRoutes.GetByIdRoute)
   async findOne(@Param('id') id: string, @Headers() headers) {
-    try {
-      return await this.roomsService.findOne(id, headers['accept-language']);
-    } 
-    catch (error) {
-      switch(true) {
-        case error instanceof RoomExceptions:
-          if(error.DoesRoomExist())
-            throw new NotFoundException(error.getMessage());
-          break;
-        default:
-          throw error;
-      }
-    }
+    return await this.roomsService.findOne(id, headers['accept-language']);
   }
 
   @Roles(Role.ACCOMMODATION_OWNER, Role.ADMINISTRATOR)

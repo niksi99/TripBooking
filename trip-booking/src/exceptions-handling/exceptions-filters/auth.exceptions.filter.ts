@@ -17,11 +17,11 @@ export class AuthExceptionsFilter implements ExceptionFilter {
         console.log("From auth exception filter: ", exception.getMessage());
 
         if (exception.IsPasswordInvalid()) {
-        return response.status(HttpStatus.BAD_REQUEST).json({
-            method: request.url,
-            statusCode: HttpStatus.BAD_REQUEST,
-            message: exception.getMessage()
-        });
+            return response.status(HttpStatus.BAD_REQUEST).json({
+                method: request.url,
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: exception.getMessage()
+            });
         }
 
         if (exception.DoesTokenExist()) {

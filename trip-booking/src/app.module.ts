@@ -9,7 +9,6 @@ import { AuthModule } from './auth/auth.module';
 import { AccommodationsModule } from './accommodations/accommodations.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { AuthMiddleware } from './middlewares/auth.middleware';
-import { AppRoutes } from './routes/app.routes';
 import { I18nConfigModule } from './i18n/I18nConfigModule';
 
 @Module({
@@ -28,6 +27,6 @@ export class AppModule implements NestModule{
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware)
-      .forRoutes(AppRoutes.BasicRoomsRoute);
+      //.forRoutes(AppRoutes.BasicRoomsRoute);
   }
 }

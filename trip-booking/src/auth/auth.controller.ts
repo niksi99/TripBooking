@@ -34,45 +34,6 @@ export class AuthController {
         message: result.message,
         statusCode: result.statusCode
       }
-      // response.cookie('access_token', loginResult.accessToken, {
-      //   httpOnly: true,
-      //   secure: false,
-      //   sameSite: 'strict',
-      //   maxAge: 15 * 60 * 1000
-      // });
-
-      // return { 
-      //   message: 'Logged in successfully'
-      // }
-    // try {
-    //   const loginResult = await this.authService.login(loginDto, headers['accept-language']);
-      
-    //   response.cookie('access_token', loginResult.accessToken, {
-    //     httpOnly: true,
-    //     secure: false,
-    //     sameSite: 'strict',
-    //     maxAge: 15 * 60 * 1000,
-    //   });
-
-    //   return { message: 'Logged in successfully'}
-    // } catch (error) {
-    //   switch(true) {
-    //     case error instanceof UsersExceptions:
-    //       if (error.IsUserExisting())
-    //         throw new NotFoundException(error.getMessage());
-    //       if (error.IsUserSoftDeleted())
-    //         throw new BadRequestException(error.getMessage());
-    //       break;
-    //     case error instanceof AuthExceptions:
-    //       if (error.IsPasswordInvalid())
-    //         throw new BadRequestException(error.getMessage());
-    //       if (error.DoesTokenExist())
-    //         throw new NotFoundException(error.getMessage());
-    //       break;
-    //     default:
-    //       throw error;
-    //   }
-    // }
   }
 
   @UseGuards(JwtAuthGuard)
