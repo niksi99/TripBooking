@@ -24,7 +24,6 @@ export class RolesGuard implements CanActivate {
 
     const user = context.switchToHttp().getRequest().user;
     console.log("FROM roles.guards: CREATE ACCOM. ", user);
-    //const hasRequiredRole = requiredRoles.some(role => user.role === role);
 
     if (!requiredRoles.length) {
       console.log("ROLES GUARD: NO ROLES REQUIRED → PASS");

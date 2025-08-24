@@ -54,7 +54,6 @@ export class AccommodationsService {
     
     const accomm = new Accommodation({});
 
-    //accomm.owner = request.user.username;
     accomm.owner = user;
     Object.assign(accomm, createAccommodationDto);
     await this.accommodationRepository.manager.save(Accommodation, accomm);

@@ -29,9 +29,6 @@ export class JwtStragy extends PassportStrategy(Strategy) {
                     const tokenArray = request?.cookies?.['access_token'];
                     const token: string | undefined = Array.isArray(tokenArray) ? tokenArray[0] : tokenArray;
                     
-                    // if(!token || token === 'undefined')
-                    //     throw new UnauthorizedException("From jwt strategy: Token is null or undefined.");
-                    //return token;
                     if (!token || token === 'undefined') {
                         throw new AuthExceptions(
                             'From jwt strategy: Token does not exist',
