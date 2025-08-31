@@ -1,7 +1,5 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-import { Controller, Request, Get, Post, Body, Patch, Param, Delete, NotFoundException, BadRequestException, UseGuards, Headers, UseFilters } from '@nestjs/common';
+import { Controller, Request, Get, Post, Body, Patch, Param, Delete, NotFoundException, BadRequestException, UseGuards, UseFilters } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
@@ -25,8 +23,8 @@ export class RoomsController {
   @UseGuards(JwtAuthGuard)
   @UseFilters(RoomsExceptionsFilter, AuthExceptionsFilter, AccommodationsExceptionsFilter, UsersExceptionsFilter)
   @Post()
-  async create(@Request() request, @Body() createRoomDto: CreateRoomDto, @Headers() headers) {
-    return await this.roomsService.create(request, createRoomDto, headers['accept-language']);
+  async create(@Request() request, @Body() createRoomDto: CreateRoomDto) {
+    return await this.roomsService.create(request, createRoomDto);
   }
 
   @UseFilters(RoomsExceptionsFilter)
@@ -37,23 +35,23 @@ export class RoomsController {
 
   @UseFilters(AccommodationsExceptionsFilter)
   @Get(AppRoutes.GetAllRoomsOfSingleAccommodation)
-  async findAllRoomsOfSingleAccommodation(@Param('accommodationId') accommodationId: string, @Headers() headers) {
-    return await this.roomsService.findAllRoomOfSingleAccommodation(accommodationId, headers['accept-language']); 
+  async findAllRoomsOfSingleAccommodation(@Param('accommodationId') accommodationId: string) {
+    return await this.roomsService.findAllRoomOfSingleAccommodation(accommodationId); 
   }
 
   @UseFilters(RoomsExceptionsFilter)
   @Get(AppRoutes.GetByIdRoute)
-  async findOne(@Param('id') id: string, @Headers() headers) {
-    return await this.roomsService.findOne(id, headers['accept-language']);
+  async findOne(@Param('id') id: string) {
+    return await this.roomsService.findOne(id);
   }
 
   @Roles(Role.ACCOMMODATION_OWNER, Role.ADMINISTRATOR)
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Patch(AppRoutes.UpdateRoute)
-  async update(@Param('id') id: string, @Body() updateRoomDto: UpdateRoomDto, @Headers() headers) {
+  async update(@Param('id') id: string, @Body() updateRoomDto: UpdateRoomDto) {
     try {
-      return await this.roomsService.update(id, updateRoomDto, headers['accept-language']); 
+      return await this.roomsService.update(id, updateRoomDto); 
     } catch (error) {
       switch(true) {
         case error instanceof RoomExceptions:
@@ -74,9 +72,9 @@ export class RoomsController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Delete(AppRoutes.HardDeleteRoute)
-  async hardDelete(@Param('id') id: string, @Headers() headers) {
+  async hardDelete(@Param('id') id: string) {
     try {
-      return await this.roomsService.hardDelete(id, headers['accept-language']);
+      return await this.roomsService.hardDelete(id);
     } 
     catch (error) {
       switch(true) {
@@ -94,9 +92,9 @@ export class RoomsController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Patch(AppRoutes.SoftDeleteRoute)
-  async softDelete(@Param('id') id: string, @Headers() headers) {
+  async softDelete(@Param('id') id: string) {
     try {
-      return await this.roomsService.softDelete(id, headers['accept-language']);
+      return await this.roomsService.softDelete(id);
     } 
     catch (error) {
       switch(true) {
@@ -116,9 +114,9 @@ export class RoomsController {
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Patch(AppRoutes.SoftUndeleteRoute)
-  async softUndelete(@Param('id') id: string, @Headers() headers) {
+  async softUndelete(@Param('id') id: string) {
     try {
-      return await this.roomsService.softUndelete(id, headers['accept-language']);
+      return await this.roomsService.softUndelete(id);
     } 
     catch (error) {
       switch(true) {

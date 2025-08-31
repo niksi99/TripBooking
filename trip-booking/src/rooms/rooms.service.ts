@@ -15,6 +15,7 @@ import { I18nService } from 'nestjs-i18n';
 import { UsersExceptions } from 'src/exceptions-handling/exceptions/users.exceptions';
 import { UsersExceptionStatusType } from 'src/exceptions-handling/exceptions-status-type/user.exceptions.status.type';
 import { UserRepository } from 'src/repositories/UserRepository';
+import { RequestLocalStorageService } from 'src/local-storage-service/request.local.storage.service';
 
 @Injectable()
 export class RoomsService {
@@ -22,10 +23,12 @@ export class RoomsService {
     private roomRepository: RoomRepository,
     private accommodationRepository: AccommodationRepository,
     private userRepository: UserRepository,
-    private readonly i18n_translations: I18nService
+    private readonly i18n_translations: I18nService,
+    private readonly requestLocalStorageService: RequestLocalStorageService
   ) {}
 
-  async create(@Request() request, createRoomDto: CreateRoomDto, lang: string) {
+  async create(@Request() request, createRoomDto: CreateRoomDto) {
+    const lang = this.requestLocalStorageService.get<string>('locale_lang');
     const checkAccommodationExistence = await this.accommodationRepository.GetAccommodationById(createRoomDto.accommodationId);
     if(!checkAccommodationExistence)
       throw new AccommodationExceptions(
@@ -74,7 +77,8 @@ export class RoomsService {
     return await this.roomRepository.getAll();
   }
 
-  async findAllRoomOfSingleAccommodation(accommodationId: string, lang: string) {
+  async findAllRoomOfSingleAccommodation(accommodationId: string) {
+    const lang = this.requestLocalStorageService.get<string>('locale_lang');
     const accomm = await this.accommodationRepository.GetAccommodationById(accommodationId);
     if(!accomm)
       throw new AccommodationExceptions(
@@ -86,7 +90,8 @@ export class RoomsService {
     return await this.roomRepository.getAllRoomsOfThisAccommodation(accommodationId);
   }
 
-  async findOne(id: string, lang: string) {
+  async findOne(id: string) {
+    const lang = this.requestLocalStorageService.get<string>('locale_lang');
     const room = await this.roomRepository.getById(id);
     if(!room)
       throw new RoomExceptions(
@@ -98,7 +103,8 @@ export class RoomsService {
     return room;
   }
 
-  async update(id: string, updateRoomDto: UpdateRoomDto, lang: string) {
+  async update(id: string, updateRoomDto: UpdateRoomDto) {
+    const lang = this.requestLocalStorageService.get<string>('locale_lang');
     const doesRoomExist = await this.roomRepository.getById(id);
     if(doesRoomExist == null)
       throw new RoomExceptions(
@@ -126,7 +132,8 @@ export class RoomsService {
     return await this.roomRepository.manager.save(Room, doesRoomExist);
   }
 
-  async hardDelete(id: string, lang: string) {
+  async hardDelete(id: string) {
+    const lang = this.requestLocalStorageService.get<string>('locale_lang');
     const room = await this.roomRepository.getById(id);
     if(!room)
       throw new RoomExceptions(
@@ -138,7 +145,8 @@ export class RoomsService {
     return this.roomRepository.hardDelete(id);
   }
 
-  async softDelete(id: string, lang: string) {
+  async softDelete(id: string) {
+    const lang = this.requestLocalStorageService.get<string>('locale_lang');
     const room = await this.roomRepository.getById(id);
     if(!room)
       throw new RoomExceptions(
@@ -157,7 +165,8 @@ export class RoomsService {
     return this.roomRepository.softDeleteRoom(room);
   }
   
-  async softUndelete(id: string, lang: string) {
+  async softUndelete(id: string) {
+    const lang = this.requestLocalStorageService.get<string>('locale_lang');
     const room = await this.roomRepository.getById(id);
     if(!room)
       throw new RoomExceptions(
