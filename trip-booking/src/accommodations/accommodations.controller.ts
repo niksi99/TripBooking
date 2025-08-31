@@ -1,7 +1,5 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-import { Controller, Get, Post, Headers, Body, Patch, Param, Delete, Request, UseGuards, UseFilters } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards, UseFilters } from '@nestjs/common';
 import { AccommodationsService } from './accommodations.service';
 import { CreateAccommodationDto } from './dto/create-accommodation.dto';
 import { UpdateAccommodationDto } from './dto/update-accommodation.dto';
@@ -22,24 +20,24 @@ export class AccommodationsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UseFilters(AccommodationsExceptionsFilter, UsersExceptionsFilter, AuthExceptionsFilter)
   @Post(AppRoutes.CreateRoute)
-  async create(@Request() request, @Body() createAccommodationDto: CreateAccommodationDto, @Headers() headers) {
-    return this.accommodationsService.create(request, createAccommodationDto, headers['accept-language']);
+  async create(@Request() request, @Body() createAccommodationDto: CreateAccommodationDto) {
+    return this.accommodationsService.create(request, createAccommodationDto);
   }
 
   @Roles(Role.PASSENGER)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UseFilters(AccommodationsExceptionsFilter, UsersExceptionsFilter, AuthExceptionsFilter)
   @Patch(AppRoutes.BookRoomsOfSingleAccommodation)
-  async bookAccommodation(@Request() request, @Param('accommId') accomId: string, @Headers() headers) {
-    return await this.accommodationsService.bookAccommodation(request, accomId, headers['accept-language']);
+  async bookAccommodation(@Request() request, @Param('accommId') accomId: string) {
+    return await this.accommodationsService.bookAccommodation(request, accomId);
   }
 
   @Roles(Role.PASSENGER)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UseFilters(AccommodationsExceptionsFilter, UsersExceptionsFilter, AuthExceptionsFilter)
   @Patch(AppRoutes.UnbookAccommodation)
-  async unbookAccommodation(@Request() request, @Param('accommId') accomId: string,  @Headers() headers) {
-    return await this.accommodationsService.unBookAccommodation(request, accomId, headers['accept-language']);  
+  async unbookAccommodation(@Request() request, @Param('accommId') accomId: string) {
+    return await this.accommodationsService.unBookAccommodation(request, accomId);  
   }
 
   @UseFilters(AccommodationsExceptionsFilter)
@@ -50,8 +48,8 @@ export class AccommodationsController {
 
   @UseFilters(AccommodationsExceptionsFilter)
   @Get(AppRoutes.GetByIdRoute)
-  findOne(@Param('id') id: string, @Headers() headers) {
-    return this.accommodationsService.findOne(id, headers['accept-language']);
+  findOne(@Param('id') id: string) {
+    return this.accommodationsService.findOne(id);
   }
 
   @Patch(AppRoutes.UpdateRoute)
@@ -68,15 +66,15 @@ export class AccommodationsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UseFilters(AccommodationsExceptionsFilter, UsersExceptionsFilter, AuthExceptionsFilter)
   @Patch(AppRoutes.SoftDeleteRoute)
-    async softDelete(@Request() request, @Param('id') id: string, @Headers() headers) {
-      return await this.accommodationsService.softDelete(request, id, headers['accept-language']);
+    async softDelete(@Request() request, @Param('id') id: string) {
+      return await this.accommodationsService.softDelete(request, id);
     }
 
   @Roles(Role.ACCOMMODATION_OWNER)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UseFilters(AccommodationsExceptionsFilter, UsersExceptionsFilter, AuthExceptionsFilter)
   @Patch(AppRoutes.SoftUndeleteRoute)
-  async softUndelete(@Request() request, @Param('id') id: string, @Headers() headers) {
-    return await this.accommodationsService.softUnDelete(request, id, headers['accept-language']);
+  async softUndelete(@Request() request, @Param('id') id: string) {
+    return await this.accommodationsService.softUnDelete(request, id);
   }
 }

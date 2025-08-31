@@ -13,16 +13,19 @@ import { AuthExceptionStatusType } from 'src/exceptions-handling/exceptions-stat
 import { Accommodation } from './entities/accommodation.entity';
 import { Role } from 'src/auth/enums/role.enum';
 import { I18nService } from 'nestjs-i18n';
+import { RequestLocalStorageService } from 'src/local-storage-service/request.local.storage.service';
 
 @Injectable()
 export class AccommodationsService {
   constructor(
     private readonly accommodationRepository: AccommodationRepository,
     private readonly userRepository: UserRepository,
-    private readonly i18n_translations: I18nService
+    private readonly i18n_translations: I18nService,
+    private readonly requestLocalStorageService: RequestLocalStorageService
   ) {}
 
-  async create(@Request() request, createAccommodationDto: CreateAccommodationDto, lang: string) {
+  async create(@Request() request, createAccommodationDto: CreateAccommodationDto) {
+    const lang = this.requestLocalStorageService.get<string>('locale_lang');
     if(!request)
       throw new AuthExceptions(
         await this.i18n_translations.t(`exceptions.auth.USER_IS_NOT_LOGGED_IN`, { lang: lang }), 
@@ -82,7 +85,8 @@ export class AccommodationsService {
     return await this.accommodationRepository.GetAllAccommodations();
   }
 
-  async findOne(id: string, lang: string) {
+  async findOne(id: string) {
+    const lang = this.requestLocalStorageService.get<string>('locale_lang');
     const accomm = await this.accommodationRepository.GetAccommodationById(id);
     if(!accomm) 
       throw new AccommodationExceptions(
@@ -102,7 +106,8 @@ export class AccommodationsService {
     return `This action removes a #${id} accommodation`;
   }
 
-  async softDelete(@Request() request, id: string, lang: string) {
+  async softDelete(@Request() request, id: string) {
+    const lang = this.requestLocalStorageService.get<string>('locale_lang');
     const accommodation = await this.accommodationRepository.GetAccommodationById(id);
     if(!accommodation) 
       throw new AccommodationExceptions(
@@ -135,7 +140,8 @@ export class AccommodationsService {
     }
   }
 
-  async softUnDelete(@Request() request, id: string, lang: string) {
+  async softUnDelete(@Request() request, id: string) {
+    const lang = this.requestLocalStorageService.get<string>('locale_lang');
     const accommodation = await this.accommodationRepository.GetAccommodationById(id);
     if(!accommodation) 
       throw new AccommodationExceptions(
@@ -168,7 +174,8 @@ export class AccommodationsService {
     }
   }
 
-  async bookAccommodation(@Request() request, accommId: string, lang: string) {
+  async bookAccommodation(@Request() request, accommId: string) {
+    const lang = this.requestLocalStorageService.get<string>('locale_lang');
     if(!request)
       throw new AuthExceptions(
         await this.i18n_translations.t(`exceptions.auth.TOKEN_IS_NOT_GENERATED`, { lang: lang }),
@@ -238,7 +245,8 @@ export class AccommodationsService {
     return safeAccom;
   }
 
-  async unBookAccommodation(@Request() request, accommId: string, lang: string) {
+  async unBookAccommodation(@Request() request, accommId: string) {
+    const lang = this.requestLocalStorageService.get<string>('locale_lang');
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     const user = await this.userRepository.getUserByUsername(request.user.username);
     if(!user)

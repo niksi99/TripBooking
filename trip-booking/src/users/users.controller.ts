@@ -1,7 +1,5 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-import { Controller, Get, Post, Body, Patch, Request, Param, Delete, UseGuards, Headers, UseFilters } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Request, Param, Delete, UseGuards, UseFilters } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -20,8 +18,8 @@ export class UsersController {
 
   @Post(AppRoutes.CreateRoute)
   @UseFilters(UsersExceptionsFilter)
-  async create(@Body() createUserDto: CreateUserDto, @Headers() headers) {
-    return await this.usersService.create(createUserDto, headers['accept-language']);
+  async create(@Body() createUserDto: CreateUserDto) {
+    return await this.usersService.create(createUserDto);
   }
 
   @Get(AppRoutes.GetAllRoute)

@@ -23,7 +23,8 @@ export class UsersService {
     private readonly requestLocalStorageService: RequestLocalStorageService
   ) {}
 
-  async create(createUserDto: CreateUserDto, lang: string) {
+  async create(createUserDto: CreateUserDto) {
+    const lang = this.requestLocalStorageService.get<string>('locale_lang');
     const checkUser = await this.userRepository.getUserByEmailOrUsername(createUserDto.email, createUserDto.username);
     if(checkUser?.email === createUserDto.email)
       throw new UsersExceptions(
