@@ -58,7 +58,8 @@ export class UsersService {
     return myUser; 
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto, lang: string) {
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const lang = this.requestLocalStorageService.get<string>('locale_lang');
     const checkUserExistense = await this.userRepository.getUserById(id);
     if(checkUserExistense == null)
       throw new UsersExceptions(
@@ -76,7 +77,8 @@ export class UsersService {
     return await this.userRepository.manager.save(User, checkUserExistense);
   }
 
-  async hardDelete(id: string, lang: string) {
+  async hardDelete(id: string) {
+    const lang = this.requestLocalStorageService.get<string>('locale_lang');
     const user = await this.userRepository.getUserById(id);
     if(!user)
       throw new UsersExceptions(
@@ -92,7 +94,8 @@ export class UsersService {
     return await this.userRepository.hardDeleteUser(id);
   }
 
-  async softDelete(@Request() request, id: string, lang: string) {
+  async softDelete(@Request() request, id: string) {
+    const lang = this.requestLocalStorageService.get<string>('locale_lang');
     const user = await this.userRepository.getUserById(id);
     if(user == null)
       throw new UsersExceptions(
@@ -125,7 +128,8 @@ export class UsersService {
     return await this.userRepository.softRemove(user);
   }
 
-  async softUndelete(@Request() request, id: string, lang: string) {
+  async softUndelete(@Request() request, id: string) {
+    const lang = this.requestLocalStorageService.get<string>('locale_lang');
     const user = await this.userRepository.getUserById(id);
     if(user == null)
       throw new UsersExceptions(

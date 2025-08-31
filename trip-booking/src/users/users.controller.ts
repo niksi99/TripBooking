@@ -40,8 +40,8 @@ export class UsersController {
 
   @Patch(AppRoutes.UpdateRoute)
   @UseFilters(UsersExceptionsFilter)
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Headers() headers) {
-    return await this.usersService.update(id, updateUserDto, headers['accept-language']);
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return await this.usersService.update(id, updateUserDto);
   }
 
   @Roles(Role.ADMINISTRATOR)
@@ -49,8 +49,8 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @UseFilters(UsersExceptionsFilter, AuthExceptionsFilter)
   @Delete(AppRoutes.HardDeleteRoute)
-  async remove(@Param('id') id: string, @Headers() headers) {
-    return await this.usersService.hardDelete(id, headers['accept-language']);
+  async remove(@Param('id') id: string) {
+    return await this.usersService.hardDelete(id);
   }
 
   @Roles(Role.ADMINISTRATOR)
@@ -82,15 +82,15 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UseFilters(UsersExceptionsFilter, AuthExceptionsFilter, AccommodationsExceptionsFilter)
   @Patch(AppRoutes.SoftDeleteRoute)
-  async softDelete(@Request() request, @Param('id') id: string, @Headers() headers) {
-    return await this.usersService.softDelete(request, id, headers['accept-language']);
+  async softDelete(@Request() request, @Param('id') id: string) {
+    return await this.usersService.softDelete(request, id);
   }
 
   @Roles(Role.ADMINISTRATOR)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UseFilters(UsersExceptionsFilter, AuthExceptionsFilter, AccommodationsExceptionsFilter)
   @Patch(AppRoutes.SoftUndeleteRoute)
-  async softUndelete(@Request() request, @Param('id') id: string, @Headers() headers) {
-    return await this.usersService.softUndelete(request, id, headers['accept-language']);
+  async softUndelete(@Request() request, @Param('id') id: string) {
+    return await this.usersService.softUndelete(request, id);
   }
 }
