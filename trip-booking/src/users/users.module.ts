@@ -8,6 +8,7 @@ import { UserRepository } from '../repositories/UserRepository';
 import { DataSource } from 'typeorm';
 import { Accommodation } from 'src/accommodations/entities/accommodation.entity';
 import { AccommodationRepository } from 'src/repositories/AccommodationRepository';
+import { ContextModule } from 'src/context-service/context.module';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { AccommodationRepository } from 'src/repositories/AccommodationRepositor
   ],
   controllers: [UsersController],
   providers: [
-    UsersService, AccommodationRepository,
+    UsersService, ContextModule, AccommodationRepository,
     {
       provide: UserRepository, 
       useFactory: (dataSource: DataSource) => {

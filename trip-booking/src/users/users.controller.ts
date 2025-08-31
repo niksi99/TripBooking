@@ -34,8 +34,8 @@ export class UsersController {
 
   @Get(AppRoutes.GetByIdRoute)
   @UseFilters(UsersExceptionsFilter)
-  async findOne(@Param('id') id: string, @Headers() headers) {
-    return await this.usersService.findOne(id, headers['accept-language']);
+  async findOne(@Param('id') id: string) {
+    return await this.usersService.findOne(id);
   }
 
   @Patch(AppRoutes.UpdateRoute)

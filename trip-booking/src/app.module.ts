@@ -10,6 +10,8 @@ import { AccommodationsModule } from './accommodations/accommodations.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { AuthMiddleware } from './middlewares/auth.middleware';
 import { I18nConfigModule } from './i18n/I18nConfigModule';
+import { LocalizationMiddleware } from './middlewares/localization.middleware';
+import { ContextModule } from './context-service/context.module';
 
 @Module({
   imports: [
@@ -17,7 +19,7 @@ import { I18nConfigModule } from './i18n/I18nConfigModule';
       isGlobal: true,
       envFilePath: '.env',
     }), 
-    DatabaseModule, UsersModule, AuthModule, AccommodationsModule, RoomsModule, I18nConfigModule
+    DatabaseModule, UsersModule, AuthModule, AccommodationsModule, RoomsModule, I18nConfigModule, ContextModule
   ],
   controllers: [AppController],
   providers: [AppService],
@@ -27,6 +29,8 @@ export class AppModule implements NestModule{
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware)
-      //.forRoutes(AppRoutes.BasicRoomsRoute);
+      .forRoutes()
+      .apply(LocalizationMiddleware)
+      .forRoutes("*");
   }
 }
