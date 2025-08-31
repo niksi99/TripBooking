@@ -11,7 +11,7 @@ import { AuthExceptionStatusType } from 'src/exceptions-handling/exceptions-stat
 import { AuthExceptions } from 'src/exceptions-handling/exceptions/auth.exceptions';
 import { I18nService } from 'nestjs-i18n';
 import { AccommodationRepository } from 'src/repositories/AccommodationRepository';
-import { RequestContextService } from 'src/context-service/request.context.service';
+import { RequestLocalStorageService } from 'src/local-storage-service/request.local.storage.service';
 
 
 @Injectable()
@@ -20,7 +20,7 @@ export class UsersService {
     private readonly userRepository: UserRepository,
     private readonly accommodationRepository: AccommodationRepository,
     private readonly i18n_translations: I18nService,
-    private readonly requestContextService: RequestContextService
+    private readonly requestLocalStorageService: RequestLocalStorageService
   ) {}
 
   async create(createUserDto: CreateUserDto, lang: string) {
@@ -47,7 +47,7 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    const lang = this.requestContextService.get<string>('locale_lang');
+    const lang = this.requestLocalStorageService.get<string>('locale_lang');
     const myUser = await this.userRepository.getUserById(id);
     if(!myUser)
       throw new UsersExceptions(

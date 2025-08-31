@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { AsyncLocalStorage } from 'async_hooks';
 
 @Injectable()
-export class RequestContextService {
+export class RequestLocalStorageService {
   private readonly asyncLocalStorage = new AsyncLocalStorage<Map<string, any>>();
 
   run(callback: () => void) {

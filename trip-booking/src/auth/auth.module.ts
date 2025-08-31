@@ -12,7 +12,7 @@ import { User } from 'src/users/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthHelper } from 'src/helpers/auth.helper';
 import { UsersModule } from 'src/users/users.module';
-import { ContextModule } from 'src/context-service/context.module';;
+import { ContextModule } from 'src/local-storage-service/local.storage.module';
 
 @Module({
   imports: [

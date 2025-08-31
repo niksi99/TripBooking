@@ -11,7 +11,7 @@ import { RoomsModule } from './rooms/rooms.module';
 import { AuthMiddleware } from './middlewares/auth.middleware';
 import { I18nConfigModule } from './i18n/I18nConfigModule';
 import { LocalizationMiddleware } from './middlewares/localization.middleware';
-import { ContextModule } from './context-service/context.module';
+import { ContextModule } from './local-storage-service/local.storage.module';
 
 @Module({
   imports: [

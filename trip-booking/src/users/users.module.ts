@@ -8,7 +8,7 @@ import { UserRepository } from '../repositories/UserRepository';
 import { DataSource } from 'typeorm';
 import { Accommodation } from 'src/accommodations/entities/accommodation.entity';
 import { AccommodationRepository } from 'src/repositories/AccommodationRepository';
-import { ContextModule } from 'src/context-service/context.module';
+import { ContextModule } from 'src/local-storage-service/local.storage.module';
 
 @Module({
   imports: [
