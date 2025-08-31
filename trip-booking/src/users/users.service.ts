@@ -158,16 +158,4 @@ export class UsersService {
     
     return await this.userRepository.softUndeleteUser(id);
   }
-
-  async hardDeleteUserAndAllHisAccommodation(id: string) {
-    const user = await this.userRepository.getUserById(id);
-
-    if(user == null)
-      throw new UsersExceptions("User does not exist.", UsersExceptionStatusType.UserDoesNotExist);
-
-    if(user.role.toString() !== Role.ACCOMMODATION_OWNER.toString())
-      throw new UsersExceptions("User is not accommodation owner", UsersExceptionStatusType.UserIsNotAccommodationOwner);
-
-    return await this.userRepository.hardDeleteUserAndOwnedAccommodations(user);
-  }
 }
