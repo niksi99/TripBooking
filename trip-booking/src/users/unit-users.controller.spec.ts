@@ -5,7 +5,7 @@ import { UsersController } from "./users.controller";
 import { UsersService } from "./users.service";
 import { UsersExceptions } from "../exceptions-handling/exceptions/users.exceptions";
 import { UsersExceptionStatusType } from "../exceptions-handling/exceptions-status-type/user.exceptions.status.type";
-import { BadRequestException, ForbiddenException, HttpStatus, NotFoundException } from "@nestjs/common";
+import { HttpStatus } from "@nestjs/common";
 import { AuthExceptions } from "../exceptions-handling/exceptions/auth.exceptions";
 import { AuthExceptionStatusType } from "../exceptions-handling/exceptions-status-type/auth.exceptions.status.types";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -52,6 +52,10 @@ describe('UsersController', () => {
         }
     ];
 
+    const mockRequest = {
+      user: { username: 'john_doe' }
+    };
+
     beforeEach(async () => {
         usersService = {
             findAll: jest.fn(),
@@ -59,7 +63,6 @@ describe('UsersController', () => {
             softDelete: jest.fn(),
             softUndelete: jest.fn(),
             hardDelete: jest.fn(),
-            hardDeleteUserAndAllHisAccommodation: jest.fn(),
             create: jest.fn(),
             update: jest.fn()
         };
@@ -99,11 +102,10 @@ describe('UsersController', () => {
                 return mockUsers.find(user => user.id === id); 
             });
 
-            const header = { 'accept-language': 'fr' };
-            const result = await usersController.findOne('3fa85f64-5717-4562-b3fc-2c963f66afa6', header);
+            const result = await usersController.findOne('3fa85f64-5717-4562-b3fc-2c963f66afa6');
 
             expect(result).toEqual(mockUsers[0]);
-            expect(usersService.findOne).toHaveBeenCalledWith('3fa85f64-5717-4562-b3fc-2c963f66afa6', 'fr');
+            expect(usersService.findOne).toHaveBeenCalledWith('3fa85f64-5717-4562-b3fc-2c963f66afa6');
         })
 
         it('should throw NotFoundException if IsUserExisting from UsersExceptions is TRUE', async() => {
@@ -112,31 +114,29 @@ describe('UsersController', () => {
             jest.spyOn(errorMock, 'getMessage').mockReturnValue('User not found');
             (usersService.findOne as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(usersController.findOne('2', 'fr')).rejects.toThrow(NotFoundException);
-            await expect(usersController.findOne('2', 'fr')).rejects.toThrow('User not found');
+            await expect(usersController.findOne('2')).rejects.toThrow(UsersExceptions);
+            await expect(usersController.findOne('2')).rejects.toThrow('User not found');
         })
 
         it('should throw other errors', async () => {
             const errorMock = new Error('Other error');
             (usersService.findOne as jest.Mock).mockRejectedValue(errorMock);
       
-            await expect(usersController.findOne('1', 'fr')).rejects.toBe(errorMock);
+            await expect(usersController.findOne('1')).rejects.toBe(errorMock);
         });
     })
 
     describe('hardDelete', () => {
-        const header = { 'accept-language': 'fr' };
-
         it('should hard-delete the user.', async () => {
             const userId = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
             const deletedUser = mockUsers[0];
 
             (usersService.hardDelete as jest.Mock).mockResolvedValue(deletedUser);
 
-            const result = await usersController.remove(userId, header);
+            const result = await usersController.remove(userId);
 
             expect(result).toEqual(deletedUser);
-            expect(usersService.hardDelete).toHaveBeenCalledWith(userId, 'fr');
+            expect(usersService.hardDelete).toHaveBeenCalledWith(userId);
         });
 
         it('should throw NotFoundException if IsUserExisting from UsersExceptions is TRUE', async() => {
@@ -145,8 +145,8 @@ describe('UsersController', () => {
             jest.spyOn(errorMock, 'getMessage').mockReturnValue('User not found');
             (usersService.hardDelete as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(usersController.remove('2', header)).rejects.toThrow(NotFoundException);
-            await expect(usersController.remove('2', header)).rejects.toThrow('User not found');
+            await expect(usersController.remove('2')).rejects.toThrow(UsersExceptions);
+            await expect(usersController.remove('2')).rejects.toThrow('User not found');
         })
 
         it('should throw ForbiddenException if CanAdministatorBeDeleted from AuthExceptions is TRUE', async() => {
@@ -155,32 +155,32 @@ describe('UsersController', () => {
             jest.spyOn(errorMock, 'getMessage').mockReturnValue('Administrator can\'t be deleted!');
             (usersService.hardDelete as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(usersController.remove('2', 'fr')).rejects.toThrow(ForbiddenException);
-            await expect(usersController.remove('2', 'fr')).rejects.toThrow('Administrator can\'t be deleted!');
+            await expect(usersController.remove('2')).rejects.toThrow(AuthExceptions);
+            await expect(usersController.remove('2')).rejects.toThrow('Administrator can\'t be deleted!');
         })
 
         it('should throw other errors', async () => {
             const errorMock = new Error('Other error');
             (usersService.hardDelete as jest.Mock).mockRejectedValue(errorMock);
       
-            await expect(usersController.remove('1', 'fr')).rejects.toBe(errorMock);
+            await expect(usersController.remove('1')).rejects.toBe(errorMock);
         });
     })
 
     describe('softDelete', () => {
-        const header = { 'accept-language': 'fr' };
         it('should return soft-deteled user.', async () => {
-            (usersService.softDelete as jest.Mock).mockImplementation((id: string) => {
-                const user = mockUsers.find(user => user.id === id && user.softDeleted === false);
-                if(user)
-                    user.softDeleted = true;
-                return user;
+            (usersService.softDelete as jest.Mock).mockImplementation((req: any, id: string) => {
+                const user = mockUsers.find(user => user.id === id);
+                if(!user)
+                    return undefined;
+                return { ...user, softDeleted: true };
             })
 
-            const result = await usersController.softDelete('3fa85f64-5717-4562-b3fc-2c963f66afa6', header);
+            const result = await usersController.softDelete(mockRequest, '3fa85f64-5717-4562-b3fc-2c963f66afa6');
 
-            expect(result).toEqual(mockUsers[0]);
-            expect(usersService.softDelete).toHaveBeenCalledWith('3fa85f64-5717-4562-b3fc-2c963f66afa6', "fr");
+            expect(result).toEqual({ ...mockUsers[0], softDeleted: true });
+            //expect(result).toEqual(mockUsers[0]);
+            expect(usersService.softDelete).toHaveBeenCalledWith(mockRequest, '3fa85f64-5717-4562-b3fc-2c963f66afa6');
         })
 
         it('should throw NotFoundException if IsUserExisting from UsersExceptions is TRUE', async () => {
@@ -189,8 +189,8 @@ describe('UsersController', () => {
             jest.spyOn(errorMock, 'getMessage').mockReturnValue('User not found');
             (usersService.softDelete as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(usersController.softDelete('2', "fr")).rejects.toThrow(NotFoundException);
-            await expect(usersController.softDelete('2', "fr")).rejects.toThrow('User not found');
+            await expect(usersController.softDelete(mockRequest, '2')).rejects.toThrow(UsersExceptions);
+            await expect(usersController.softDelete(mockRequest, '2')).rejects.toThrow('User not found');
         })
         
         it('should throw BadRequestException if IsUserSoftDeleted is TRUE', async () => {
@@ -199,32 +199,32 @@ describe('UsersController', () => {
             jest.spyOn(errorMock, 'getMessage').mockReturnValue('User is already soft-deleted / blocked');
             (usersService.softDelete as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(usersController.softDelete('99a85f64-5717-4562-b3fc-2c963f66afa6', "fr")).rejects.toThrow(BadRequestException);
-            await expect(usersController.softDelete('99a85f64-5717-4562-b3fc-2c963f66afa6', "fr")).rejects.toThrow('User is already soft-deleted / blocked');
+            await expect(usersController.softDelete(mockRequest, '99a85f64-5717-4562-b3fc-2c963f66afa6')).rejects.toThrow(UsersExceptions);
+            await expect(usersController.softDelete(mockRequest, '99a85f64-5717-4562-b3fc-2c963f66afa6')).rejects.toThrow('User is already soft-deleted / blocked');
         })
 
         it('should throw other errors', async () => {
             const errorMock = new Error('Other error');
             (usersService.softDelete as jest.Mock).mockRejectedValue(errorMock);
       
-            await expect(usersController.softDelete('1', "fr")).rejects.toBe(errorMock);
+            await expect(usersController.softDelete(mockRequest, '1')).rejects.toBe(errorMock);
         });
     })
 
     describe('softUndelete', () => {
-        const header = { 'accept-language': 'fr' };
         it('should return soft-undeteled user.', async () => {
-            (usersService.softUndelete as jest.Mock).mockImplementation((id: string) => {
+            (usersService.softUndelete as jest.Mock).mockImplementation((req: any, id: string) => {
                 const user = mockUsers.find(user => user.id === id && user.softDeleted === true);
                 if(user)
                     user.softDeleted = false;
                 return user;
             })
 
-            const result = await usersController.softUndelete('99a85f64-5717-4562-b3fc-2c963f66afa6', header);
+            const result = await usersController.softUndelete(mockRequest, '99a85f64-5717-4562-b3fc-2c963f66afa6');
 
-            expect(result).toEqual(mockUsers[2]);
-            expect(usersService.softUndelete).toHaveBeenCalledWith('99a85f64-5717-4562-b3fc-2c963f66afa6', "fr");
+            expect(result).toEqual({ ...mockUsers[2], softDeleted: false });
+            //expect(result).toEqual(mockUsers[2]);
+            expect(usersService.softUndelete).toHaveBeenCalledWith(mockRequest, '99a85f64-5717-4562-b3fc-2c963f66afa6');
         })
 
         it('should throw NotFoundException is IsUserExisting === TRUE', async () => {
@@ -234,66 +234,15 @@ describe('UsersController', () => {
             
             (usersService.softUndelete as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(usersController.softUndelete("23", "fr")).rejects.toThrow(NotFoundException);
-            await expect(usersController.softUndelete("23", "fr")).rejects.toThrow("User not found");
+            await expect(usersController.softUndelete("", "23")).rejects.toThrow(UsersExceptions);
+            await expect(usersController.softUndelete("", "23")).rejects.toThrow("User not found");
         })
 
         it('should throw other errors', async () => {
             const errorMock = new Error('Other error');
             (usersService.softUndelete as jest.Mock).mockRejectedValue(errorMock);
       
-            await expect(usersController.softUndelete('1', 'fr')).rejects.toBe(errorMock);
-        });
-    })
-
-    describe('hardDeleteUserWithAccommodation', () => {
-        it('should return hard-deleted.', async () => {
-            (usersService.hardDeleteUserAndAllHisAccommodation as jest.Mock).mockImplementation((id: string) => {
-                return mockUsers.find(user => user.id === id && user.role != 'ADMINISTRATOR');
-            })
-
-            const result = await usersController.hardDeleteUserWithAccommodation('3fa85f64-5717-4562-b3fc-2c963f66afa6');
-
-            expect(result).toEqual(mockUsers[0]);
-            expect(usersService.hardDeleteUserAndAllHisAccommodation).toHaveBeenCalledWith('3fa85f64-5717-4562-b3fc-2c963f66afa6');
-        })
-
-        it('should throw NotFoundException if IsUserExisting from UsersExceptions is TRUE', async () => {
-            const errorMock = new UsersExceptions('User not found', UsersExceptionStatusType.UserDoesNotExist);
-            jest.spyOn(errorMock, 'IsUserExisting').mockReturnValue(true);
-            jest.spyOn(errorMock, 'getMessage').mockReturnValue('User not found');
-            (usersService.hardDeleteUserAndAllHisAccommodation as jest.Mock).mockRejectedValue(errorMock);
-
-            await expect(usersController.hardDeleteUserWithAccommodation('2')).rejects.toThrow(NotFoundException);
-            await expect(usersController.hardDeleteUserWithAccommodation('2')).rejects.toThrow('User not found');
-        })
-
-        it('should throw BadRequestException if IsUserAccommodationOwner from UsersExceptions is FALSE', async () => {
-            const errorMock = new UsersExceptions('User is not accommodation owner', UsersExceptionStatusType.UserIsNotAccommodationOwner);
-            jest.spyOn(errorMock, 'IsUserAccommodationOwner').mockReturnValue(true);
-            jest.spyOn(errorMock, 'getMessage').mockReturnValue('User is not accommodation owner');
-            (usersService.hardDeleteUserAndAllHisAccommodation as jest.Mock).mockRejectedValue(errorMock);
-
-            await expect(usersController.hardDeleteUserWithAccommodation('2')).rejects.toThrow(BadRequestException);
-            await expect(usersController.hardDeleteUserWithAccommodation('2')).rejects.toThrow('User is not accommodation owner');
-        })
-
-        it('should throw BadRequestException if CanAdministratorBeDeleted from AuthExceptions is FALSE', async () => {
-            const errorMock = new AuthExceptions('Administrator can not be deleted.', AuthExceptionStatusType.AdministratorCanNotBeDeleted, HttpStatus.FORBIDDEN);
-            jest.spyOn(errorMock, 'CanAdministratorBeDeleted').mockReturnValue(true);
-            jest.spyOn(errorMock, 'getMessage').mockReturnValue('Administrator can not be deleted.');
-            (usersService.hardDeleteUserAndAllHisAccommodation as jest.Mock).mockRejectedValue(errorMock);
-
-            await expect(usersController.hardDeleteUserWithAccommodation('2')).rejects.toThrow(BadRequestException);
-            await expect(usersController.hardDeleteUserWithAccommodation('2')).rejects.toThrow('Administrator can not be deleted.');
-        })
-
-
-        it('should throw other errors', async () => {
-            const errorMock = new Error('Other error');
-            (usersService.hardDeleteUserAndAllHisAccommodation as jest.Mock).mockRejectedValue(errorMock);
-      
-            await expect(usersController.hardDeleteUserWithAccommodation('1')).rejects.toBe(errorMock);
+            await expect(usersController.softUndelete('', '1')).rejects.toBe(errorMock);
         });
     })
 
@@ -306,15 +255,14 @@ describe('UsersController', () => {
             email: 'lana.milankovic@gmail.com',
             role: Role.ADMINISTRATOR
         };
-        const header = { 'accept-language': 'fr' };
 
         it('should return created user with no errors.', async () => {
             const expectedResult = { id: '1', ...newUser };
             (usersService.create as jest.Mock).mockResolvedValue(expectedResult);
-            const result = await usersController.create(newUser, header);
+            const result = await usersController.create(newUser);
 
             expect(result).toEqual(expectedResult);
-            expect(usersService.create).toHaveBeenCalledWith(newUser, "fr");
+            expect(usersService.create).toHaveBeenCalledWith(newUser);
         })
 
         it('should throw BadRequestException if DoesEmailAlreadyExist from UserExpections is TRUE', async () => {
@@ -324,8 +272,8 @@ describe('UsersController', () => {
 
             (usersService.create as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(usersController.create(newUser, header)).rejects.toThrow(BadRequestException);
-            await expect(usersController.create(newUser, header)).rejects.toThrow("Email already exists");
+            await expect(usersController.create(newUser)).rejects.toThrow(UsersExceptions);
+            await expect(usersController.create(newUser)).rejects.toThrow("Email already exists");
         });
 
         it('should throw BadRequestException if DoesUsernameAlreadyExist from UserExceptions is TRUE', async () => {
@@ -335,15 +283,15 @@ describe('UsersController', () => {
 
             (usersService.create as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(usersController.create(newUser, header)).rejects.toThrow(BadRequestException);
-            await expect(usersController.create(newUser, header)).rejects.toThrow("Username already exists");
+            await expect(usersController.create(newUser)).rejects.toThrow(UsersExceptions);
+            await expect(usersController.create(newUser)).rejects.toThrow("Username already exists");
         })
 
         it('should throw other errors', async () => {
             const errorMock = new Error('Other error');
             (usersService.create as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(usersController.create(newUser, header)).rejects.toBe(errorMock);
+            await expect(usersController.create(newUser)).rejects.toBe(errorMock);
         });
     })
 
@@ -353,16 +301,15 @@ describe('UsersController', () => {
                 lastName: "До"
             };
             const userId = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
-            const header = { 'accept-language': 'fr' };
 
             it('should return created room with no errors.', async () => {
                 const expectedResult = { id: '3fa85f64-5717-4562-b3fc-67y63f66afa6', ...updateExistingUser };
                 (usersService.update as jest.Mock).mockResolvedValue(expectedResult);
 
-                const result = await usersController.update(userId, updateExistingUser, header);
+                const result = await usersController.update(userId, updateExistingUser);
     
                 expect(result).toEqual(expectedResult);
-                expect(usersService.update).toHaveBeenCalledWith(userId, updateExistingUser, "fr");
+                expect(usersService.update).toHaveBeenCalledWith(userId, updateExistingUser);
             })
     
             it('should throw BadRequestException: User does not exist.', async () => {
@@ -372,8 +319,8 @@ describe('UsersController', () => {
     
                 (usersService.update as jest.Mock).mockRejectedValue(errorMock);
     
-                await expect(usersController.update(userId, updateExistingUser, header)).rejects.toThrow(NotFoundException);
-                await expect(usersController.update(userId, updateExistingUser, header)).rejects.toThrow("User does not exist");
+                await expect(usersController.update(userId, updateExistingUser)).rejects.toThrow(UsersExceptions);
+                await expect(usersController.update(userId, updateExistingUser)).rejects.toThrow("User does not exist");
             });
     
             it('should throw BadRequestException: User is soft deleted, can not be updated.', async () => {
@@ -383,15 +330,15 @@ describe('UsersController', () => {
     
                 (usersService.update as jest.Mock).mockRejectedValue(errorMock);
     
-                await expect(usersController.update(userId, updateExistingUser, header)).rejects.toThrow(BadRequestException);
-                await expect(usersController.update(userId, updateExistingUser, header)).rejects.toThrow("User is soft deleted, can not be updated.");
+                await expect(usersController.update(userId, updateExistingUser)).rejects.toThrow(UsersExceptions);
+                await expect(usersController.update(userId, updateExistingUser)).rejects.toThrow("User is soft deleted, can not be updated.");
             });
     
             it('should throw other errors', async () => {
                 const errorMock = new Error('Other error');
                 (usersService.update as jest.Mock).mockRejectedValue(errorMock);
     
-                await expect(usersController.update(userId, updateExistingUser, header)).rejects.toBe(errorMock);
+                await expect(usersController.update(userId, updateExistingUser)).rejects.toBe(errorMock);
             });
         })
 });
