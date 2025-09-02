@@ -5,23 +5,8 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { App } from 'supertest/types';
 
-export async function GetById_ReturnTRUE(
-    app: INestApplication<App>,
-    route: string,
-    mockedService: any,
-    methodName: string,
-    mockedEntity: any,
-) {
-    jest.spyOn(mockedService, `${methodName}`).mockResolvedValue(mockedEntity);
 
-    const res = await request(app.getHttpServer())
-    .get(`${route}${mockedEntity.id}`);
-    
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual(mockedEntity);
-}
-
-export async function GetById_ReturnError404(
+export async function HardDelete_ReturnError404(
     app: INestApplication<App>,
     route: string,
     mockedService: any,
@@ -33,13 +18,13 @@ export async function GetById_ReturnError404(
     });
 
     const response = await request(app.getHttpServer())
-        .get(`${route}not-existing-id`);
+        .delete(`${route}not-existing-id`);
 
     expect(response.status).toBe(404);
     expect(response.body.message).toBe(`${error.getMessage()}`);
 }
 
-export async function GetById_ThrowError500(
+export async function hardDelete_ThrowError500(
     app: INestApplication<App>,
     route: string,
     mockedService: any,
@@ -50,7 +35,7 @@ export async function GetById_ThrowError500(
     });
     
     const response = await request(app.getHttpServer())
-        .get(`${route}some-invalid-id`);
+        .delete(`${route}some-invalid-id`);
     
     expect(response.status).toBe(500);
     expect(response.body.message).toBe('Internal server error');
