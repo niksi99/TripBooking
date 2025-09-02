@@ -15,7 +15,7 @@ import { AccommodationExceptions } from "../exceptions-handling/exceptions/accom
 import { AccommodationExceptionsStatusType } from "../exceptions-handling/exceptions-status-type/accommodation.exceptions";
 import { AppRoutes } from "src/routes/app.routes";
 import { GetAll_ReturnTRUE, GetAll_ThrowError500 } from "../../test/e2e.get-all-instances";
-import { GetById_ReturnTRUE, GetById_ThrowError500 } from "../../test/e2e/get-by-id";
+import { GetById_ReturnError404, GetById_ReturnTRUE, GetById_ThrowError500 } from "../../test/e2e/get-by-id";
 
 jest.setTimeout(15000);
 describe('Rooms Controller e2e', () => {
@@ -113,19 +113,11 @@ describe('Rooms Controller e2e', () => {
 
         it('GET /rooms/:id - thorw RoomDoeNotExist', async () => {
             const error = new RoomExceptions("", RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
+            
             jest.spyOn(error, 'DoesRoomExist').mockReturnValue(true);
             jest.spyOn(error, 'getMessage').mockReturnValue('Room not found');
 
-            jest.spyOn(mockedRoomSelvice, 'findOne').mockImplementation(() => {
-                throw error;
-            });
-
-            const response = await request(app.getHttpServer())
-                .get('/rooms/some-invalid-id');
-
-            expect(response.status).toBe(404);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            expect(response.body.message).toBe('Room not found');
+            await GetById_ReturnError404(app, AppRoutes.BasicRoomsRoute, mockedRoomSelvice, 'findOne', error);
         })
 
         it('GET /rooms/:id - should return 500 on unexpected error', async () => {
