@@ -20,7 +20,7 @@ import { AppRoutes } from "../routes/app.routes";
 import { GetById_ReturnError404, GetById_ReturnTRUE, GetById_ThrowError500 } from "../../test/e2e/get-by-id";
 import { HardDelete_ReturnError403, HardDelete_ReturnError404, HardDelete_ReturnTRUE, hardDelete_ThrowError500 } from "../../test/e2e/hard-delete";
 import { SoftDelete_ReturnError400, SoftDelete_ReturnError404, SoftDelete_ReturnTRUE, SoftDelete_ThrowError500 } from "../../test/e2e/soft-delete";
-import { SoftUndelete_ReturnTRUE, SoftUndelete_ThrowError500 } from "../../test/e2e/soft-undelete";
+import { SoftUndelete_ReturnError400, SoftUndelete_ReturnTRUE, SoftUndelete_ThrowError500 } from "../../test/e2e/soft-undelete";
 
 jest.setTimeout(15000);
 describe('UsersController (e2e)', () => {
@@ -311,18 +311,10 @@ describe('UsersController (e2e)', () => {
         jest.spyOn(error, 'IsUserExisting').mockReturnValue(true);
         jest.spyOn(error, 'getMessage').mockReturnValue('User does not exist.');
 
-        jest.spyOn(mockedUsersService, 'softUndelete').mockImplementation(() => {
-            throw error;
-        });
-
-        const response = await request(app.getHttpServer())
-          .patch('/users/soft-undelete/some-invalid-id');
-
-        expect(response.status).toBe(404);
-        expect(response.body.message).toBe('User does not exist.');
+        await SoftDelete_ReturnError404(app, AppRoutes.BasicUsersRoute + AppRoutes.SoftUndeleteRoute.split(":")[0], mockedUsersService, 'softUndelete', error);
       })
 
-      it('DELETE /users/soft-undelete/:id - throw User is already soft deleted.', async () => {
+      it('DELETE /users/soft-undelete/:id - throw User is not set as soft undeleted.', async () => {
         const user = {
           id: '4ya85f64-5717-4562-b3fc-2c963f66afa6',
           firstName: 'Мирко',
@@ -339,16 +331,7 @@ describe('UsersController (e2e)', () => {
         jest.spyOn(error, 'IsNotUserSoftDeleted').mockReturnValue(true);
         jest.spyOn(error, 'getMessage').mockReturnValue('User is not soft deleted, therefore, it can not be undeleted.');
 
-        jest.spyOn(mockedUsersService, 'softUndelete').mockImplementation(() => {
-          throw new AuthExceptions("User is not soft deleted, therefore, it can not be undeleted.", AuthExceptionStatusType.AdministratorCanNotBeDeleted, HttpStatus.FORBIDDEN);
-        });
-
-        const response = await request(app.getHttpServer())
-          .patch(`/users/soft-undelete/${user.id}`);
-
-
-        expect(response.status).toBe(403);
-        expect(response.body.message).toBe('User is not soft deleted, therefore, it can not be undeleted.')
+        await SoftUndelete_ReturnError400(app, AppRoutes.BasicUsersRoute + AppRoutes.SoftDeleteRoute.split(":")[0], mockedUsersService, 'softDelete', user, error);
       })
 
       it('DELETE /users/soft-undelete/:id - should return 500 on unexpected error', async () => {
