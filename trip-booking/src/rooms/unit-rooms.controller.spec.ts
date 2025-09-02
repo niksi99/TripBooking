@@ -15,7 +15,6 @@ describe('RoomsController UnitTest', () => {
     let roomsController: RoomsController;
     let roomsService: Partial<RoomsService>;
 
-    const header = { 'accept-language': 'fr' };
     const mockRooms = [
         {
             id: "3fa85f64-5717-4562-b3fc-67y63f66afa6",
@@ -85,10 +84,10 @@ describe('RoomsController UnitTest', () => {
                 return mockRooms.find(x => x.id === id)
             })
 
-            const result = await roomsController.findOne('3fa85f64-5717-4562-b3fc-67y63f66afa6', header);
+            const result = await roomsController.findOne('3fa85f64-5717-4562-b3fc-67y63f66afa6');
 
             expect(result).toEqual(mockRooms[0]);
-            expect(roomsService.findOne).toHaveBeenCalledWith('3fa85f64-5717-4562-b3fc-67y63f66afa6', 'fr');
+            expect(roomsService.findOne).toHaveBeenCalledWith('3fa85f64-5717-4562-b3fc-67y63f66afa6');
         })
 
         it('should throw RoomDoesNotExist', async () => {
@@ -97,15 +96,15 @@ describe('RoomsController UnitTest', () => {
             jest.spyOn(errorMock, 'getMessage').mockReturnValue('Room does not exist.');
             (roomsService.findOne as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(roomsController.findOne('2', header)).rejects.toThrow(NotFoundException);
-            await expect(roomsController.findOne('2', header)).rejects.toThrow('Room does not exist.');
+            await expect(roomsController.findOne('2')).rejects.toThrow(RoomExceptions);
+            await expect(roomsController.findOne('2')).rejects.toThrow('Room does not exist.');
         })
 
         it('should throw other errors', async () => {
             const errorMock = new Error('Other error');
             (roomsService.findOne as jest.Mock).mockRejectedValue(errorMock);
       
-            await expect(roomsController.findOne('1', 'fr')).rejects.toBe(errorMock);
+            await expect(roomsController.findOne('1')).rejects.toBe(errorMock);
         });
     })
 
@@ -115,10 +114,10 @@ describe('RoomsController UnitTest', () => {
                 return mockRooms.find(x => x.id === id);
             })
 
-            const result = await roomsController.hardDelete("9gr95f64-5717-4562-b3fc-67y63f66afa6", header);
+            const result = await roomsController.hardDelete("9gr95f64-5717-4562-b3fc-67y63f66afa6");
 
             expect(result).toEqual(mockRooms[1]);
-            expect(roomsService.hardDelete).toHaveBeenCalledWith('9gr95f64-5717-4562-b3fc-67y63f66afa6', "fr");
+            expect(roomsService.hardDelete).toHaveBeenCalledWith('9gr95f64-5717-4562-b3fc-67y63f66afa6');
         })
 
         it('should throw DoesRoomExist', async () => {
@@ -127,15 +126,15 @@ describe('RoomsController UnitTest', () => {
             jest.spyOn(errorMock, 'getMessage').mockReturnValue('Room does not exist.');
             (roomsService.hardDelete as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(roomsController.hardDelete('2', header)).rejects.toThrow(NotFoundException);
-            await expect(roomsController.hardDelete('2', header)).rejects.toThrow('Room does not exist.');
+            await expect(roomsController.hardDelete('2')).rejects.toThrow(NotFoundException);
+            await expect(roomsController.hardDelete('2')).rejects.toThrow('Room does not exist.');
         })
 
         it('should throw other error', async () => {
             const errorMock = new Error('Other error');
             (roomsService.hardDelete as jest.Mock).mockRejectedValue(errorMock);
       
-            await expect(roomsController.hardDelete('1', header)).rejects.toBe(errorMock);
+            await expect(roomsController.hardDelete('1')).rejects.toBe(errorMock);
         })
     })
 
@@ -145,10 +144,10 @@ describe('RoomsController UnitTest', () => {
                 return mockRooms.find(x => x.id === id && x.deletedAt === null);
             })
 
-            const result = await roomsController.softDelete("3fa85f64-5717-4562-b3fc-67y63f66afa6", header);
+            const result = await roomsController.softDelete("3fa85f64-5717-4562-b3fc-67y63f66afa6");
 
             expect(result).toEqual(mockRooms[0]);
-            expect(roomsService.softDelete).toHaveBeenCalledWith('3fa85f64-5717-4562-b3fc-67y63f66afa6', "fr");
+            expect(roomsService.softDelete).toHaveBeenCalledWith('3fa85f64-5717-4562-b3fc-67y63f66afa6');
         })
 
         it('should throw DoesRoomExist', async () => {
@@ -157,8 +156,8 @@ describe('RoomsController UnitTest', () => {
             jest.spyOn(errorMock, 'getMessage').mockReturnValue('Room does not exist.');
             (roomsService.softDelete as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(roomsController.softDelete('2', header)).rejects.toThrow(NotFoundException);
-            await expect(roomsController.softDelete('2', header)).rejects.toThrow('Room does not exist.');
+            await expect(roomsController.softDelete('2')).rejects.toThrow(NotFoundException);
+            await expect(roomsController.softDelete('2')).rejects.toThrow('Room does not exist.');
         })
 
         it('should throw Rooms is already soft-deleted.', async () => {
@@ -167,15 +166,15 @@ describe('RoomsController UnitTest', () => {
             jest.spyOn(errorMock, 'getMessage').mockReturnValue('Room is already block/soft-deleted.');
             (roomsService.softDelete as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(roomsController.softDelete('2', header)).rejects.toThrow(BadRequestException);
-            await expect(roomsController.softDelete('2', header)).rejects.toThrow('Room is already block/soft-deleted.');
+            await expect(roomsController.softDelete('2')).rejects.toThrow(BadRequestException);
+            await expect(roomsController.softDelete('2')).rejects.toThrow('Room is already block/soft-deleted.');
         })
 
         it('should throw other error', async () => {
             const errorMock = new Error('Other error');
             (roomsService.softDelete as jest.Mock).mockRejectedValue(errorMock);
       
-            await expect(roomsController.softDelete('1', header)).rejects.toBe(errorMock);
+            await expect(roomsController.softDelete('1')).rejects.toBe(errorMock);
         })
     })
 
@@ -185,10 +184,10 @@ describe('RoomsController UnitTest', () => {
                 return mockRooms.find(x => x.id === id && x.deletedAt !== null);
             })
 
-            const result = await roomsController.softUndelete("9gr95f64-5717-4562-b3fc-67y63f66afa6", header);
+            const result = await roomsController.softUndelete("9gr95f64-5717-4562-b3fc-67y63f66afa6");
 
             expect(result).toEqual(mockRooms[1]);
-            expect(roomsService.softUndelete).toHaveBeenCalledWith('9gr95f64-5717-4562-b3fc-67y63f66afa6', "fr");
+            expect(roomsService.softUndelete).toHaveBeenCalledWith('9gr95f64-5717-4562-b3fc-67y63f66afa6');
         })
 
         it('should throw DoesRoomExist', async () => {
@@ -197,8 +196,8 @@ describe('RoomsController UnitTest', () => {
             jest.spyOn(errorMock, 'getMessage').mockReturnValue('Room does not exist.');
             (roomsService.softUndelete as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(roomsController.softUndelete('2', header)).rejects.toThrow(NotFoundException);
-            await expect(roomsController.softUndelete('2', header)).rejects.toThrow('Room does not exist.');
+            await expect(roomsController.softUndelete('2')).rejects.toThrow(NotFoundException);
+            await expect(roomsController.softUndelete('2')).rejects.toThrow('Room does not exist.');
         })
 
         it('should throw Rooms is already soft-deleted.', async () => {
@@ -207,15 +206,15 @@ describe('RoomsController UnitTest', () => {
             jest.spyOn(errorMock, 'getMessage').mockReturnValue('Room is not soft deleted, therefore, it can not be undeleted.');
             (roomsService.softUndelete as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(roomsController.softUndelete('2', header)).rejects.toThrow(BadRequestException);
-            await expect(roomsController.softUndelete('2', header)).rejects.toThrow('Room is not soft deleted, therefore, it can not be undeleted.');
+            await expect(roomsController.softUndelete('2')).rejects.toThrow(BadRequestException);
+            await expect(roomsController.softUndelete('2')).rejects.toThrow('Room is not soft deleted, therefore, it can not be undeleted.');
         })
 
         it('should throw other error', async () => {
             const errorMock = new Error('Other error');
             (roomsService.softUndelete as jest.Mock).mockRejectedValue(errorMock);
       
-            await expect(roomsController.softUndelete('1', header)).rejects.toBe(errorMock);
+            await expect(roomsController.softUndelete('1')).rejects.toBe(errorMock);
         })
     })
 
@@ -230,10 +229,10 @@ describe('RoomsController UnitTest', () => {
         it('should return created room with no errors.', async () => {
             const expectedResult = { id: '7c495f64-5717-4562-b3fc-67y63f66afa1', ...newRoom };
             (roomsService.create as jest.Mock).mockResolvedValue(expectedResult);
-            const result = await roomsController.create(newRoom, header);
+            const result = await roomsController.create("", newRoom);
 
             expect(result).toEqual(expectedResult);
-            expect(roomsService.create).toHaveBeenCalledWith(newRoom, "fr");
+            expect(roomsService.create).toHaveBeenCalledWith("", newRoom);
         })
 
         it('should throw BadRequestException: Accommodation does not exist.', async () => {
@@ -243,8 +242,8 @@ describe('RoomsController UnitTest', () => {
 
             (roomsService.create as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(roomsController.create(newRoom, header)).rejects.toThrow(NotFoundException);
-            await expect(roomsController.create(newRoom, header)).rejects.toThrow("Accommodation does not exist.");
+            await expect(roomsController.create("", newRoom)).rejects.toThrow(AccommodationExceptions);
+            await expect(roomsController.create("", newRoom)).rejects.toThrow("Accommodation does not exist.");
         });
 
         it('should throw BadRequestException: Accommodation is blocked / soft deleted.', async () => {
@@ -254,8 +253,8 @@ describe('RoomsController UnitTest', () => {
 
             (roomsService.create as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(roomsController.create(newRoom, header)).rejects.toThrow(BadRequestException);
-            await expect(roomsController.create(newRoom, header)).rejects.toThrow("Accommodation is blocked/soft-deleted.");
+            await expect(roomsController.create("", newRoom)).rejects.toThrow(AccommodationExceptions);
+            await expect(roomsController.create("", newRoom)).rejects.toThrow("Accommodation is blocked/soft-deleted.");
         });
 
         it('should throw BadRequestException: Room with this label already exists.', async () => {
@@ -265,15 +264,15 @@ describe('RoomsController UnitTest', () => {
 
             (roomsService.create as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(roomsController.create(newRoom, header)).rejects.toThrow(BadRequestException);
-            await expect(roomsController.create(newRoom, header)).rejects.toThrow("Room with this label already exists in this accommodation.");
+            await expect(roomsController.create("", newRoom)).rejects.toThrow(RoomExceptions);
+            await expect(roomsController.create("", newRoom)).rejects.toThrow("Room with this label already exists in this accommodation.");
         })
 
         it('should throw other errors', async () => {
             const errorMock = new Error('Other error');
             (roomsService.create as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(roomsController.create(newRoom, header)).rejects.toBe(errorMock);
+            await expect(roomsController.create("", newRoom)).rejects.toBe(errorMock);
         });
     })
 
@@ -290,10 +289,10 @@ describe('RoomsController UnitTest', () => {
         it('should return created room with no errors.', async () => {
             const expectedResult = { id: '3fa85f64-5717-4562-b3fc-67y63f66afa6', ...updateExistingRoom };
             (roomsService.update as jest.Mock).mockResolvedValue(expectedResult);
-            const result = await roomsController.update(roomId, updateExistingRoom, header);
+            const result = await roomsController.update(roomId, updateExistingRoom);
 
             expect(result).toEqual(expectedResult);
-            expect(roomsService.update).toHaveBeenCalledWith(roomId, updateExistingRoom, "fr");
+            expect(roomsService.update).toHaveBeenCalledWith(roomId, updateExistingRoom);
         })
 
         it('should throw BadRequestException: Room does not exist.', async () => {
@@ -303,8 +302,8 @@ describe('RoomsController UnitTest', () => {
 
             (roomsService.update as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(roomsController.update(roomId, updateExistingRoom, header)).rejects.toThrow(NotFoundException);
-            await expect(roomsController.update(roomId, updateExistingRoom, header)).rejects.toThrow("Room does not exist");
+            await expect(roomsController.update(roomId, updateExistingRoom)).rejects.toThrow(NotFoundException);
+            await expect(roomsController.update(roomId, updateExistingRoom)).rejects.toThrow("Room does not exist");
         });
 
         it('should throw BadRequestException: Room is blocked / soft deleted.', async () => {
@@ -314,8 +313,8 @@ describe('RoomsController UnitTest', () => {
 
             (roomsService.update as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(roomsController.update(roomId, updateExistingRoom, header)).rejects.toThrow(BadRequestException);
-            await expect(roomsController.update(roomId, updateExistingRoom, header)).rejects.toThrow("Room is already block/soft-deleted.");
+            await expect(roomsController.update(roomId, updateExistingRoom)).rejects.toThrow(BadRequestException);
+            await expect(roomsController.update(roomId, updateExistingRoom)).rejects.toThrow("Room is already block/soft-deleted.");
         });
 
         it('should throw BadRequestException: Room with this label already exists.', async () => {
@@ -325,15 +324,15 @@ describe('RoomsController UnitTest', () => {
 
             (roomsService.update as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(roomsController.update(roomId, updateExistingRoom, header)).rejects.toThrow(BadRequestException);
-            await expect(roomsController.update(roomId, updateExistingRoom, header)).rejects.toThrow("Room with this label already exists. ");
+            await expect(roomsController.update(roomId, updateExistingRoom)).rejects.toThrow(BadRequestException);
+            await expect(roomsController.update(roomId, updateExistingRoom)).rejects.toThrow("Room with this label already exists. ");
         })
 
         it('should throw other errors', async () => {
             const errorMock = new Error('Other error');
             (roomsService.update as jest.Mock).mockRejectedValue(errorMock);
 
-            await expect(roomsController.update(roomId, updateExistingRoom, header)).rejects.toBe(errorMock);
+            await expect(roomsController.update(roomId, updateExistingRoom)).rejects.toBe(errorMock);
         });
     })
 })
