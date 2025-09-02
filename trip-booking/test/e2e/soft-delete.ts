@@ -15,7 +15,7 @@ export async function SoftDelete_ReturnTRUE(
     jest.spyOn(mockedService, `${methodName}`).mockResolvedValue(mockedEntity);
 
     const res = await request(app.getHttpServer())
-        .delete(`${route}${mockedEntity.id}`);
+        .patch(`${route}${mockedEntity.id}`);
     
     expect(res.status).toBe(200);
     expect(res.body).toEqual(mockedEntity);
@@ -33,7 +33,7 @@ export async function SoftDelete_ReturnError404(
     });
 
     const response = await request(app.getHttpServer())
-        .delete(`${route}not-existing-id`);
+        .patch(`${route}not-existing-id`);
 
     expect(response.status).toBe(404);
     expect(response.body.message).toBe(`${error.getMessage()}`);
@@ -52,7 +52,7 @@ export async function SoftDelete_ReturnError403(
     });
 
     const response = await request(app.getHttpServer())
-        .delete(`${route}${mockedEntity.id}`);
+        .patch(`${route}${mockedEntity.id}`);
 
     expect(response.status).toBe(HttpStatus.FORBIDDEN);
     expect(response.body.message).toBe(`${error.getMessage()}`);
