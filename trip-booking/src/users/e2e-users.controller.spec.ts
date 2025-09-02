@@ -18,7 +18,7 @@ import { Role } from "src/auth/enums/role.enum";
 import { GetAll_ReturnTRUE, GetAll_ThrowError500 } from "../../test/e2e.get-all-instances";
 import { AppRoutes } from "../routes/app.routes";
 import { GetById_ReturnError404, GetById_ReturnTRUE, GetById_ThrowError500 } from "../../test/e2e/get-by-id";
-import { HardDelete_ReturnError404, hardDelete_ThrowError500 } from "../../test/e2e/hard-delete";
+import { HardDelete_ReturnError403, HardDelete_ReturnError404, HardDelete_ReturnTRUE, hardDelete_ThrowError500 } from "../../test/e2e/hard-delete";
 
 jest.setTimeout(15000);
 describe('UsersController (e2e)', () => {
@@ -201,14 +201,8 @@ describe('UsersController (e2e)', () => {
           deletedAt: null,
         };
 
-        jest.spyOn(mockedUsersService, 'hardDelete').mockResolvedValue(user);
-
-        const response = await request(app.getHttpServer())
-          .delete(`/users/hard-delete/${user.id}`);
-
-        expect(response.status).toBe(200);
-        expect(response.body).toEqual(user);
-      }, 10000);
+        await HardDelete_ReturnTRUE(app, AppRoutes.BasicUsersRoute + AppRoutes.HardDeleteRoute.split(":")[0], mockedUsersService, 'hardDelete', user);
+      });
 
       it('DELETE /users/hard-delete/:id - throw UserDoesNotExist', async () => {
         const error = new UsersExceptions("", UsersExceptionStatusType.UserDoesNotExist);
@@ -216,16 +210,6 @@ describe('UsersController (e2e)', () => {
         jest.spyOn(error, 'getMessage').mockReturnValue('User does not exist.');
 
         await HardDelete_ReturnError404(app, AppRoutes.BasicUsersRoute + AppRoutes.HardDeleteRoute.split(":")[0], mockedUsersService, 'hardDelete', error);
-
-        // jest.spyOn(mockedUsersService, 'hardDelete').mockImplementation(() => {
-        //     throw error;
-        // });
-
-        // const response = await request(app.getHttpServer())
-        //   .delete('/users/hard-delete/some-invalid-id');
-
-        // expect(response.status).toBe(404);
-        // expect(response.body.message).toBe('User does not exist.');
       })
 
       it('DELETE /users/hard-delete/:id - throw AdminCanNotBeDeleted', async () => {
@@ -245,16 +229,7 @@ describe('UsersController (e2e)', () => {
         jest.spyOn(error, 'CanAdministratorBeDeleted').mockReturnValue(true);
         jest.spyOn(error, 'getMessage').mockReturnValue('Administrator can\'t be deleted!');
 
-        jest.spyOn(mockedUsersService, 'hardDelete').mockImplementation(() => {
-          throw new AuthExceptions("Administrator can't be deleted!", AuthExceptionStatusType.AdministratorCanNotBeDeleted, HttpStatus.FORBIDDEN);
-        });
-
-        const response = await request(app.getHttpServer())
-          .delete(`/users/hard-delete/${user.id}`);
-
-
-        expect(response.status).toBe(403);
-        expect(response.body.message).toBe('Administrator can\'t be deleted!')
+        await HardDelete_ReturnError403(app, AppRoutes.BasicUsersRoute + AppRoutes.HardDeleteRoute.split(":")[0], mockedUsersService, 'hardDelete', user, error);
       })
 
       it('DELETE /users/hard-delete/:id - should return 500 on unexpected error', async () => {

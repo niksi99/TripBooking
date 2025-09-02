@@ -1,10 +1,25 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { App } from 'supertest/types';
 
+export async function HardDelete_ReturnTRUE(
+    app: INestApplication<App>,
+    route: string,
+    mockedService: any,
+    methodName: string,
+    mockedEntity: any,
+) {
+    jest.spyOn(mockedService, `${methodName}`).mockResolvedValue(mockedEntity);
+
+    const res = await request(app.getHttpServer())
+        .delete(`${route}${mockedEntity.id}`);
+    
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual(mockedEntity);
+}
 
 export async function HardDelete_ReturnError404(
     app: INestApplication<App>,
@@ -21,6 +36,25 @@ export async function HardDelete_ReturnError404(
         .delete(`${route}not-existing-id`);
 
     expect(response.status).toBe(404);
+    expect(response.body.message).toBe(`${error.getMessage()}`);
+}
+
+export async function HardDelete_ReturnError403(
+    app: INestApplication<App>,
+    route: string,
+    mockedService: any,
+    methodName: string,
+    mockedEntity: any,
+    error: any,
+) {
+    jest.spyOn(mockedService, `${methodName}`).mockImplementation(() => {
+         throw error;
+    });
+
+    const response = await request(app.getHttpServer())
+        .delete(`${route}${mockedEntity.id}`);
+
+    expect(response.status).toBe(HttpStatus.FORBIDDEN);
     expect(response.body.message).toBe(`${error.getMessage()}`);
 }
 
