@@ -39,7 +39,7 @@ export async function SoftDelete_ReturnError404(
     expect(response.body.message).toBe(`${error.getMessage()}`);
 }
 
-export async function SoftDelete_ReturnError403(
+export async function SoftDelete_ReturnError400(
     app: INestApplication<App>,
     route: string,
     mockedService: any,
@@ -54,7 +54,7 @@ export async function SoftDelete_ReturnError403(
     const response = await request(app.getHttpServer())
         .patch(`${route}${mockedEntity.id}`);
 
-    expect(response.status).toBe(HttpStatus.FORBIDDEN);
+    expect(response.status).toBe(HttpStatus.BAD_REQUEST);
     expect(response.body.message).toBe(`${error.getMessage()}`);
 }
 

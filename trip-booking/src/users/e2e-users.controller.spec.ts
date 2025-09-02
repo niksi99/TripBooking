@@ -19,7 +19,7 @@ import { GetAll_ReturnTRUE, GetAll_ThrowError500 } from "../../test/e2e.get-all-
 import { AppRoutes } from "../routes/app.routes";
 import { GetById_ReturnError404, GetById_ReturnTRUE, GetById_ThrowError500 } from "../../test/e2e/get-by-id";
 import { HardDelete_ReturnError403, HardDelete_ReturnError404, HardDelete_ReturnTRUE, hardDelete_ThrowError500 } from "../../test/e2e/hard-delete";
-import { SoftDelete_ReturnTRUE, SoftDelete_ThrowError500 } from "../../test/e2e/soft-delete";
+import { SoftDelete_ReturnError400, SoftDelete_ReturnError404, SoftDelete_ReturnTRUE, SoftDelete_ThrowError500 } from "../../test/e2e/soft-delete";
 
 jest.setTimeout(15000);
 describe('UsersController (e2e)', () => {
@@ -260,15 +260,7 @@ describe('UsersController (e2e)', () => {
         jest.spyOn(error, 'IsUserExisting').mockReturnValue(true);
         jest.spyOn(error, 'getMessage').mockReturnValue('User does not exist.');
 
-        jest.spyOn(mockedUsersService, 'softDelete').mockImplementation(() => {
-            throw error;
-        });
-
-        const response = await request(app.getHttpServer())
-          .patch('/users/soft-delete/some-invalid-id');
-
-        expect(response.status).toBe(404);
-        expect(response.body.message).toBe('User does not exist.');
+        await SoftDelete_ReturnError404(app, AppRoutes.BasicUsersRoute + AppRoutes.SoftDeleteRoute.split(":")[0], mockedUsersService, 'softDelete', error);
       })
 
       it('DELETE /users/soft-delete/:id - throw User is already soft deleted.', async () => {
@@ -288,16 +280,7 @@ describe('UsersController (e2e)', () => {
         jest.spyOn(error, 'IsUserSoftDeleted').mockReturnValue(true);
         jest.spyOn(error, 'getMessage').mockReturnValue('User is already soft deleted.');
 
-        jest.spyOn(mockedUsersService, 'softDelete').mockImplementation(() => {
-          throw new AuthExceptions("User is already soft deleted.", AuthExceptionStatusType.AdministratorCanNotBeDeleted, HttpStatus.FORBIDDEN);
-        });
-
-        const response = await request(app.getHttpServer())
-          .patch(`/users/soft-delete/${user.id}`);
-
-
-        expect(response.status).toBe(403);
-        expect(response.body.message).toBe('User is already soft deleted.')
+        await SoftDelete_ReturnError400(app, AppRoutes.BasicUsersRoute + AppRoutes.SoftDeleteRoute.split(":")[0], mockedUsersService, 'softDelete', user, error);
       })
 
       it('DELETE /users/soft-delete/:id - should return 500 on unexpected error', async () => {
