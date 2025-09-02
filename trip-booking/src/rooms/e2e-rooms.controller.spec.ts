@@ -16,6 +16,7 @@ import { AccommodationExceptionsStatusType } from "../exceptions-handling/except
 import { AppRoutes } from "src/routes/app.routes";
 import { GetAll_ReturnTRUE, GetAll_ThrowError500 } from "../../test/e2e.get-all-instances";
 import { GetById_ReturnError404, GetById_ReturnTRUE, GetById_ThrowError500 } from "../../test/e2e/get-by-id";
+import { HardDelete_ReturnError404, HardDelete_ReturnTRUE, hardDelete_ThrowError500 } from "../../test/e2e/hard-delete";
 
 jest.setTimeout(15000);
 describe('Rooms Controller e2e', () => {
@@ -138,43 +139,19 @@ describe('Rooms Controller e2e', () => {
             accommodationId: "7a495f64-5717-4562-b3fc-67y63f66afa8"
             };
 
-        jest.spyOn(mockedRoomSelvice, 'hardDelete').mockResolvedValue(room);
-
-        const response = await request(app.getHttpServer())
-            .delete(`/rooms/hard-delete/${room.id}`);
-    
-            expect(response.status).toBe(200);
-            expect(response.body).toEqual(room);
-        }, 10000);
+        await HardDelete_ReturnTRUE(app, AppRoutes.BasicRoomsRoute + AppRoutes.HardDeleteRoute.split(":")[0], mockedRoomSelvice, 'hardDelete', room);
+        });
 
         it('DELETE /rooms/hard-delete/:id - thorw RoomDoeNotExist', async () => {
             const error = new RoomExceptions("", RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
             jest.spyOn(error, 'DoesRoomExist').mockReturnValue(true);
             jest.spyOn(error, 'getMessage').mockReturnValue('Room not found');
 
-            jest.spyOn(mockedRoomSelvice, 'hardDelete').mockImplementation(() => {
-                throw error;
-            });
-
-            const response = await request(app.getHttpServer())
-                .delete('/rooms/hard-delete/some-invalid-id');
-
-            expect(response.status).toBe(404);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            expect(response.body.message).toBe('Room not found');
+            await HardDelete_ReturnError404(app, AppRoutes.BasicRoomsRoute + AppRoutes.HardDeleteRoute.split(":")[0], mockedRoomSelvice, 'hardDelete', error);
         })
 
         it('DELETE /rooms/hard-delete/:id - should return 500 on unexpected error', async () => {
-            jest.spyOn(mockedRoomSelvice, 'hardDelete').mockImplementation(() => {
-              throw new Error('Unexpected error');
-            });
-          
-            const response = await request(app.getHttpServer())
-              .delete('/rooms/hard-delete/some-invalid-id');
-          
-            expect(response.status).toBe(500);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            expect(response.body.message).toBe('Internal server error'); // or your global exception message
+            await hardDelete_ThrowError500(app, AppRoutes.BasicRoomsRoute + AppRoutes.HardDeleteRoute.split(":")[0], mockedRoomSelvice, 'hardDelete');
           });
     })
 
