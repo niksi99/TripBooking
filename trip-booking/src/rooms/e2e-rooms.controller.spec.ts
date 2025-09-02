@@ -15,6 +15,7 @@ import { AccommodationExceptions } from "../exceptions-handling/exceptions/accom
 import { AccommodationExceptionsStatusType } from "../exceptions-handling/exceptions-status-type/accommodation.exceptions";
 import { AppRoutes } from "src/routes/app.routes";
 import { GetAll_ReturnTRUE, GetAll_ThrowError500 } from "../../test/e2e.get-all-instances";
+import { GetById_ReturnTRUE, GetById_ThrowError500 } from "../../test/e2e/get-by-id";
 
 jest.setTimeout(15000);
 describe('Rooms Controller e2e', () => {
@@ -96,24 +97,18 @@ describe('Rooms Controller e2e', () => {
 
     describe("GET a room", () => {
         it('GET /room - should return a room', async () => {
-        const room = {
-            id: "3fa85f64-5717-4562-b3fc-67y63f66afa6",
-            label: "Моја соба.",
-            numberOfBeds: 4,
-            numberOfBookedBeds: 2,
-            floor: 1,
-            accommodation: null,
-            deletedAt: null,
-            accommodationId: "7a495f64-5717-4562-b3fc-67y63f66afa8"
+            const room = {
+                id: "3fa85f64-5717-4562-b3fc-67y63f66afa6",
+                label: "Моја соба.",
+                numberOfBeds: 4,
+                numberOfBookedBeds: 2,
+                floor: 1,
+                accommodation: null,
+                deletedAt: null,
+                accommodationId: "7a495f64-5717-4562-b3fc-67y63f66afa8"
             };
 
-        jest.spyOn(mockedRoomSelvice, 'findOne').mockResolvedValue(room);
-
-        const response = await request(app.getHttpServer())
-            .get(`/rooms/${room.id}`);
-    
-            expect(response.status).toBe(200);
-            expect(response.body).toEqual(room);
+            await GetById_ReturnTRUE(app, AppRoutes.BasicRoomsRoute, mockedRoomSelvice, 'findOne', room);
         }, 10000);
 
         it('GET /rooms/:id - thorw RoomDoeNotExist', async () => {
@@ -145,6 +140,10 @@ describe('Rooms Controller e2e', () => {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             expect(response.body.message).toBe('Internal server error'); // or your global exception message
           });
+          
+        it('GET /rooms/:id - should return 500 on unexpected error', async () => {
+            await GetById_ThrowError500(app, AppRoutes.BasicRoomsRoute, mockedRoomSelvice, 'findOne');
+        });
     })
 
     describe("Hard delete a room", () => {
