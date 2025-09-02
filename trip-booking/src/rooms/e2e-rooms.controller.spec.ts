@@ -113,25 +113,12 @@ describe('Rooms Controller e2e', () => {
 
         it('GET /rooms/:id - thorw RoomDoeNotExist', async () => {
             const error = new RoomExceptions("", RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
-            
+
             jest.spyOn(error, 'DoesRoomExist').mockReturnValue(true);
             jest.spyOn(error, 'getMessage').mockReturnValue('Room not found');
 
             await GetById_ReturnError404(app, AppRoutes.BasicRoomsRoute, mockedRoomSelvice, 'findOne', error);
         })
-
-        it('GET /rooms/:id - should return 500 on unexpected error', async () => {
-            jest.spyOn(mockedRoomSelvice, 'findOne').mockImplementation(() => {
-              throw new Error('Unexpected error');
-            });
-          
-            const response = await request(app.getHttpServer())
-              .get('/rooms/some-invalid-id');
-          
-            expect(response.status).toBe(500);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            expect(response.body.message).toBe('Internal server error'); // or your global exception message
-          });
           
         it('GET /rooms/:id - should return 500 on unexpected error', async () => {
             await GetById_ThrowError500(app, AppRoutes.BasicRoomsRoute, mockedRoomSelvice, 'findOne');

@@ -17,7 +17,7 @@ import { AuthExceptionStatusType } from "src/exceptions-handling/exceptions-stat
 import { Role } from "src/auth/enums/role.enum";
 import { GetAll_ReturnTRUE, GetAll_ThrowError500 } from "../../test/e2e.get-all-instances";
 import { AppRoutes } from "../routes/app.routes";
-import { GetById_ReturnTRUE, GetById_ThrowError500 } from "../../test/e2e/get-by-id";
+import { GetById_ReturnError404, GetById_ReturnTRUE, GetById_ThrowError500 } from "../../test/e2e/get-by-id";
 
 jest.setTimeout(15000);
 describe('UsersController (e2e)', () => {
@@ -178,15 +178,7 @@ describe('UsersController (e2e)', () => {
           jest.spyOn(error, 'IsUserExisting').mockReturnValue(true);
           jest.spyOn(error, 'getMessage').mockReturnValue('User does not exist.');
 
-          jest.spyOn(mockedUsersService, 'findOne').mockImplementation(() => {
-              throw error;
-          });
-
-          const response = await request(app.getHttpServer())
-              .get('/users/some-invalid-id');
-
-          expect(response.status).toBe(404);
-          expect(response.body.message).toBe('User does not exist.');
+          await GetById_ReturnError404(app, AppRoutes.BasicUsersRoute, mockedUsersService, 'findOne', error);
       })
 
       it('GET /rooms/:id - should return 500 on unexpected error', async () => {
