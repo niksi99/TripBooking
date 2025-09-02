@@ -20,7 +20,7 @@ import { AppRoutes } from "../routes/app.routes";
 import { GetById_ReturnError404, GetById_ReturnTRUE, GetById_ThrowError500 } from "../../test/e2e/get-by-id";
 import { HardDelete_ReturnError403, HardDelete_ReturnError404, HardDelete_ReturnTRUE, hardDelete_ThrowError500 } from "../../test/e2e/hard-delete";
 import { SoftDelete_ReturnError400, SoftDelete_ReturnError404, SoftDelete_ReturnTRUE, SoftDelete_ThrowError500 } from "../../test/e2e/soft-delete";
-import { SoftUndelete_ThrowError500 } from "../../test/e2e/soft-undelete";
+import { SoftUndelete_ReturnTRUE, SoftUndelete_ThrowError500 } from "../../test/e2e/soft-undelete";
 
 jest.setTimeout(15000);
 describe('UsersController (e2e)', () => {
@@ -303,14 +303,8 @@ describe('UsersController (e2e)', () => {
           deletedAt: true,
         };
 
-        jest.spyOn(mockedUsersService, 'softUndelete').mockResolvedValue(user);
-
-        const response = await request(app.getHttpServer())
-          .patch(`/users/soft-undelete/${user.id}`);
-
-        expect(response.status).toBe(200);
-        expect(response.body).toEqual(user);
-      }, 10000);
+        await SoftUndelete_ReturnTRUE(app, AppRoutes.BasicUsersRoute + AppRoutes.SoftUndeleteRoute.split(":")[0], mockedUsersService, 'softUndelete', user);
+      });
 
       it('DELETE /users/soft-undelete/:id - throw UserDoesNotExist', async () => {
         const error = new UsersExceptions("", UsersExceptionStatusType.UserDoesNotExist);
