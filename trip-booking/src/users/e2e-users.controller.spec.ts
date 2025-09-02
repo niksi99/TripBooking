@@ -19,6 +19,7 @@ import { GetAll_ReturnTRUE, GetAll_ThrowError500 } from "../../test/e2e.get-all-
 import { AppRoutes } from "../routes/app.routes";
 import { GetById_ReturnError404, GetById_ReturnTRUE, GetById_ThrowError500 } from "../../test/e2e/get-by-id";
 import { HardDelete_ReturnError403, HardDelete_ReturnError404, HardDelete_ReturnTRUE, hardDelete_ThrowError500 } from "../../test/e2e/hard-delete";
+import { SoftDelete_ThrowError500 } from "../../test/e2e/soft-delete";
 
 jest.setTimeout(15000);
 describe('UsersController (e2e)', () => {
@@ -306,15 +307,16 @@ describe('UsersController (e2e)', () => {
       })
 
       it('DELETE /users/soft-delete/:id - should return 500 on unexpected error', async () => {
-        jest.spyOn(mockedUsersService, 'softDelete').mockImplementation(() => {
-          throw new Error('Unexpected error');
-        });
+         await SoftDelete_ThrowError500(app, AppRoutes.BasicUsersRoute + AppRoutes.SoftDeleteRoute.split(":")[0], mockedUsersService, 'softDelete');
+        // jest.spyOn(mockedUsersService, 'softDelete').mockImplementation(() => {
+        //   throw new Error('Unexpected error');
+        // });
       
-        const response = await request(app.getHttpServer())
-          .patch('/users/soft-delete/some-invalid-id');
+        // const response = await request(app.getHttpServer())
+        //   .patch('/users/soft-delete/some-invalid-id');
       
-        expect(response.status).toBe(500);
-        expect(response.body.message).toBe('Internal server error');
+        // expect(response.status).toBe(500);
+        // expect(response.body.message).toBe('Internal server error');
       });
     })
 
