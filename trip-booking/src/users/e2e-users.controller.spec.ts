@@ -21,6 +21,7 @@ import { GetById_ReturnError404, GetById_ReturnTRUE, GetById_ThrowError500 } fro
 import { HardDelete_ReturnError403, HardDelete_ReturnError404, HardDelete_ReturnTRUE, hardDelete_ThrowError500 } from "../../test/e2e/hard-delete";
 import { SoftDelete_ReturnError400, SoftDelete_ReturnError404, SoftDelete_ReturnTRUE, SoftDelete_ThrowError500 } from "../../test/e2e/soft-delete";
 import { SoftUndelete_ReturnError400, SoftUndelete_ReturnTRUE, SoftUndelete_ThrowError500 } from "../../test/e2e/soft-undelete";
+import { Create_ThrowError500 } from "../../test/e2e/create";
 
 jest.setTimeout(15000);
 describe('UsersController (e2e)', () => {
@@ -412,15 +413,7 @@ describe('UsersController (e2e)', () => {
       })
 
       it("POST /uers  should return 500 or unexpected error", async () => {
-          jest.spyOn(mockedUsersService, "create").mockImplementation(() => {
-              throw new Error('Unexpected error');
-          })
-
-          const response = await request(app.getHttpServer())
-              .post(`/users/create`);
-          
-          expect(response.status).toBe(500);
-          expect(response.body.message).toBe('Internal server error'); // or your global exception message
+        await Create_ThrowError500(app, AppRoutes.BasicUsersRoute + AppRoutes.CreateRoute, mockedUsersService, 'create');
       })
     })
 
