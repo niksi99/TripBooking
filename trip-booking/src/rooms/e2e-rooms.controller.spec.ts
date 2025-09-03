@@ -17,6 +17,7 @@ import { AppRoutes } from "src/routes/app.routes";
 import { GetAll_ReturnTRUE, GetAll_ThrowError500 } from "../../test/e2e.get-all-instances";
 import { GetById_ReturnError404, GetById_ReturnTRUE, GetById_ThrowError500 } from "../../test/e2e/get-by-id";
 import { HardDelete_ReturnError404, HardDelete_ReturnTRUE, hardDelete_ThrowError500 } from "../../test/e2e/hard-delete";
+import { SoftUndelete_ReturnTRUE, SoftUndelete_ThrowError500 } from "../../test/e2e/soft-undelete";
 
 jest.setTimeout(15000);
 describe('Rooms Controller e2e', () => {
@@ -249,14 +250,8 @@ describe('Rooms Controller e2e', () => {
             accommodationId: "7a495f64-5717-4562-b3fc-67y63f66afa8"
             };
 
-        jest.spyOn(mockedRoomSelvice, 'softUndelete').mockResolvedValue(room);
-
-        const response = await request(app.getHttpServer())
-            .patch(`/rooms/soft-undelete/${room.id}`);
-
-            expect(response.status).toBe(200);
-            expect(response.body).toEqual(room);
-        }, 10000);
+        await SoftUndelete_ReturnTRUE(app, AppRoutes.BasicRoomsRoute + AppRoutes.SoftUndeleteRoute.split(":")[0], mockedRoomSelvice, 'softUndelete', room);
+        });
 
         it('PATCH /rooms/soft-undelete/:id - thorw RoomDoeNotExist', async () => {
             const error = new RoomExceptions("", RoomExceptionsStatusType.RoomDoesNotExist, HttpStatus.NOT_FOUND);
@@ -304,16 +299,7 @@ describe('Rooms Controller e2e', () => {
         })
 
         it('PATCH /rooms/soft-undelete/:id - should return 500 on unexpected error', async () => {
-            jest.spyOn(mockedRoomSelvice, 'softUndelete').mockImplementation(() => {
-              throw new Error('Unexpected error');
-            });
-          
-            const response = await request(app.getHttpServer())
-              .patch('/rooms/soft-undelete/some-invalid-id');
-          
-            expect(response.status).toBe(500);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            expect(response.body.message).toBe('Internal server error'); // or your global exception message
+            await SoftUndelete_ThrowError500(app, AppRoutes.BasicRoomsRoute + AppRoutes.SoftUndeleteRoute.split(":")[0], mockedRoomSelvice, 'softUndelete');
           });
     })
 
