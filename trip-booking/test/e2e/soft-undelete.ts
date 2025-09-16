@@ -48,12 +48,13 @@ export async function SoftUndelete_ReturnError400(
     error: any,
 ) {
     jest.spyOn(mockedService, `${methodName}`).mockImplementation(() => {
-         throw error;
+        throw error;
     });
 
     const response = await request(app.getHttpServer())
         .patch(`${route}${mockedEntity.id}`);
 
+    console.log("resFG: ", response.request.url, response.status);
     expect(response.status).toBe(HttpStatus.BAD_REQUEST);
     expect(response.body.message).toBe(`${error.getMessage()}`);
 }

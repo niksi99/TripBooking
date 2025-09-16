@@ -5,6 +5,8 @@ import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
 import { AuthExceptionsFilter } from './exceptions-handling/exceptions-filters/auth.exceptions.filter';
+import { LoggerService } from './logger/service/LoggerService';
+import { LoggerInterceptor } from './logger/interceptor/LoggerInterceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,6 +20,10 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new AuthExceptionsFilter());
+
+  const logger = app.get(LoggerService);
+
+  app.useGlobalInterceptors(new LoggerInterceptor(logger));
   await app.listen(process.env.BACKEND_PORT ?? 1111);
 }
 bootstrap();

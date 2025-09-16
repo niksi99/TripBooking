@@ -17,7 +17,7 @@ import { AppRoutes } from "src/routes/app.routes";
 import { GetAll_ReturnTRUE, GetAll_ThrowError500 } from "../../test/e2e.get-all-instances";
 import { GetById_ReturnError404, GetById_ReturnTRUE, GetById_ThrowError500 } from "../../test/e2e/get-by-id";
 import { HardDelete_ReturnError404, HardDelete_ReturnTRUE, hardDelete_ThrowError500 } from "../../test/e2e/hard-delete";
-import { SoftUndelete_ReturnTRUE, SoftUndelete_ThrowError500 } from "../../test/e2e/soft-undelete";
+import { SoftUndelete_ReturnError400, SoftUndelete_ReturnError404, SoftUndelete_ReturnTRUE, SoftUndelete_ThrowError500 } from "../../test/e2e/soft-undelete";
 
 jest.setTimeout(15000);
 describe('Rooms Controller e2e', () => {
@@ -258,16 +258,7 @@ describe('Rooms Controller e2e', () => {
             jest.spyOn(error, 'DoesRoomExist').mockReturnValue(true);
             jest.spyOn(error, 'getMessage').mockReturnValue('Room not found');
 
-            jest.spyOn(mockedRoomSelvice, 'softUndelete').mockImplementation(() => {
-                throw error;
-            });
-
-            const response = await request(app.getHttpServer())
-                .patch('/rooms/soft-undelete/some-invalid-id');
-
-            expect(response.status).toBe(404);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            expect(response.body.message).toBe('Room not found');
+            await SoftUndelete_ReturnError404(app, AppRoutes.BasicRoomsRoute + AppRoutes.SoftUndeleteRoute.split(":")[0], mockedRoomSelvice, 'softUndelete', error);
         })
 
         it('PATCH /rooms/soft-undelete/:id - thorw RoomIsNotBlocked_SoftDeleted', async () => {
@@ -286,16 +277,7 @@ describe('Rooms Controller e2e', () => {
             jest.spyOn(error, 'IsRoomBlocked').mockReturnValue(true);
             jest.spyOn(error, 'getMessage').mockReturnValue('Room is not soft deleted, therefore, it can not be undeleted.');
 
-            jest.spyOn(mockedRoomSelvice, 'softUndelete').mockImplementation(() => {
-                throw error;
-            });
-
-            const response = await request(app.getHttpServer())
-                .patch(`/rooms/soft-undelete/${room.id}`);
-
-            expect(response.status).toBe(400);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            expect(response.body.message).toBe('Room is not soft deleted, therefore, it can not be undeleted.');
+            await SoftUndelete_ReturnError400(app, AppRoutes.BasicRoomsRoute + AppRoutes.SoftDeleteRoute.split(":")[0], mockedRoomSelvice, 'softUndelete', room, error);       
         })
 
         it('PATCH /rooms/soft-undelete/:id - should return 500 on unexpected error', async () => {
