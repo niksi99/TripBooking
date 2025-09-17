@@ -14,7 +14,7 @@ private strategies: ILoggerStrategy[];
   }
 
   log(message: string, context?: string) {
-    this.strategies.forEach((strategy) => strategy.log(message, context));
+    this.strategies.forEach((strategy) => strategy.log(`CORRECT: ${message}`, context));
   }
 
   error(message: string, context?: string) {

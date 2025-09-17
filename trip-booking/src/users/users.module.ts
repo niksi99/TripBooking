@@ -9,6 +9,7 @@ import { DataSource } from 'typeorm';
 import { Accommodation } from 'src/accommodations/entities/accommodation.entity';
 import { AccommodationRepository } from 'src/repositories/AccommodationRepository';
 import { ContextModule } from 'src/local-storage-service/local.storage.module';
+import { LoggerService } from 'src/logger/service/LoggerService';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { ContextModule } from 'src/local-storage-service/local.storage.module';
   ],
   controllers: [UsersController],
   providers: [
-    UsersService, ContextModule, AccommodationRepository,
+    UsersService, ContextModule, AccommodationRepository, LoggerService,
     {
       provide: UserRepository, 
       useFactory: (dataSource: DataSource) => {

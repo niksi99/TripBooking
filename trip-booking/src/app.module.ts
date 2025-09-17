@@ -12,6 +12,7 @@ import { AuthMiddleware } from './middlewares/auth.middleware';
 import { I18nConfigModule } from './i18n/I18nConfigModule';
 import { LocalizationMiddleware } from './middlewares/localization.middleware';
 import { ContextModule } from './local-storage-service/local.storage.module';
+import { LoggerService } from './logger/service/LoggerService';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { ContextModule } from './local-storage-service/local.storage.module';
     DatabaseModule, UsersModule, AuthModule, AccommodationsModule, RoomsModule, I18nConfigModule, ContextModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, LoggerService],
 })
 
 export class AppModule implements NestModule{

@@ -6,16 +6,24 @@
 
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from "@nestjs/common";
 import { UsersExceptions } from "../exceptions/users.exceptions";
+import { LoggerService } from "src/logger/service/LoggerService";
 
 @Catch(UsersExceptions)
 export class UsersExceptionsFilter implements ExceptionFilter
 {
+    constructor(private readonly logger: LoggerService) {}
+    
     catch(exception: UsersExceptions, host: ArgumentsHost) {
         const context = host.switchToHttp();
         const response = context.getResponse();
         const request = context.getRequest();
 
-        console.log("From user exceptons filter: ", exception.getMessage(), exception);
+        //console.log("From user exceptons filter: ", exception.getMessage(), exception);
+
+        this.logger.error(
+            `From UsersExceptionsFilter: ${exception.getMessage()}`,
+            'UsersExceptionsFilter'
+        );
 
         if(exception instanceof UsersExceptions)
         {

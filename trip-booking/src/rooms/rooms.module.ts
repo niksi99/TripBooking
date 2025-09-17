@@ -10,12 +10,13 @@ import { Accommodation } from 'src/accommodations/entities/accommodation.entity'
 import { UserRepository } from 'src/repositories/UserRepository';
 import { User } from 'src/users/entities/user.entity';
 import { ContextModule } from 'src/local-storage-service/local.storage.module';
+import { LoggerService } from 'src/logger/service/LoggerService';
 
 @Module({
   imports: [
       TypeOrmModule.forFeature([Room, Accommodation, User]),
     ],
   controllers: [RoomsController],
-  providers: [RoomsService, RoomRepository, AccommodationRepository, UserRepository, ContextModule],
+  providers: [RoomsService, RoomRepository, AccommodationRepository, UserRepository, ContextModule, LoggerService],
 })
 export class RoomsModule {}

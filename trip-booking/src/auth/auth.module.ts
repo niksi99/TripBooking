@@ -13,6 +13,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthHelper } from 'src/helpers/auth.helper';
 import { UsersModule } from 'src/users/users.module';
 import { ContextModule } from 'src/local-storage-service/local.storage.module';
+import { LoggerService } from 'src/logger/service/LoggerService';
 
 @Module({
   imports: [
@@ -22,6 +23,6 @@ import { ContextModule } from 'src/local-storage-service/local.storage.module';
     UsersModule
   ],
   controllers: [AuthController],
-  providers: [AuthService, UserRepository, UsersService, JwtStragy, AuthHelper, ContextModule],
+  providers: [AuthService, UserRepository, UsersService, JwtStragy, AuthHelper, ContextModule, LoggerService],
 })
 export class AuthModule {}
