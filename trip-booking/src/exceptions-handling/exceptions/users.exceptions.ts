@@ -58,4 +58,12 @@ export class UsersExceptions extends HttpException {
     public IsUserAnOwnerOfSelectedAccommodation_RoomCreation(): boolean {
         return this.statusType === UsersExceptionStatusType.UserIsNotAccommodationOwnerOfSelectedAccommodation_RoomCreation
     }
+
+    public IsUserAlreadyVerified(): boolean {
+        return this.statusType === UsersExceptionStatusType.UserIsAlreadyVerified
+    }
+
+    public IsUserVerified(): boolean {
+        return this.statusType === UsersExceptionStatusType.UserIsNotVerified
+    }
 }

@@ -14,7 +14,6 @@ import { AccommodationRepository } from 'src/repositories/AccommodationRepositor
 import { RequestLocalStorageService } from 'src/local-storage-service/request.local.storage.service';
 import { OtpService } from 'src/otp/otp.service';
 import { OTPType } from 'src/otp/types/otp.type';
-import { SendEmailDTO } from 'src/email/dto/send-email.dto';
 import { EmailService } from 'src/email/email.service';
 
 
@@ -48,19 +47,7 @@ export class UsersService {
     Object.assign(user, createUserDto);
 
     await this.userRepository.manager.save(User, user);
-    const otp = await this.otpService.generateOTP(user, OTPType.OTP)
-
-    console.log("NEW USER: ", user)
-    console.log("\n")
-    console.log("NEW OTP: ", otp)
-    const sendEmailDTO:SendEmailDTO = {
-      recipients: [user.email],
-      subject: "OTP for user verification!",
-      html: `Your OTP code is: <strong> ${otp.otp}</strong>. <br />
-          Provide this otp value to verify your account.`
-    };
-
-    return await this.emailService.sendEmail(sendEmailDTO)
+    return this.emailService.emailVerification(user, OTPType.OTP);
   }
 
   async findAll() {
@@ -70,6 +57,18 @@ export class UsersService {
   async findOne(id: string) {
     const lang = this.requestLocalStorageService.get<string>('locale_lang');
     const myUser = await this.userRepository.getUserById(id);
+    if(!myUser)
+      throw new UsersExceptions(
+        await this.i18n_translations.t(`exceptions.user.USER_DOES_NOT_EXIST`, { lang: lang }),
+        UsersExceptionStatusType.UserDoesNotExist
+      );
+
+    return myUser; 
+  }
+
+  async findOneByEmail(email: string) {
+    const lang = this.requestLocalStorageService.get<string>('locale_lang');
+    const myUser = await this.userRepository.getUserByEmail(email);
     if(!myUser)
       throw new UsersExceptions(
         await this.i18n_translations.t(`exceptions.user.USER_DOES_NOT_EXIST`, { lang: lang }),

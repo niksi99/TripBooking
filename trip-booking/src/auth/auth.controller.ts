@@ -9,6 +9,7 @@ import { AppRoutes } from 'src/routes/app.routes';
 import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
 import { AuthExceptionsFilter } from 'src/exceptions-handling/exceptions-filters/auth.exceptions.filter';
 import { UsersExceptionsFilter } from 'src/exceptions-handling/exceptions-filters/users.exceptions.filter';
+import { VerifyUserDTO } from './dto/verify-user.dto';
 
 @Controller(AppRoutes.BasicAuthRoute)
 export class AuthController {
@@ -42,5 +43,13 @@ export class AuthController {
   logout(@Res({ passthrough: true }) response: Response) {
     response.clearCookie('access_token');
     return { message: 'Logged out' };
+  }
+
+  @Post("/verify-user")
+  async verifyUser(@Body() dto:VerifyUserDTO) {
+    const { email, otpToken } = dto;
+    console.log(email, " ^ ", otpToken, "\n")
+    const verification = await this.authService.verifyOTPToken(email, otpToken);
+    return verification;
   }
 }

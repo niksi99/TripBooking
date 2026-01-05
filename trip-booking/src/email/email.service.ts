@@ -7,11 +7,15 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { SendEmailDTO } from './dto/send-email.dto';
+import { User } from 'src/users/entities/user.entity';
+import { OTPType } from 'src/otp/types/otp.type';
+import { OtpService } from 'src/otp/otp.service';
 
 @Injectable()
 export class EmailService {
     constructor(
-        private readonly configService: ConfigService
+        private readonly configService: ConfigService,
+        private readonly otpService: OtpService
     ) {}
 
     emailTransportConfiguration() {
@@ -48,4 +52,20 @@ export class EmailService {
       console.log('Error sending mail: ', error);
     }
     }
+
+    async emailVerification(user: User, otpType: OTPType) {
+    const token = await this.otpService.generateOTP(user, otpType);
+
+    if (otpType === OTPType.OTP) {
+      const emailDto = {
+        recipients: [user.email],
+        subject: 'OTP for verification',
+        html: `Your otp code is: <strong>${token.otp}</strong>.
+      <br />Provide this otp to verify your account`,
+      };
+
+      //send otp via email
+      return await this.sendEmail(emailDto);
+    } 
+  }
 }

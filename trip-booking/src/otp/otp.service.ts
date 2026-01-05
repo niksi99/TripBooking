@@ -5,10 +5,10 @@
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OTP } from './entities/otp.entity';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { OTPType } from './types/otp.type';
 
@@ -26,20 +26,54 @@ export class OtpService {
         const now = new Date();
         const expiresAt = new Date(now.getTime() + 5 * 60 * 1000);
 
-        console.log(otp, " PFKL Expires at", expiresAt);
-        console.log("\n\n");
+        const existingOTP = await this.otpRepository.findOne({
+            where: {
+                user: {email: user.email},
+                type
+            }
+        });
 
-        const newOTP = this.otpRepository.create({
-            user,
-            token: hashedOTP,
-            type,
-            expiresAt
-        })
+        if(existingOTP)
+        {
+            existingOTP.token = hashedOTP;
+            existingOTP.expiresAt = expiresAt
 
-        await this.otpRepository.save(newOTP);
+            await this.otpRepository.save(existingOTP);
+        }
+        else {
+            const newOTP = this.otpRepository.create({
+                user,
+                token: hashedOTP,
+                type,
+                expiresAt
+            })
+            
+            await this.otpRepository.save(newOTP);
+        }
         return {
             user,
             otp
         };
+    }
+
+    async validateOTPToken(userEmail: string, otpToken: string) {
+        const validOTPToken = await this.otpRepository.findOne({
+            where: {
+                user: {email : userEmail},
+                expiresAt: MoreThan(new Date())
+            }
+        })
+
+        console.log("valid otp token ", validOTPToken);
+        console.log("otp token ", otpToken);
+        console.log("\n");
+        if(!validOTPToken)
+            throw new BadRequestException("OTP Token has already expired. Request a new one.");
+
+        const areMatching = await bcrypt.compare(otpToken, validOTPToken.token)
+        if(!areMatching)
+            throw new BadRequestException("You did not provided valid OTP token")
+
+        return true;
     }
 }

@@ -12,5 +12,7 @@ export enum UsersExceptionStatusType {
     UserIsNotAccommodationOwner,
     UserIsNotPassenger,
     UserIsAdministrator,
-    UserIsNotAccommodationOwnerOfSelectedAccommodation_RoomCreation
+    UserIsNotAccommodationOwnerOfSelectedAccommodation_RoomCreation,
+    UserIsAlreadyVerified,
+    UserIsNotVerified
 }

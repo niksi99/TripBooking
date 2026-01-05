@@ -10,6 +10,8 @@ import { AuthExceptions } from 'src/exceptions-handling/exceptions/auth.exceptio
 import { AuthExceptionStatusType } from 'src/exceptions-handling/exceptions-status-type/auth.exceptions.status.types';
 import { AuthHelper } from 'src/helpers/auth.helper';
 import { I18nService } from 'nestjs-i18n';
+import { OtpService } from 'src/otp/otp.service';
+import { RequestLocalStorageService } from 'src/local-storage-service/request.local.storage.service';
 
 @Injectable()
 export class AuthService {
@@ -17,8 +19,10 @@ export class AuthService {
     constructor(
         private userRepository: UserRepository,
         private jwtService: JwtService,
+        private otpService: OtpService,
         private myAuthHelper: AuthHelper,
-        private readonly i18n_translations: I18nService
+        private readonly i18n_translations: I18nService,
+        private readonly requestLocalStorageService: RequestLocalStorageService
     ) {}
 
     async login(loginDto: LoginDto, lang: string) {
@@ -50,5 +54,28 @@ export class AuthService {
         }
         console.log("currentUser", currentUser);
         return currentUser;
+    }
+
+    async verifyOTPToken(email: string, otpToken: string) {
+        const lang = this.requestLocalStorageService.get<string>('locale_lang');
+        await this.otpService.validateOTPToken(email, otpToken)
+
+        const userToVerify = await this.userRepository.getUserByEmail(email);
+        if(!userToVerify)
+            throw new UsersExceptions(
+                await this.i18n_translations.t(`exceptions.user.USER_DOES_NOT_EXIST`, { lang: lang }),
+                UsersExceptionStatusType.UserDoesNotExist
+            );
+        
+        if(userToVerify.accountStatus === 'verified')
+            throw new UsersExceptions(
+                await this.i18n_translations.t(`exceptions.user.USER_Is_ALREADY_VERIFIED`, { lang: lang }),
+                UsersExceptionStatusType.UserIsAlreadyVerified
+            );
+
+        userToVerify.accountStatus = 'verified'
+        await this.userRepository.save(userToVerify);
+
+        return userToVerify;
     }
 }
