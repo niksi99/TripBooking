@@ -10,10 +10,15 @@ import { Accommodation } from 'src/accommodations/entities/accommodation.entity'
 import { AccommodationRepository } from 'src/repositories/AccommodationRepository';
 import { ContextModule } from 'src/local-storage-service/local.storage.module';
 import { LoggerService } from 'src/logger/service/LoggerService';
+import { OTP } from 'src/otp/entities/otp.entity';
+import { OtpModule } from 'src/otp/otp.module';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Accommodation]),
+    TypeOrmModule.forFeature([User, Accommodation, OTP]),
+    OtpModule,
+    EmailModule
   ],
   controllers: [UsersController],
   providers: [

@@ -14,13 +14,17 @@ import { AuthHelper } from 'src/helpers/auth.helper';
 import { UsersModule } from 'src/users/users.module';
 import { ContextModule } from 'src/local-storage-service/local.storage.module';
 import { LoggerService } from 'src/logger/service/LoggerService';
+import { OtpModule } from 'src/otp/otp.module';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     JwtModule.registerAsync(jwtConfig.asProvider()),
     ConfigModule.forFeature(jwtConfig),
-    UsersModule
+    UsersModule,
+    OtpModule,
+    EmailModule
   ],
   controllers: [AuthController],
   providers: [AuthService, UserRepository, UsersService, JwtStragy, AuthHelper, ContextModule, LoggerService],

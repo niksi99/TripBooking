@@ -34,6 +34,9 @@ export class User extends AbstactEntity<User>{
     @Column({ unique: true })
     email: string;
 
+    @Column({ default: 'unverified' })
+    accountStatus: 'unverified' | 'verified';
+
     @IsNotEmpty({ message: 'Password is required.' })
     @MinLength(8, { message: 'Password must be at least 8 characters long.' })
     // @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/, {

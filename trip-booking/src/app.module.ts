@@ -13,6 +13,11 @@ import { I18nConfigModule } from './i18n/I18nConfigModule';
 import { LocalizationMiddleware } from './middlewares/localization.middleware';
 import { ContextModule } from './local-storage-service/local.storage.module';
 import { LoggerService } from './logger/service/LoggerService';
+import { EmailController } from './email/email.controller';
+import { EmailService } from './email/email.service';
+import { EmailModule } from './email/email.module';
+import { OtpController } from './otp/otp.controller';
+import { OtpModule } from './otp/otp.module';
 
 @Module({
   imports: [
@@ -20,10 +25,10 @@ import { LoggerService } from './logger/service/LoggerService';
       isGlobal: true,
       envFilePath: '.env',
     }), 
-    DatabaseModule, UsersModule, AuthModule, AccommodationsModule, RoomsModule, I18nConfigModule, ContextModule
+    DatabaseModule, UsersModule, AuthModule, AccommodationsModule, RoomsModule, I18nConfigModule, ContextModule, EmailModule, OtpModule
   ],
-  controllers: [AppController],
-  providers: [AppService, LoggerService],
+  controllers: [AppController, EmailController, OtpController],
+  providers: [AppService, LoggerService, EmailService],
 })
 
 export class AppModule implements NestModule{

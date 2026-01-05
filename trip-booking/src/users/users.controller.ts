@@ -19,6 +19,7 @@ export class UsersController {
   @Post(AppRoutes.CreateRoute)
   @UseFilters(UsersExceptionsFilter)
   async create(@Body() createUserDto: CreateUserDto) {
+    console.log(createUserDto)
     return await this.usersService.create(createUserDto);
   }
 

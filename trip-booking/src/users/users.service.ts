@@ -12,12 +12,18 @@ import { AuthExceptions } from 'src/exceptions-handling/exceptions/auth.exceptio
 import { I18nService } from 'nestjs-i18n';
 import { AccommodationRepository } from 'src/repositories/AccommodationRepository';
 import { RequestLocalStorageService } from 'src/local-storage-service/request.local.storage.service';
+import { OtpService } from 'src/otp/otp.service';
+import { OTPType } from 'src/otp/types/otp.type';
+import { SendEmailDTO } from 'src/email/dto/send-email.dto';
+import { EmailService } from 'src/email/email.service';
 
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly userRepository: UserRepository,
+    private readonly otpService: OtpService,
+    private readonly emailService: EmailService,
     private readonly accommodationRepository: AccommodationRepository,
     private readonly i18n_translations: I18nService,
     private readonly requestLocalStorageService: RequestLocalStorageService
@@ -40,7 +46,21 @@ export class UsersService {
 
     const user = new User({});
     Object.assign(user, createUserDto);
-    return this.userRepository.manager.save(User, user);
+
+    await this.userRepository.manager.save(User, user);
+    const otp = await this.otpService.generateOTP(user, OTPType.OTP)
+
+    console.log("NEW USER: ", user)
+    console.log("\n")
+    console.log("NEW OTP: ", otp)
+    const sendEmailDTO:SendEmailDTO = {
+      recipients: [user.email],
+      subject: "OTP for user verification!",
+      html: `Your OTP code is: <strong> ${otp.otp}</strong>. <br />
+          Provide this otp value to verify your account.`
+    };
+
+    return await this.emailService.sendEmail(sendEmailDTO)
   }
 
   async findAll() {
